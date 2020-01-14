@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+
+<GridPane alignment="center" hgap="10" prefHeight="720" prefWidth="1280"
+          vgap="10" xmlns="http://javafx.com/javafx/8"
+          xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.controller.StartController">
+   <columnConstraints>
+      <ColumnConstraints/>
+      <ColumnConstraints/>
+      <ColumnConstraints/>
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints/>
+      <RowConstraints/>
+   </rowConstraints>
+   <Button fx:id="loadFileBtn" mnemonicParsing="false" onAction="#loadFile" text="Load file" GridPane.columnIndex="2"/>
+   <Button fx:id="goToPieChartBtn" mnemonicParsing="false" onAction="#goToPieChart" text="PieChart"
+           GridPane.columnIndex="1"/>
+   <Button fx:id="goToMonthOverviewBtn" mnemonicParsing="false" onAction="#goToMonthOverview" text="Month-Overview"
+           textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+</GridPane>
