@@ -74,7 +74,7 @@ public abstract class Utility {
             @Override
             public String toString(Number number) {
                 Instant instant = Instant.ofEpochMilli(number.longValue());
-                SimpleDateFormat sDF = new SimpleDateFormat("dd.MM.yy");
+                SimpleDateFormat sDF = new SimpleDateFormat("dd.MM");
                 Date date = Date.from(instant);
                 return sDF.format(date);
             }

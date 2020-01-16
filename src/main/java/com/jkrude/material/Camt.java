@@ -94,45 +94,43 @@ public class Camt {
   }
 
 
+  public boolean firstEntryIsFirstDate(){
+    return transferDate.get(0).compareTo(transferDate.get(transferDate.size() - 1)) < 0;
+  }
+
   private void generateLineChart() {
     lineChartData = new ArrayList<>();
     assert (amount.size() == transferDate.size());
-        /*  <
-        currIdx = 0
-        currDate = transferDate.getFirst()
-        go through transferDate with index i
-            if same date
-                add amount.get(i) to lineChartData at current currIdx
-            else
-                currIdx++
-         */
-    Date currDate = transferDate.get(0);
-    Money currAmount = new Money();
-
-    if(transferDate.get(0).compareTo(transferDate.get(transferDate.size() - 1)) > 0){
+    int start;
+    int x;
+    int finished;
+    // Is the first entry after the last date?
+    if(firstEntryIsFirstDate()){
       // reverse traversing
-      for(int i = transferDate.size(); i-- > 0;){
-        genLineChartLoopLogic(i,currDate,currAmount);
-      }
+      start = transferDate.size()-1;
+      x = -1;
+      finished = -1;
     } else {
       // normal traversing
-      for (int i = 0; i < transferDate.size(); i++) {
-        genLineChartLoopLogic(i, currDate, currAmount);
+      start = 0;
+      x = 1;
+      finished = transferDate.size();
+    }
+
+    Date currDate = transferDate.get(start);
+    Money currAmount = new Money();
+    for (int i = start; i != finished; i += x) {
+      Date dateInLoop = transferDate.get(i);
+      if(!dateInLoop.equals(currDate)){
+        //int currDateInteger = Utility.mapDateToInteger(currDate.toString());
+        long instant = currDate.toInstant().toEpochMilli();
+        lineChartData.add(new XYChart.Data<>(instant,currAmount.getValue()));
+        currDate = dateInLoop;
       }
+      currAmount.add(amount.get(i));
     }
     long instant = currDate.toInstant().toEpochMilli();
     lineChartData.add(new XYChart.Data<>(instant, currAmount.getValue()));
-  }
-
-  private void genLineChartLoopLogic(int i, Date currDate, Money currAmount){
-    Date dateInLoop = transferDate.get(i);
-    if(!dateInLoop.equals(currDate)){
-      //int currDateInteger = Utility.mapDateToInteger(currDate.toString());
-      long instant = currDate.toInstant().toEpochMilli();
-      lineChartData.add(new XYChart.Data<>(instant,currAmount.getValue()));
-      currDate = dateInLoop;
-    }
-    currAmount.add(amount.get(i));
   }
 
   public void csvFileParser(Scanner sc) {

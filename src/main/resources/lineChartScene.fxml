@@ -8,7 +8,7 @@
             fx:controller="com.jkrude.controller.LineChartController">
    <children>
        <LineChart fx:id="lineChart" createSymbols="false" layoutX="248.0" layoutY="45.0"
-                  minHeight="-Infinity" minWidth="-Infinity" prefHeight="630.0" prefWidth="784.0">
+                  minHeight="-Infinity" minWidth="-Infinity" prefHeight="720" prefWidth="1280">
          <xAxis>
              <NumberAxis side="BOTTOM" />
          </xAxis>

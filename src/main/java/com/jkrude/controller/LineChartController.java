@@ -1,5 +1,6 @@
 package com.jkrude.controller;
 
+import com.jkrude.material.TestData;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -20,8 +21,14 @@ public class LineChartController extends AbstractController implements Initializ
         Camt camt = model.getCamtList().get(0);
         NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
         xAxis.setAutoRanging(false);
-        xAxis.setUpperBound(camt.getLineChartData().get(0).getXValue().doubleValue());
-        xAxis.setLowerBound(camt.getLineChartData().get(camt.getLineChartData().size()-1).getXValue().doubleValue());
+        //    xAxis.setLowerBound(camt.getLineChartData().get(0).getXValue().longValue());
+        //    xAxis.setUpperBound(
+        //        camt.getLineChartData().get(camt.getLineChartData().size() - 1).getXValue()
+        //            .longValue());
+            xAxis.setUpperBound(camt.getLineChartData().get(0).getXValue().longValue());
+            xAxis.setLowerBound(
+                camt.getLineChartData().get(camt.getLineChartData().size() - 1).getXValue()
+                    .longValue());
         xAxis.setTickUnit(86400000);
         xAxis.setTickLabelFormatter(Utility.convertFromInstant());
 
