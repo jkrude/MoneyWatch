@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.TreeMap;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
 
 public class Camt {
 
@@ -97,6 +99,7 @@ public class Camt {
   public Camt(Scanner sc) {
     this();
     this.csvFileParser(sc);
+    this.generateDateMap();
   }
 
 
@@ -105,6 +108,7 @@ public class Camt {
   }
 
   private void generateLineChart() {
+    /*
     lineChartData = new ArrayList<>();
     assert (amount.size() == transferDate.size());
     int start;
@@ -137,6 +141,18 @@ public class Camt {
     }
     long instant = currDate.toInstant().toEpochMilli();
     lineChartData.add(new XYChart.Data<>(instant, currAmount.getValue()));
+     */
+    lineChartData = new ArrayList<>();
+    Set<Date> set = dateMap.keySet();
+    Money currAmount = new Money(0);
+    List<DataPoint> arr;
+
+    for (Date d : set) {
+      for (DataPoint dataPoint : dateMap.get(d)) {
+        currAmount.add(dataPoint.amount);
+      }
+      lineChartData.add(new Data<>(d.toInstant().toEpochMilli(), currAmount.getValue()));
+    }
   }
 
   private void generateDateMap() {
@@ -213,51 +229,39 @@ public class Camt {
           break;
         case 2:
           transferValidation.add(line);
-          currDataPoint.setTransferValidation(line);
           break;
         case 3:
           transferSpecification.add(line);
-          currDataPoint.setTransferSpecification(line);
           break;
         case 4:
           usage.add(line);
-          currDataPoint.setUsage(line);
           break;
         case 5:
           creditorId.add(line);
-          currDataPoint.setCreditorId(line);
           break;
         case 6:
           mandateReference.add(line);
-          currDataPoint.setMandateReference(line);
           break;
         case 7:
           customerReference.add(line);
-          currDataPoint.setCustomerReference(line);
           break;
         case 8:
           collectorReference.add(line);
-          currDataPoint.setCollectorReference(line);
           break;
         case 9:
           debitOriginalAmount.add(line);
-          currDataPoint.setDebitOriginalAmount(line);
           break;
         case 10:
           backDebit.add(line);
-          currDataPoint.setBackDebit(line);
           break;
         case 11:
           receiverOrPayer.add(line);
-          currDataPoint.setReceiverOrPayer(line);
           break;
         case 12:
           iban.add(line);
-          currDataPoint.setIban(line);
           break;
         case 13:
           bic.add(line);
-          currDataPoint.setBic(line);
           break;
         case 14:
           currAmount = new Money(line.replace(",", "."));
@@ -265,7 +269,6 @@ public class Camt {
         case 15:
           if (line.equals(Money.EURO.toString())) {
             amount.add(currAmount);
-            currDataPoint.setAmount(currAmount);
           } else {
             AlertBox.display("Import Error",
                 "Currently not supporting other Currency's than EURO");
@@ -273,10 +276,8 @@ public class Camt {
           break;
         case 16:
           info.add(line);
-          currDataPoint.setInfo(line);
           break;
       }
-      //TODO dateMap.put(currDate,currDataPoint);
       column++;
       column %= 17;
     }

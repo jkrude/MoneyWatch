@@ -48,10 +48,10 @@ public class StartController extends AbstractController {
           file = new File(resource.getFile());
       }
 
-    Camt camt = new Camt();
+    Camt camt;
     try {
       Scanner sc = new Scanner(file, StandardCharsets.ISO_8859_1);
-      camt.csvFileParser(sc);
+      camt = new Camt(sc);
       model.getCamtList().add(camt);
       sc.close();
 

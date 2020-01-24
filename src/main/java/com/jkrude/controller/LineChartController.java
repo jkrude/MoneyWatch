@@ -19,14 +19,10 @@ public class LineChartController extends AbstractController implements Initializ
     Camt camt = model.getCamtList().get(0);
     NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
     xAxis.setAutoRanging(false);
-    //    xAxis.setLowerBound(camt.getLineChartData().get(0).getXValue().longValue());
-    //    xAxis.setUpperBound(
-    //        camt.getLineChartData().get(camt.getLineChartData().size() - 1).getXValue()
-    //            .longValue());
-    xAxis.setUpperBound(camt.getLineChartData().get(0).getXValue().longValue());
-    xAxis.setLowerBound(
-        camt.getLineChartData().get(camt.getLineChartData().size() - 1).getXValue()
-            .longValue());
+        xAxis.setLowerBound(camt.getLineChartData().get(0).getXValue().longValue());
+        xAxis.setUpperBound(
+            camt.getLineChartData().get(camt.getLineChartData().size() - 1).getXValue()
+                .longValue());
     xAxis.setTickUnit(86400000);
     xAxis.setTickLabelFormatter(Utility.convertFromInstant());
 
