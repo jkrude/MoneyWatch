@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javafx.scene.chart.XYChart;
 
 public class Camt {
@@ -27,6 +29,8 @@ public class Camt {
   private List<String> bic;
   private List<Money> amount;
   private List<String> info;
+
+  private TreeMap<Date,List<DataPoint>> dateMap;
 
   private List<XYChart.Data<Number, Number>> lineChartData;
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
@@ -50,6 +54,8 @@ public class Camt {
     this.bic = new ArrayList<>();
     this.amount = new ArrayList<>();
     this.info = new ArrayList<>();
+
+    this.dateMap = new TreeMap<>();
   }
 
   public Camt(
@@ -85,6 +91,9 @@ public class Camt {
     this.bic = bic;
     this.amount = amount;
     this.info = info;
+
+    this.dateMap = new TreeMap<>();
+    generateDateMap();
 
   }
 
@@ -133,6 +142,47 @@ public class Camt {
     lineChartData.add(new XYChart.Data<>(instant, currAmount.getValue()));
   }
 
+  private void generateDateMap(){
+
+    Date currDate = transferDate.get(0);
+    List<DataPoint> list = new ArrayList<>();
+    /*
+    for loop adds list from i-1 if new date occurs
+    after for loop checks where to put last list
+     */
+    for (int i = 0; i < transferDate.size(); i++) {
+      DataPoint dataPoint = new DataPoint();
+      dataPoint.setContractAccount(contractAccount.get(i));
+      dataPoint.setTransferValidation(transferValidation.get(i));
+      dataPoint.setTransferSpecification(transferSpecification.get(i));
+      dataPoint.setUsage(usage.get(i));
+      dataPoint.setCreditorId(creditorId.get(i));
+      dataPoint.setMandateReference(mandateReference.get(i));
+      dataPoint.setCustomerReference(customerReference.get(i));
+      dataPoint.setCollectorReference(collectorReference.get(i));
+      dataPoint.setDebitOriginalAmount(debitOriginalAmount.get(i));
+      dataPoint.setBackDebit(backDebit.get(i));
+      dataPoint.setReceiverOrPayer(receiverOrPayer.get(i));
+      dataPoint.setIban(iban.get(i));
+      dataPoint.setBic(bic.get(i));
+      dataPoint.setAmount(amount.get(i));
+      dataPoint.setInfo(info.get(i));
+      // date != dates[i-1] -> save list (with entries from i-1)
+      if(!currDate.equals(transferDate.get(i))){
+        dateMap.put(currDate,list);
+        list = new ArrayList<>();
+        currDate = transferDate.get(i);
+      }
+      list.add(dataPoint);
+    }
+    // Check where to put last generated list (DataPoints)
+    if(currDate.equals(transferDate.get(transferDate.size()-1))){
+      dateMap.put(currDate,list);
+    }else{
+      dateMap.get(currDate).addAll(list);
+    }
+  }
+
   public void csvFileParser(Scanner sc) {
     if (sc == null) {
       throw new NullPointerException();
@@ -146,11 +196,13 @@ public class Camt {
 
     Money currAmount = null;
     Date currDate = null;
+    DataPoint currDataPoint = new DataPoint();
     while (sc.hasNext()) {
       line = sc.next().replaceAll("\"", "");
       switch (column) {
         case 0:
           contractAccount.add(line);
+          currDataPoint.setContractAccount(line);
           break;
         case 1:
           try {
@@ -164,39 +216,51 @@ public class Camt {
           break;
         case 2:
           transferValidation.add(line);
+          currDataPoint.setTransferValidation(line);
           break;
         case 3:
           transferSpecification.add(line);
+          currDataPoint.setTransferSpecification(line);
           break;
         case 4:
           usage.add(line);
+          currDataPoint.setUsage(line);
           break;
         case 5:
           creditorId.add(line);
+          currDataPoint.setCreditorId(line);
           break;
         case 6:
           mandateReference.add(line);
+          currDataPoint.setMandateReference(line);
           break;
         case 7:
           customerReference.add(line);
+          currDataPoint.setCustomerReference(line);
           break;
         case 8:
           collectorReference.add(line);
+          currDataPoint.setCollectorReference(line);
           break;
         case 9:
           debitOriginalAmount.add(line);
+          currDataPoint.setDebitOriginalAmount(line);
           break;
         case 10:
           backDebit.add(line);
+          currDataPoint.setBackDebit(line);
           break;
         case 11:
           receiverOrPayer.add(line);
+          currDataPoint.setReceiverOrPayer(line);
           break;
         case 12:
           iban.add(line);
+          currDataPoint.setIban(line);
           break;
         case 13:
           bic.add(line);
+          currDataPoint.setBic(line);
           break;
         case 14:
           currAmount = new Money(line.replace(",", "."));
@@ -204,6 +268,7 @@ public class Camt {
         case 15:
           if (line.equals(Money.EURO.toString())) {
             amount.add(currAmount);
+            currDataPoint.setAmount(currAmount);
           } else {
             AlertBox.display("Import Error",
                 "Currently not supporting other Currency's than EURO");
@@ -211,8 +276,10 @@ public class Camt {
           break;
         case 16:
           info.add(line);
+          currDataPoint.setInfo(line);
           break;
       }
+      //TODO dateMap.put(currDate,currDataPoint);
       column++;
       column %= 17;
     }
@@ -223,6 +290,10 @@ public class Camt {
       generateLineChart();
     }
     return lineChartData;
+  }
+
+  public TreeMap<Date, List<DataPoint>> getDateMap(){
+    return dateMap;
   }
 
   public List<Date> getTransferDate() {
@@ -288,4 +359,83 @@ public class Camt {
   public List<String> getInfo() {
     return info;
   }
+
+  protected class DataPoint{
+    private String contractAccount;
+    private String transferValidation;
+    private String transferSpecification;
+    private String usage;
+    private String creditorId;
+    private String mandateReference;
+    private String customerReference;
+    private String collectorReference;
+    private String debitOriginalAmount;
+    private String backDebit;
+    private String receiverOrPayer;
+    private String iban;
+    private String bic;
+    private Money amount;
+    private String info;
+
+    public void setContractAccount(String contractAccount) {
+      this.contractAccount = contractAccount;
+    }
+
+    public void setTransferValidation(String transferValidation) {
+      this.transferValidation = transferValidation;
+    }
+
+    public void setTransferSpecification(String transferSpecification) {
+      this.transferSpecification = transferSpecification;
+    }
+
+    public void setUsage(String usage) {
+      this.usage = usage;
+    }
+
+    public void setCreditorId(String creditorId) {
+      this.creditorId = creditorId;
+    }
+
+    public void setMandateReference(String mandateReference) {
+      this.mandateReference = mandateReference;
+    }
+
+    public void setCustomerReference(String customerReference) {
+      this.customerReference = customerReference;
+    }
+
+    public void setCollectorReference(String collectorReference) {
+      this.collectorReference = collectorReference;
+    }
+
+    public void setDebitOriginalAmount(String debitOriginalAmount) {
+      this.debitOriginalAmount = debitOriginalAmount;
+    }
+
+    public void setBackDebit(String backDebit) {
+      this.backDebit = backDebit;
+    }
+
+    public void setReceiverOrPayer(String receiverOrPayer) {
+      this.receiverOrPayer = receiverOrPayer;
+    }
+
+    public void setIban(String iban) {
+      this.iban = iban;
+    }
+
+    public void setBic(String bic) {
+      this.bic = bic;
+    }
+
+    public void setAmount(Money amount) {
+      this.amount = amount;
+    }
+
+    public void setInfo(String info) {
+      this.info = info;
+    }
+  }
+
 }
