@@ -2,6 +2,7 @@ package com.jkrude.material;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -34,4 +35,13 @@ public class AlertBox {
     window.showAndWait();
   }
 
+  public static void showAlert(String title, String header, String msg,Alert.AlertType type){
+    Alert alert = new Alert(type);
+    alert.setTitle(title);
+    if(header!=null){
+      alert.setHeaderText(header);
+    }
+    alert.setContentText(msg);
+    alert.showAndWait();
+  }
 }
