@@ -2,6 +2,7 @@ package com.jkrude.material;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -102,7 +103,6 @@ public class Camt {
     this.generateDateMap();
   }
 
-
   public boolean firstEntryIsFirstDate() {
     return transferDate.get(0).compareTo(transferDate.get(transferDate.size() - 1)) < 0;
   }
@@ -145,7 +145,6 @@ public class Camt {
     lineChartData = new ArrayList<>();
     Set<Date> set = dateMap.keySet();
     Money currAmount = new Money(0);
-    List<DataPoint> arr;
 
     for (Date d : set) {
       for (DataPoint dataPoint : dateMap.get(d)) {
@@ -153,6 +152,16 @@ public class Camt {
       }
       lineChartData.add(new Data<>(d.toInstant().toEpochMilli(), currAmount.getValue()));
     }
+  }
+
+  // TODO
+  public List<DataPoint> getDPsForChartData(XYChart.Data<Number,Number> xyData){
+    for (Date date : dateMap.keySet()) {
+      if(date.toInstant().toEpochMilli() ==xyData.getXValue().longValue()){
+        return dateMap.get(date);
+      }
+    }
+    return null;
   }
 
   private void generateDateMap() {
@@ -358,7 +367,7 @@ public class Camt {
     return info;
   }
 
-  protected static class DataPoint {
+  public static class DataPoint {
 
     private String contractAccount;
     private String transferValidation;
@@ -375,6 +384,66 @@ public class Camt {
     private String bic;
     private Money amount;
     private String info;
+
+    public String getContractAccount() {
+      return contractAccount;
+    }
+
+    public String getTransferValidation() {
+      return transferValidation;
+    }
+
+    public String getTransferSpecification() {
+      return transferSpecification;
+    }
+
+    public String getUsage() {
+      return usage;
+    }
+
+    public String getCreditorId() {
+      return creditorId;
+    }
+
+    public String getMandateReference() {
+      return mandateReference;
+    }
+
+    public String getCustomerReference() {
+      return customerReference;
+    }
+
+    public String getCollectorReference() {
+      return collectorReference;
+    }
+
+    public String getDebitOriginalAmount() {
+      return debitOriginalAmount;
+    }
+
+    public String getBackDebit() {
+      return backDebit;
+    }
+
+    public String getReceiverOrPayer() {
+      return receiverOrPayer;
+    }
+
+    public String getIban() {
+      return iban;
+    }
+
+    public String getBic() {
+      return bic;
+    }
+
+    public Money getAmount() {
+      return amount;
+    }
+
+    public String getInfo() {
+      return info;
+    }
 
     public void setContractAccount(String contractAccount) {
       this.contractAccount = contractAccount;
