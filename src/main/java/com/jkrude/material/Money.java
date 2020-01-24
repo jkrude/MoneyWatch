@@ -16,44 +16,47 @@ public class Money {
    * Constructors.
    */
 
-  public Money(){
+  public Money() {
     this.currency = EURO;
     this.value = scaleToTwo(new BigDecimal(0));
   }
 
-  public Money(String curr, int val){
+  public Money(String curr, int val) {
     this.currency = Currency.getInstance(curr);
     this.value = scaleToTwo(new BigDecimal(val));
   }
-  public Money(double val){
+
+  public Money(double val) {
     this.currency = EURO;
     this.value = scaleToTwo(new BigDecimal(val));
   }
 
-  public Money(String curr, BigDecimal bigDec){
+  public Money(String curr, BigDecimal bigDec) {
     this.currency = Currency.getInstance(curr);
     this.value = scaleToTwo(bigDec);
   }
 
-  public Money(int val){
+  public Money(int val) {
     this.currency = EURO;
     this.value = scaleToTwo(new BigDecimal(val));
   }
 
-  public Money(Currency curr, BigDecimal bigDec){
+  public Money(Currency curr, BigDecimal bigDec) {
     this(bigDec);
     this.value = scaleToTwo(bigDec);
   }
-  public Money(BigDecimal bigDecimal){
+
+  public Money(BigDecimal bigDecimal) {
     this.currency = EURO;
     this.value = scaleToTwo(bigDecimal);
   }
 
-  public Money(Currency currency, String val){
+  public Money(Currency currency, String val) {
     this(val);
     this.currency = currency;
   }
-  public Money(String val){
+
+  public Money(String val) {
     this.currency = EURO;
     this.value = scaleToTwo(new BigDecimal(val));
   }
@@ -91,7 +94,7 @@ public class Money {
   /*
    * Static functions.
    */
-  private static BigDecimal scaleToTwo(BigDecimal bigDecimal){
+  private static BigDecimal scaleToTwo(BigDecimal bigDecimal) {
     return bigDecimal.setScale(2, RoundingMode.HALF_UP);
   }
 
@@ -99,34 +102,35 @@ public class Money {
   /*
    * Arithmetic operations.
    */
-  public static Money add(Money a, Money b){
-    if(!a.currency.equals(b.currency)){
+  public static Money add(Money a, Money b) {
+    if (!a.currency.equals(b.currency)) {
       throw new IllegalArgumentException("Currencies didnt match!");
     }
     BigDecimal c = a.value.add(b.value);
-    return new Money(a.currency,c);
+    return new Money(a.currency, c);
   }
 
-  public static Money sub(Money a, Money b){
-    if(!a.currency.equals(b.currency)){
+  public static Money sub(Money a, Money b) {
+    if (!a.currency.equals(b.currency)) {
       throw new IllegalArgumentException("Currencies didnt match!");
     }
     BigDecimal c = a.value.subtract(b.value);
     return new Money(a.currency, c);
   }
 
-  public void add(Money b){
-    if(!this.currency.equals(b.currency)){
+  public void add(Money b) {
+    if (!this.currency.equals(b.currency)) {
       throw new IllegalArgumentException("Currencies didnt match!");
     }
     this.value = this.value.add(b.value);
   }
-  
-  public void sub(Money b){
-    if(!this.currency.equals(b.currency)){
+
+  public void sub(Money b) {
+    if (!this.currency.equals(b.currency)) {
       throw new IllegalArgumentException("Currencies didnt match!");
     }
-    this.value = this.value.subtract(b.value);;
+    this.value = this.value.subtract(b.value);
+    ;
   }
 
   /*
@@ -136,7 +140,7 @@ public class Money {
     return value;
   }
 
-  public void setValue(int val){
+  public void setValue(int val) {
     this.value = scaleToTwo(new BigDecimal(val));
   }
 

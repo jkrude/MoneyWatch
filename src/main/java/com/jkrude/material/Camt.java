@@ -2,12 +2,10 @@ package com.jkrude.material;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import javafx.scene.chart.XYChart;
 
@@ -30,11 +28,10 @@ public class Camt {
   private List<Money> amount;
   private List<String> info;
 
-  private TreeMap<Date,List<DataPoint>> dateMap;
+  private TreeMap<Date, List<DataPoint>> dateMap;
 
   private List<XYChart.Data<Number, Number>> lineChartData;
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
-
 
 
   public Camt() {
@@ -103,7 +100,7 @@ public class Camt {
   }
 
 
-  public boolean firstEntryIsFirstDate(){
+  public boolean firstEntryIsFirstDate() {
     return transferDate.get(0).compareTo(transferDate.get(transferDate.size() - 1)) < 0;
   }
 
@@ -114,9 +111,9 @@ public class Camt {
     int x;
     int finished;
     // Is the first entry after the last date?
-    if(firstEntryIsFirstDate()){
+    if (firstEntryIsFirstDate()) {
       // reverse traversing
-      start = transferDate.size()-1;
+      start = transferDate.size() - 1;
       x = -1;
       finished = -1;
     } else {
@@ -130,10 +127,10 @@ public class Camt {
     Money currAmount = new Money();
     for (int i = start; i != finished; i += x) {
       Date dateInLoop = transferDate.get(i);
-      if(!dateInLoop.equals(currDate)){
+      if (!dateInLoop.equals(currDate)) {
         //int currDateInteger = Utility.mapDateToInteger(currDate.toString());
         long instant = currDate.toInstant().toEpochMilli();
-        lineChartData.add(new XYChart.Data<>(instant,currAmount.getValue()));
+        lineChartData.add(new XYChart.Data<>(instant, currAmount.getValue()));
         currDate = dateInLoop;
       }
       currAmount.add(amount.get(i));
@@ -142,7 +139,7 @@ public class Camt {
     lineChartData.add(new XYChart.Data<>(instant, currAmount.getValue()));
   }
 
-  private void generateDateMap(){
+  private void generateDateMap() {
 
     Date currDate = transferDate.get(0);
     List<DataPoint> list = new ArrayList<>();
@@ -168,17 +165,17 @@ public class Camt {
       dataPoint.setAmount(amount.get(i));
       dataPoint.setInfo(info.get(i));
       // date != dates[i-1] -> save list (with entries from i-1)
-      if(!currDate.equals(transferDate.get(i))){
-        dateMap.put(currDate,list);
+      if (!currDate.equals(transferDate.get(i))) {
+        dateMap.put(currDate, list);
         list = new ArrayList<>();
         currDate = transferDate.get(i);
       }
       list.add(dataPoint);
     }
     // Check where to put last generated list (DataPoints)
-    if(currDate.equals(transferDate.get(transferDate.size()-1))){
-      dateMap.put(currDate,list);
-    }else{
+    if (currDate.equals(transferDate.get(transferDate.size() - 1))) {
+      dateMap.put(currDate, list);
+    } else {
       dateMap.get(currDate).addAll(list);
     }
   }
@@ -292,7 +289,7 @@ public class Camt {
     return lineChartData;
   }
 
-  public TreeMap<Date, List<DataPoint>> getDateMap(){
+  public TreeMap<Date, List<DataPoint>> getDateMap() {
     return dateMap;
   }
 
@@ -360,7 +357,8 @@ public class Camt {
     return info;
   }
 
-  protected class DataPoint{
+  protected static class DataPoint {
+
     private String contractAccount;
     private String transferValidation;
     private String transferSpecification;
