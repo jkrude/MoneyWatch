@@ -23,6 +23,9 @@ public abstract class AbstractController {
     } catch (IOException | IllegalStateException e) {
       AlertBox.display("Fatal Error", "Unable to go to page!\n Could not load fxml file.");
       e.printStackTrace();
+    } catch (Exception e){
+      e.printStackTrace();
+      AlertBox.display("Fatal Error", "Unknown source.");
     }
 
   }

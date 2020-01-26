@@ -2,7 +2,7 @@ package com.jkrude.material;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jkrude.material.Camt.DataPoint;
+import com.jkrude.material.Camt.DateDataPoint;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,9 +17,9 @@ public class CamtTest {
   @Test
   public void testDateMapGeneration() {
     Camt camt = TestData.getCamtWithTestData();
-    TreeMap<Date, List<DataPoint>> map = camt.getDateMap();
-    Set<Entry<Date, List<DataPoint>>> s = map.entrySet();
-    ArrayList<Entry<Date, List<DataPoint>>> list = new ArrayList<>(s);
+    TreeMap<Date, List<DateDataPoint>> map = camt.getDateMap();
+    Set<Entry<Date, List<DateDataPoint>>> s = map.entrySet();
+    ArrayList<Entry<Date, List<DateDataPoint>>> list = new ArrayList<>(s);
     try {
         assertEquals(list.get(0).getKey(), TestData.simpleDateFormat.parse("23.09.19"));
         assertEquals(list.get(1).getKey(), TestData.simpleDateFormat.parse("24.09.19"));

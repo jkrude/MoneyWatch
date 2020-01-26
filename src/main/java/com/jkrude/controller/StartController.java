@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
@@ -51,7 +52,13 @@ public class StartController extends AbstractController {
     Camt camt;
     try {
       Scanner sc = new Scanner(file, StandardCharsets.ISO_8859_1);
-      camt = new Camt(sc);
+      try {
+        camt = new Camt(sc);
+      }catch (IllegalArgumentException e){
+        AlertBox.showAlert("Error",null,e.getMessage(), AlertType.ERROR);
+        sc.close();
+        return;
+      }
       model.getCamtList().add(camt);
       sc.close();
 

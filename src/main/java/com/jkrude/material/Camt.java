@@ -2,7 +2,6 @@ package com.jkrude.material;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,7 +30,7 @@ public class Camt {
   private List<Money> amount;
   private List<String> info;
 
-  private TreeMap<Date, List<DataPoint>> dateMap;
+  private TreeMap<Date, List<DateDataPoint>> dateMap;
 
   private List<XYChart.Data<Number, Number>> lineChartData;
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
@@ -103,59 +102,21 @@ public class Camt {
     this.generateDateMap();
   }
 
-  public boolean firstEntryIsFirstDate() {
-    return transferDate.get(0).compareTo(transferDate.get(transferDate.size() - 1)) < 0;
-  }
-
   private void generateLineChart() {
-    /*
-    lineChartData = new ArrayList<>();
-    assert (amount.size() == transferDate.size());
-    int start;
-    int x;
-    int finished;
-    // Is the first entry after the last date?
-    if (firstEntryIsFirstDate()) {
-      // reverse traversing
-      start = transferDate.size() - 1;
-      x = -1;
-      finished = -1;
-    } else {
-      // normal traversing
-      start = 0;
-      x = 1;
-      finished = transferDate.size();
-    }
-
-    Date currDate = transferDate.get(start);
-    Money currAmount = new Money();
-    for (int i = start; i != finished; i += x) {
-      Date dateInLoop = transferDate.get(i);
-      if (!dateInLoop.equals(currDate)) {
-        //int currDateInteger = Utility.mapDateToInteger(currDate.toString());
-        long instant = currDate.toInstant().toEpochMilli();
-        lineChartData.add(new XYChart.Data<>(instant, currAmount.getValue()));
-        currDate = dateInLoop;
-      }
-      currAmount.add(amount.get(i));
-    }
-    long instant = currDate.toInstant().toEpochMilli();
-    lineChartData.add(new XYChart.Data<>(instant, currAmount.getValue()));
-     */
     lineChartData = new ArrayList<>();
     Set<Date> set = dateMap.keySet();
     Money currAmount = new Money(0);
 
     for (Date d : set) {
-      for (DataPoint dataPoint : dateMap.get(d)) {
-        currAmount.add(dataPoint.amount);
+      for (DateDataPoint dateDataPoint : dateMap.get(d)) {
+        currAmount.add(dateDataPoint.amount);
       }
       lineChartData.add(new Data<>(d.toInstant().toEpochMilli(), currAmount.getValue()));
     }
   }
 
   // TODO
-  public List<DataPoint> getDPsForChartData(XYChart.Data<Number,Number> xyData){
+  public List<DateDataPoint> getDPsForChartData(XYChart.Data<Number,Number> xyData){
     for (Date date : dateMap.keySet()) {
       if(date.toInstant().toEpochMilli() ==xyData.getXValue().longValue()){
         return dateMap.get(date);
@@ -167,35 +128,35 @@ public class Camt {
   private void generateDateMap() {
 
     Date currDate = transferDate.get(0);
-    List<DataPoint> list = new ArrayList<>();
+    List<DateDataPoint> list = new ArrayList<>();
     /*
     for loop adds list from i-1 if new date occurs
     after for loop checks where to put last list
      */
     for (int i = 0; i < transferDate.size(); i++) {
-      DataPoint dataPoint = new DataPoint();
-      dataPoint.setContractAccount(contractAccount.get(i));
-      dataPoint.setTransferValidation(transferValidation.get(i));
-      dataPoint.setTransferSpecification(transferSpecification.get(i));
-      dataPoint.setUsage(usage.get(i));
-      dataPoint.setCreditorId(creditorId.get(i));
-      dataPoint.setMandateReference(mandateReference.get(i));
-      dataPoint.setCustomerReference(customerReference.get(i));
-      dataPoint.setCollectorReference(collectorReference.get(i));
-      dataPoint.setDebitOriginalAmount(debitOriginalAmount.get(i));
-      dataPoint.setBackDebit(backDebit.get(i));
-      dataPoint.setReceiverOrPayer(receiverOrPayer.get(i));
-      dataPoint.setIban(iban.get(i));
-      dataPoint.setBic(bic.get(i));
-      dataPoint.setAmount(amount.get(i));
-      dataPoint.setInfo(info.get(i));
+      DateDataPoint dateDataPoint = new DateDataPoint();
+      dateDataPoint.setContractAccount(contractAccount.get(i));
+      dateDataPoint.setTransferValidation(transferValidation.get(i));
+      dateDataPoint.setTransferSpecification(transferSpecification.get(i));
+      dateDataPoint.setUsage(usage.get(i));
+      dateDataPoint.setCreditorId(creditorId.get(i));
+      dateDataPoint.setMandateReference(mandateReference.get(i));
+      dateDataPoint.setCustomerReference(customerReference.get(i));
+      dateDataPoint.setCollectorReference(collectorReference.get(i));
+      dateDataPoint.setDebitOriginalAmount(debitOriginalAmount.get(i));
+      dateDataPoint.setBackDebit(backDebit.get(i));
+      dateDataPoint.setReceiverOrPayer(receiverOrPayer.get(i));
+      dateDataPoint.setIban(iban.get(i));
+      dateDataPoint.setBic(bic.get(i));
+      dateDataPoint.setAmount(amount.get(i));
+      dateDataPoint.setInfo(info.get(i));
       // date != dates[i-1] -> save list (with entries from i-1)
       if (!currDate.equals(transferDate.get(i))) {
         dateMap.put(currDate, list);
         list = new ArrayList<>();
         currDate = transferDate.get(i);
       }
-      list.add(dataPoint);
+      list.add(dateDataPoint);
     }
     // Check where to put last generated list (DataPoints)
     if (currDate.equals(transferDate.get(transferDate.size() - 1))) {
@@ -218,13 +179,13 @@ public class Camt {
 
     Money currAmount = null;
     Date currDate = null;
-    DataPoint currDataPoint = new DataPoint();
+    DateDataPoint currDateDataPoint = new DateDataPoint();
     while (sc.hasNext()) {
       line = sc.next().replaceAll("\"", "");
       switch (column) {
         case 0:
           contractAccount.add(line);
-          currDataPoint.setContractAccount(line);
+          currDateDataPoint.setContractAccount(line);
           break;
         case 1:
           try {
@@ -279,8 +240,7 @@ public class Camt {
           if (line.equals(Money.EURO.toString())) {
             amount.add(currAmount);
           } else {
-            AlertBox.display("Import Error",
-                "Currently not supporting other Currency's than EURO");
+            throw new IllegalArgumentException("Currently not supporting other Currency's than EURO");
           }
           break;
         case 16:
@@ -299,7 +259,7 @@ public class Camt {
     return lineChartData;
   }
 
-  public TreeMap<Date, List<DataPoint>> getDateMap() {
+  public TreeMap<Date, List<DateDataPoint>> getDateMap() {
     return dateMap;
   }
 
@@ -367,7 +327,7 @@ public class Camt {
     return info;
   }
 
-  public static class DataPoint {
+  public static class DateDataPoint {
 
     private String contractAccount;
     private String transferValidation;
