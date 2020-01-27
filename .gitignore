@@ -3,4 +3,4 @@ target/
 .idea/
 *.CSV#
 *.ods#
-*-CSV
+*.ods
