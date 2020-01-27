@@ -1,13 +1,19 @@
 package com.jkrude.material;
 
+import com.jkrude.material.PieCategory.IdentifierType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
+import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 
@@ -115,10 +121,58 @@ public class Camt {
     }
   }
 
+  public ArrayList<PieChart.Data> getPieChartData(HashSet<PieCategory> categories) {
+
+    ArrayList<PieChart.Data> pieChartData = new ArrayList<>();
+    HashMap<String, Money> dataHashMap = new HashMap<>();
+
+    for (int i = 0; i < transferDate.size(); ++i) {
+      boolean found = false;
+
+      for (PieCategory category : categories) {
+
+        for (Map.Entry<String, IdentifierType> entry : category.getIdentifierMap().entrySet()) {
+          if (found) {
+            break;
+          }
+
+          switch (entry.getValue()) {
+            case IBAN:
+              found = searchForCategory(dataHashMap, i, found, category, entry, iban);
+              break;
+            case USAGE:
+              found = searchForCategory(dataHashMap, i, found, category, entry, usage);
+              break;
+            case OTHER_PARTY:
+              found = searchForCategory(dataHashMap, i, found, category, entry, receiverOrPayer);
+              break;
+          }
+        }
+      }
+    }
+    dataHashMap.forEach((String key, Money value) -> pieChartData
+        .add(new PieChart.Data(key, value.getValue().doubleValue())));
+    return pieChartData;
+  }
+
+  private boolean searchForCategory(HashMap<String, Money> dataHashMap, int i, boolean found,
+      PieCategory category, Entry<String, IdentifierType> entry, List<String> list) {
+    if (list.get(i).equals(entry.getKey())) {
+      if (dataHashMap.containsKey(category.getName())) {
+        dataHashMap.get(category.getName()).add(amount.get(i));
+      } else {
+        dataHashMap.put(category.getName(), amount.get(i));
+      }
+      found = true;
+    }
+    return found;
+  }
+
+
   // TODO
-  public List<DateDataPoint> getDPsForChartData(XYChart.Data<Number,Number> xyData){
+  public List<DateDataPoint> getDPsForChartData(XYChart.Data<Number, Number> xyData) {
     for (Date date : dateMap.keySet()) {
-      if(date.toInstant().toEpochMilli() ==xyData.getXValue().longValue()){
+      if (date.toInstant().toEpochMilli() == xyData.getXValue().longValue()) {
         return dateMap.get(date);
       }
     }
@@ -240,7 +294,8 @@ public class Camt {
           if (line.equals(Money.EURO.toString())) {
             amount.add(currAmount);
           } else {
-            throw new IllegalArgumentException("Currently not supporting other Currency's than EURO");
+            throw new IllegalArgumentException(
+                "Currently not supporting other Currency's than EURO");
           }
           break;
         case 16:

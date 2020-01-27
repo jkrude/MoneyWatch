@@ -1,6 +1,10 @@
-package com.jkrude.material;
+package com.jkrude.test;
 
+import com.jkrude.material.PieCategory;
 import com.jkrude.material.PieCategory.IdentifierType;
+import com.jkrude.material.Camt;
+import com.jkrude.material.Money;
+import com.jkrude.material.Profile;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -159,8 +163,7 @@ public class TestData {
 
     PieCategory categoryTravel = new PieCategory("Travel");
     HashMap<String, IdentifierType> maptTravel = new HashMap<>();
-    maptTravel.put("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS \n", IdentifierType.USAGE);
-    maptTravel.put("DE15200411550651304800", IdentifierType.IBAN);
+    maptTravel.put("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS ", IdentifierType.USAGE);
 
     categoryTravel.getIdentifierMap().putAll(maptTravel);
     profile.addCategory(categoryTravel);
