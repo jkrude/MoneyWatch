@@ -1,9 +1,8 @@
 package com.jkrude.test;
 
-import com.jkrude.material.PieCategory;
-import com.jkrude.material.PieCategory.IdentifierType;
 import com.jkrude.material.Camt;
 import com.jkrude.material.Money;
+import com.jkrude.material.PieCategory;
 import com.jkrude.material.Profile;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -146,24 +145,24 @@ public class TestData {
   public static Profile getProfile() {
     Profile profile = new Profile(new HashSet<>());
     PieCategory categoryEating = new PieCategory("Essen");
-    HashMap<String, IdentifierType> map = new HashMap<>();
-    map.put("NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE", IdentifierType.OTHER_PARTY);
-    map.put("DANKE, IHR LIDL//Dresden/DE", IdentifierType.OTHER_PARTY);
+    HashMap<String, Camt.ListType> map = new HashMap<>();
+    map.put("NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE", Camt.ListType.OTHER_PARTY);
+    map.put("DANKE, IHR LIDL//Dresden/DE", Camt.ListType.OTHER_PARTY);
 
     categoryEating.getIdentifierMap().putAll(map);
     profile.addCategory(categoryEating);
 
     PieCategory categoryLiving = new PieCategory("Living");
-    HashMap<String, IdentifierType> mapLiving = new HashMap<>();
-    mapLiving.put("DE56800400000850447400", IdentifierType.IBAN);
-    mapLiving.put("DE15200411550651304800", IdentifierType.IBAN);
+    HashMap<String, Camt.ListType> mapLiving = new HashMap<>();
+    mapLiving.put("DE56800400000850447400", Camt.ListType.IBAN);
+    mapLiving.put("DE15200411550651304800", Camt.ListType.IBAN);
 
     categoryLiving.getIdentifierMap().putAll(mapLiving);
     profile.addCategory(categoryLiving);
 
     PieCategory categoryTravel = new PieCategory("Travel");
-    HashMap<String, IdentifierType> maptTravel = new HashMap<>();
-    maptTravel.put("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS ", IdentifierType.USAGE);
+    HashMap<String, Camt.ListType> maptTravel = new HashMap<>();
+    maptTravel.put("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS ", Camt.ListType.USAGE);
 
     categoryTravel.getIdentifierMap().putAll(maptTravel);
     profile.addCategory(categoryTravel);

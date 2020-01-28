@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.Scanner;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.transform.Shear;
 import javafx.stage.Stage;
 
 public class StartController extends AbstractController {
@@ -57,6 +59,9 @@ public class StartController extends AbstractController {
       }catch (IllegalArgumentException e){
         AlertBox.showAlert("Error",null,e.getMessage(), AlertType.ERROR);
         sc.close();
+        return;
+      }catch (ParseException e){
+        AlertBox.showAlert("Error", null,e.getMessage(),AlertType.ERROR);
         return;
       }
       model.getCamtList().add(camt);

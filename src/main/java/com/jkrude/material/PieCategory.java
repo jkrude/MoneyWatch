@@ -1,27 +1,22 @@
 package com.jkrude.material;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class PieCategory {
-
-  public enum IdentifierType{
-    IBAN,
-    USAGE,
-    OTHER_PARTY
-  }
+  
 
   private String name;
 
 
-  private HashMap<String,IdentifierType> identifierMap;
+  private HashMap<String, Camt.ListType> identifierMap;
 
 
-  public PieCategory(String name){
+  public PieCategory(String name) {
     this.name = name;
     this.identifierMap = new HashMap<>();
   }
-  public PieCategory(String name, HashMap<String, IdentifierType> identifierMap){
+
+  public PieCategory(String name, HashMap<String, Camt.ListType> identifierMap) {
     this.name = name;
     this.identifierMap = identifierMap;
   }
@@ -31,7 +26,7 @@ public class PieCategory {
     return name;
   }
 
-  public HashMap<String, IdentifierType> getIdentifierMap() {
+  public HashMap<String, Camt.ListType> getIdentifierMap() {
     return identifierMap;
   }
 
@@ -40,7 +35,7 @@ public class PieCategory {
   }
 
   public void setIdentifierMap(
-      HashMap<String, IdentifierType> identifierMap) {
+      HashMap<String, Camt.ListType> identifierMap) {
     this.identifierMap = identifierMap;
   }
 

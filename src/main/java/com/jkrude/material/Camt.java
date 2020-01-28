@@ -1,6 +1,5 @@
 package com.jkrude.material;
 
-import com.jkrude.material.PieCategory.IdentifierType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,23 +18,44 @@ import javafx.scene.chart.XYChart.Data;
 
 public class Camt {
 
-  private List<String> contractAccount;
+  public enum ListType {
+    ACCOUNT_IBAN,
+    TRANSFER_DATE,
+    VALIDATION_DATE,
+    TRANSFER_SPECIFICATION,
+    USAGE,
+    CREDITOR_ID,
+    MANDATE_REFERENCE,
+    CUSTOMER_REFERENCE_END_TO_END,
+    COLLECTION_REFERENCE,
+    DEBIT_ORIGINAL_AMOUNT,
+    BACK_DEBIT,
+    OTHER_PARTY,
+    IBAN,
+    BIC,
+    //AMOUNT,
+    INFO
+  }
+
+
+  private List<String> accountIban;
   private List<Date> transferDate;
-  private List<String> transferValidation;
+  private List<String> validationDate;
   private List<String> transferSpecification;
   private List<String> usage;
   private List<String> creditorId;
   private List<String> mandateReference;
   private List<String> customerReference;
-  private List<String> collectorReference;
+  private List<String> collectionReference;
   private List<String> debitOriginalAmount;
   private List<String> backDebit;
-  private List<String> receiverOrPayer;
+  private List<String> otherParty;
   private List<String> iban;
   private List<String> bic;
   private List<Money> amount;
   private List<String> info;
 
+  // Maps every date to a number of transactions that happened that day.
   private TreeMap<Date, List<DateDataPoint>> dateMap;
 
   private List<XYChart.Data<Number, Number>> lineChartData;
@@ -43,18 +63,18 @@ public class Camt {
 
 
   public Camt() {
-    this.contractAccount = new ArrayList<>();
+    this.accountIban = new ArrayList<>();
     this.transferDate = new ArrayList<>();
-    this.transferValidation = new ArrayList<>();
+    this.validationDate = new ArrayList<>();
     this.transferSpecification = new ArrayList<>();
     this.usage = new ArrayList<>();
     this.creditorId = new ArrayList<>();
     this.mandateReference = new ArrayList<>();
     this.customerReference = new ArrayList<>();
-    this.collectorReference = new ArrayList<>();
+    this.collectionReference = new ArrayList<>();
     this.debitOriginalAmount = new ArrayList<>();
     this.backDebit = new ArrayList<>();
-    this.receiverOrPayer = new ArrayList<>();
+    this.otherParty = new ArrayList<>();
     this.iban = new ArrayList<>();
     this.bic = new ArrayList<>();
     this.amount = new ArrayList<>();
@@ -64,34 +84,34 @@ public class Camt {
   }
 
   public Camt(
-      List<String> contractAccount,
+      List<String> accountIban,
       List<Date> transferDate,
-      List<String> transferValidation,
+      List<String> validationDate,
       List<String> transferSpecification,
       List<String> usage,
       List<String> creditorId,
       List<String> mandateReference,
       List<String> customerReference,
-      List<String> collectorReference,
+      List<String> collectionReference,
       List<String> debitOriginalAmount,
       List<String> backDebit,
-      List<String> receiverOrPayer,
+      List<String> otherParty,
       List<String> iban,
       List<String> bic,
       List<Money> amount,
       List<String> info) {
-    this.contractAccount = contractAccount;
+    this.accountIban = accountIban;
     this.transferDate = transferDate;
-    this.transferValidation = transferValidation;
+    this.validationDate = validationDate;
     this.transferSpecification = transferSpecification;
     this.usage = usage;
     this.creditorId = creditorId;
     this.mandateReference = mandateReference;
     this.customerReference = customerReference;
-    this.collectorReference = collectorReference;
+    this.collectionReference = collectionReference;
     this.debitOriginalAmount = debitOriginalAmount;
     this.backDebit = backDebit;
-    this.receiverOrPayer = receiverOrPayer;
+    this.otherParty = otherParty;
     this.iban = iban;
     this.bic = bic;
     this.amount = amount;
@@ -102,10 +122,20 @@ public class Camt {
 
   }
 
-  public Camt(Scanner sc) {
+  public Camt(Scanner sc) throws ParseException, IllegalArgumentException {
     this();
     this.csvFileParser(sc);
     this.generateDateMap();
+  }
+
+  /*
+  LineChart associated methods.
+   */
+  public List<XYChart.Data<Number, Number>> getLineChartData() {
+    if (lineChartData == null || lineChartData.isEmpty()) {
+      generateLineChart();
+    }
+    return lineChartData;
   }
 
   private void generateLineChart() {
@@ -121,6 +151,20 @@ public class Camt {
     }
   }
 
+  // TODO
+  public List<DateDataPoint> getDPsForChartData(XYChart.Data<Number, Number> xyData) {
+    for (Date date : dateMap.keySet()) {
+      if (date.toInstant().toEpochMilli() == xyData.getXValue().longValue()) {
+        return dateMap.get(date);
+      }
+    }
+    return null;
+  }
+
+
+  /*
+  PieChart associated methods.
+   */
   public ArrayList<PieChart.Data> getPieChartData(HashSet<PieCategory> categories) {
 
     ArrayList<PieChart.Data> pieChartData = new ArrayList<>();
@@ -131,7 +175,7 @@ public class Camt {
 
       for (PieCategory category : categories) {
 
-        for (Map.Entry<String, IdentifierType> entry : category.getIdentifierMap().entrySet()) {
+        for (Map.Entry<String, Camt.ListType> entry : category.getIdentifierMap().entrySet()) {
           if (found) {
             break;
           }
@@ -144,7 +188,7 @@ public class Camt {
               found = searchForCategory(dataHashMap, i, found, category, entry, usage);
               break;
             case OTHER_PARTY:
-              found = searchForCategory(dataHashMap, i, found, category, entry, receiverOrPayer);
+              found = searchForCategory(dataHashMap, i, found, category, entry, otherParty);
               break;
           }
         }
@@ -156,7 +200,7 @@ public class Camt {
   }
 
   private boolean searchForCategory(HashMap<String, Money> dataHashMap, int i, boolean found,
-      PieCategory category, Entry<String, IdentifierType> entry, List<String> list) {
+      PieCategory category, Entry<String, Camt.ListType> entry, List<String> list) {
     if (list.get(i).equals(entry.getKey())) {
       if (dataHashMap.containsKey(category.getName())) {
         dataHashMap.get(category.getName()).add(amount.get(i));
@@ -169,14 +213,11 @@ public class Camt {
   }
 
 
-  // TODO
-  public List<DateDataPoint> getDPsForChartData(XYChart.Data<Number, Number> xyData) {
-    for (Date date : dateMap.keySet()) {
-      if (date.toInstant().toEpochMilli() == xyData.getXValue().longValue()) {
-        return dateMap.get(date);
-      }
+  public TreeMap<Date, List<DateDataPoint>> getDateMap() {
+    if (dateMap == null) {
+      generateDateMap();
     }
-    return null;
+    return dateMap;
   }
 
   private void generateDateMap() {
@@ -189,17 +230,17 @@ public class Camt {
      */
     for (int i = 0; i < transferDate.size(); i++) {
       DateDataPoint dateDataPoint = new DateDataPoint();
-      dateDataPoint.setContractAccount(contractAccount.get(i));
-      dateDataPoint.setTransferValidation(transferValidation.get(i));
+      dateDataPoint.setContractAccount(accountIban.get(i));
+      dateDataPoint.setTransferValidation(validationDate.get(i));
       dateDataPoint.setTransferSpecification(transferSpecification.get(i));
       dateDataPoint.setUsage(usage.get(i));
       dateDataPoint.setCreditorId(creditorId.get(i));
       dateDataPoint.setMandateReference(mandateReference.get(i));
       dateDataPoint.setCustomerReference(customerReference.get(i));
-      dateDataPoint.setCollectorReference(collectorReference.get(i));
+      dateDataPoint.setCollectorReference(collectionReference.get(i));
       dateDataPoint.setDebitOriginalAmount(debitOriginalAmount.get(i));
       dateDataPoint.setBackDebit(backDebit.get(i));
-      dateDataPoint.setReceiverOrPayer(receiverOrPayer.get(i));
+      dateDataPoint.setReceiverOrPayer(otherParty.get(i));
       dateDataPoint.setIban(iban.get(i));
       dateDataPoint.setBic(bic.get(i));
       dateDataPoint.setAmount(amount.get(i));
@@ -220,7 +261,10 @@ public class Camt {
     }
   }
 
-  public void csvFileParser(Scanner sc) {
+  /*
+  Construct a Camt-Obj. from a CSV-File
+   */
+  public void csvFileParser(Scanner sc) throws ParseException, IllegalArgumentException {
     if (sc == null) {
       throw new NullPointerException();
     }
@@ -238,21 +282,15 @@ public class Camt {
       line = sc.next().replaceAll("\"", "");
       switch (column) {
         case 0:
-          contractAccount.add(line);
+          accountIban.add(line);
           currDateDataPoint.setContractAccount(line);
           break;
         case 1:
-          try {
-            currDate = dateFormatter.parse(line);
-            transferDate.add(currDate);
-          } catch (ParseException e) {
-            e.printStackTrace();
-            AlertBox.display("Problem with date-format!",
-                "The Date needs to be formatted as dd.mm.yy!");
-          }
+          currDate = dateFormatter.parse(line);
+          transferDate.add(currDate);
           break;
         case 2:
-          transferValidation.add(line);
+          validationDate.add(line);
           break;
         case 3:
           transferSpecification.add(line);
@@ -270,7 +308,7 @@ public class Camt {
           customerReference.add(line);
           break;
         case 8:
-          collectorReference.add(line);
+          collectionReference.add(line);
           break;
         case 9:
           debitOriginalAmount.add(line);
@@ -279,7 +317,7 @@ public class Camt {
           backDebit.add(line);
           break;
         case 11:
-          receiverOrPayer.add(line);
+          otherParty.add(line);
           break;
         case 12:
           iban.add(line);
@@ -295,7 +333,8 @@ public class Camt {
             amount.add(currAmount);
           } else {
             throw new IllegalArgumentException(
-                "Currently not supporting other Currency's than EURO");
+                "Currently not supporting other Currency's than EURO:"
+                    + "Problem at row: " + amount.size() + 1 + ", found: " + line);
           }
           break;
         case 16:
@@ -307,17 +346,9 @@ public class Camt {
     }
   }
 
-  public List<XYChart.Data<Number, Number>> getLineChartData() {
-    if (lineChartData == null || lineChartData.isEmpty()) {
-      generateLineChart();
-    }
-    return lineChartData;
-  }
-
-  public TreeMap<Date, List<DateDataPoint>> getDateMap() {
-    return dateMap;
-  }
-
+  /*
+  Getter.
+   */
   public List<Date> getTransferDate() {
     return transferDate;
   }
@@ -326,12 +357,12 @@ public class Camt {
     return amount;
   }
 
-  public List<String> getContractAccount() {
-    return contractAccount;
+  public List<String> getAccountIban() {
+    return accountIban;
   }
 
-  public List<String> getTransferValidation() {
-    return transferValidation;
+  public List<String> getValidationDate() {
+    return validationDate;
   }
 
   public List<String> getTransferSpecification() {
@@ -354,8 +385,8 @@ public class Camt {
     return customerReference;
   }
 
-  public List<String> getCollectorReference() {
-    return collectorReference;
+  public List<String> getCollectionReference() {
+    return collectionReference;
   }
 
   public List<String> getDebitOriginalAmount() {
@@ -366,8 +397,8 @@ public class Camt {
     return backDebit;
   }
 
-  public List<String> getReceiverOrPayer() {
-    return receiverOrPayer;
+  public List<String> getOtherParty() {
+    return otherParty;
   }
 
   public List<String> getIban() {
@@ -382,6 +413,10 @@ public class Camt {
     return info;
   }
 
+  /*
+  Class to hold the i. element from every list (except the date).
+  This is used for the date map.
+   */
   public static class DateDataPoint {
 
     private String contractAccount;
@@ -400,6 +435,9 @@ public class Camt {
     private Money amount;
     private String info;
 
+    /*
+    Getter.
+     */
     public String getContractAccount() {
       return contractAccount;
     }
@@ -460,6 +498,9 @@ public class Camt {
       return info;
     }
 
+    /*
+    Setter.
+     */
     public void setContractAccount(String contractAccount) {
       this.contractAccount = contractAccount;
     }

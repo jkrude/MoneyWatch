@@ -1,11 +1,7 @@
 package com.jkrude.controller;
 
-import com.jkrude.material.Money;
-import com.jkrude.material.Profile;
 import com.jkrude.test.TestData;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.chart.PieChart;
@@ -17,7 +13,8 @@ public class PieChartController extends AbstractController {
 
   @FXML
   public void initialize() {
-    ArrayList<Data> data = model.getCamtList().get(0).getPieChartData(TestData.getProfile().getPieCategories());
+    ArrayList<Data> data = model.getCamtList().get(0)
+        .getPieChartData(TestData.getProfile().getPieCategories());
     pieChart.getData().addAll(data);
     pieChart.setLegendSide(Side.BOTTOM);
     /*

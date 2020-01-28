@@ -11,11 +11,11 @@ public class Profile {
   }
 
 
-  public void addCategory(PieCategory category){
-    if(pieCategories == null){
+  public void addCategory(PieCategory category) {
+    if (pieCategories == null) {
       throw new IllegalStateException("pieCategories was not initialized");
     }
-    if(category == null){
+    if (category == null) {
       throw new NullPointerException("category was null");
     }
 
