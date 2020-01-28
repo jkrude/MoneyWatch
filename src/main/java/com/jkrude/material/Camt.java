@@ -170,25 +170,25 @@ public class Camt {
     ArrayList<PieChart.Data> pieChartData = new ArrayList<>();
     HashMap<String, Money> dataHashMap = new HashMap<>();
 
-    for (int i = 0; i < transferDate.size(); ++i) {
+    for (int i = 0; i < this.transferDate.size(); ++i) {
       boolean found = false;
 
       for (PieCategory category : categories) {
 
-        for (Map.Entry<String, Camt.ListType> entry : category.getIdentifierMap().entrySet()) {
+        for (PieCategory.Entry entry : category.getIdentifierList()) {
           if (found) {
             break;
           }
 
-          switch (entry.getValue()) {
+          switch (entry.getType()) {
             case IBAN:
-              found = searchForCategory(dataHashMap, i, found, category, entry, iban);
+              found = searchForCategory(dataHashMap, i, category, entry, iban);
               break;
             case USAGE:
-              found = searchForCategory(dataHashMap, i, found, category, entry, usage);
+              found = searchForCategory(dataHashMap, i, category, entry, usage);
               break;
             case OTHER_PARTY:
-              found = searchForCategory(dataHashMap, i, found, category, entry, otherParty);
+              found = searchForCategory(dataHashMap, i, category, entry, otherParty);
               break;
           }
         }
@@ -199,9 +199,11 @@ public class Camt {
     return pieChartData;
   }
 
-  private boolean searchForCategory(HashMap<String, Money> dataHashMap, int i, boolean found,
-      PieCategory category, Entry<String, Camt.ListType> entry, List<String> list) {
-    if (list.get(i).equals(entry.getKey())) {
+  private boolean searchForCategory(HashMap<String, Money> dataHashMap, int i,
+      PieCategory category, PieCategory.Entry entry, List<String> list) {
+
+    boolean found = false;
+    if (list.get(i).equals(entry.getPattern())) {
       if (dataHashMap.containsKey(category.getName())) {
         dataHashMap.get(category.getName()).add(amount.get(i));
       } else {

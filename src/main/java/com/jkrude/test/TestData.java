@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -145,30 +144,30 @@ public class TestData {
   public static Profile getProfile() {
     Profile profile = new Profile(new HashSet<>());
     PieCategory categoryEating = new PieCategory("Essen");
-    HashMap<String, Camt.ListType> map = new HashMap<>();
-    map.put("NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE", Camt.ListType.OTHER_PARTY);
-    map.put("DANKE, IHR LIDL//Dresden/DE", Camt.ListType.OTHER_PARTY);
+    HashSet<PieCategory.Entry> set = new HashSet<>();
+    set.add(new PieCategory.Entry("NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE",
+        Camt.ListType.OTHER_PARTY));
+    set.add(new PieCategory.Entry("DANKE, IHR LIDL//Dresden/DE", Camt.ListType.OTHER_PARTY));
 
-    categoryEating.getIdentifierMap().putAll(map);
+    categoryEating.getIdentifierList().addAll(set);
     profile.addCategory(categoryEating);
 
     PieCategory categoryLiving = new PieCategory("Living");
-    HashMap<String, Camt.ListType> mapLiving = new HashMap<>();
-    mapLiving.put("DE56800400000850447400", Camt.ListType.IBAN);
-    mapLiving.put("DE15200411550651304800", Camt.ListType.IBAN);
+    HashSet<PieCategory.Entry> setLiving = new HashSet<>();
+    setLiving.add(new PieCategory.Entry("DE56800400000850447400", Camt.ListType.IBAN));
+    setLiving.add(new PieCategory.Entry("DE15200411550651304800", Camt.ListType.IBAN));
 
-    categoryLiving.getIdentifierMap().putAll(mapLiving);
+    categoryLiving.getIdentifierList().addAll(setLiving);
     profile.addCategory(categoryLiving);
 
     PieCategory categoryTravel = new PieCategory("Travel");
-    HashMap<String, Camt.ListType> maptTravel = new HashMap<>();
-    maptTravel.put("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS ", Camt.ListType.USAGE);
+    HashSet<PieCategory.Entry> setTravel = new HashSet<>();
+    setTravel.add(new PieCategory.Entry("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS ",
+        Camt.ListType.USAGE));
 
-    categoryTravel.getIdentifierMap().putAll(maptTravel);
+    categoryTravel.getIdentifierList().addAll(setTravel);
     profile.addCategory(categoryTravel);
 
     return profile;
   }
-
-
 }

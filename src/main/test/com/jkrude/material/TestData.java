@@ -138,6 +138,7 @@ public class TestData {
     return camt;
   }
 
+/*
   public static Profile getProfile() {
     Profile profile = new Profile(new HashSet<>());
     PieCategory categoryEating = new PieCategory("Essen");
@@ -145,7 +146,7 @@ public class TestData {
     map.put("NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE", Camt.ListType.OTHER_PARTY);
     map.put("DANKE, IHR LIDL//Dresden/DE", Camt.ListType.OTHER_PARTY);
 
-    categoryEating.getIdentifierMap().putAll(map);
+    categoryEating.getIdentifierList().putAll(map);
     profile.addCategory(categoryEating);
 
     PieCategory categoryLiving = new PieCategory("Living");
@@ -153,7 +154,7 @@ public class TestData {
     mapLiving.put("DE56800400000850447400", Camt.ListType.IBAN);
     mapLiving.put("DE15200411550651304800", Camt.ListType.IBAN);
 
-    categoryLiving.getIdentifierMap().putAll(mapLiving);
+    categoryLiving.getIdentifierList().putAll(mapLiving);
     profile.addCategory(categoryLiving);
 
     PieCategory categoryTravel = new PieCategory("Travel");
@@ -161,11 +162,11 @@ public class TestData {
     maptTravel.put("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS \n", Camt.ListType.USAGE);
     maptTravel.put("DE15200411550651304800", Camt.ListType.IBAN);
 
-    categoryTravel.getIdentifierMap().putAll(maptTravel);
+    categoryTravel.getIdentifierList().putAll(maptTravel);
     profile.addCategory(categoryTravel);
 
     return profile;
   }
-
+*/
 
 }
