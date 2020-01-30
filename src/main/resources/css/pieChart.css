@@ -1,0 +1,10 @@
+/* Colors of JavaFX pie chart slices. */
+.default-color0.chart-pie { -fx-pie-color: #7fdaff; }
+.default-color1.chart-pie { -fx-pie-color: #70ff98; }
+.default-color2.chart-pie { -fx-pie-color: #baff7b; }
+.default-color3.chart-pie { -fx-pie-color: #ffe04e; }
+.default-color4.chart-pie { -fx-pie-color: #ff8a7d; }
+
+
+/* Pie Chart legend background color and stroke. */
+.chart-legend { -fx-background-color: #d9d9d9; }

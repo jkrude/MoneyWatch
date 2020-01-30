@@ -184,11 +184,47 @@ public class Camt {
             case IBAN:
               found = searchForCategory(dataHashMap, i, category, entry, iban);
               break;
+            case ACCOUNT_IBAN:
+              found = searchForCategory(dataHashMap, i, category, entry, accountIban);
+              break;
+            case TRANSFER_DATE:
+              found = searchForCategory(dataHashMap, i, category, entry, transferDate);
+              break;
+            case VALIDATION_DATE:
+              found = searchForCategory(dataHashMap, i, category, entry, validationDate);
+              break;
+            case TRANSFER_SPECIFICATION:
+              found = searchForCategory(dataHashMap, i, category, entry, transferSpecification);
+              break;
             case USAGE:
               found = searchForCategory(dataHashMap, i, category, entry, usage);
               break;
+            case CREDITOR_ID:
+              found = searchForCategory(dataHashMap, i, category, entry, creditorId);
+              break;
+            case MANDATE_REFERENCE:
+              found = searchForCategory(dataHashMap, i, category, entry, mandateReference);
+              break;
+            case CUSTOMER_REFERENCE_END_TO_END:
+              found = searchForCategory(dataHashMap, i, category, entry, customerReference);
+              break;
+            case COLLECTION_REFERENCE:
+              found = searchForCategory(dataHashMap, i, category, entry, collectionReference);
+              break;
+            case DEBIT_ORIGINAL_AMOUNT:
+              found = searchForCategory(dataHashMap, i, category, entry, debitOriginalAmount);
+              break;
+            case BACK_DEBIT:
+              found = searchForCategory(dataHashMap, i, category, entry, backDebit);
+              break;
             case OTHER_PARTY:
               found = searchForCategory(dataHashMap, i, category, entry, otherParty);
+              break;
+            case BIC:
+              found = searchForCategory(dataHashMap, i, category, entry, bic);
+              break;
+            case INFO:
+              found = searchForCategory(dataHashMap, i, category, entry, info);
               break;
           }
         }
@@ -199,8 +235,8 @@ public class Camt {
     return pieChartData;
   }
 
-  private boolean searchForCategory(HashMap<String, Money> dataHashMap, int i,
-      PieCategory category, PieCategory.Entry entry, List<String> list) {
+  private <T> boolean searchForCategory(HashMap<String, Money> dataHashMap, int i,
+      PieCategory category, PieCategory.Entry entry, List<T> list) {
 
     boolean found = false;
     if (list.get(i).equals(entry.getPattern())) {
