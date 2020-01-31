@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 
 public abstract class AbstractController {
@@ -21,11 +22,12 @@ public abstract class AbstractController {
       FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource(pathToFxml));
       stageTheEventSourceNodeBelongs.setScene(new Scene(loader.load()));
     } catch (IOException | IllegalStateException e) {
-      AlertBox.display("Fatal Error", "Unable to go to page!\n Could not load fxml file.");
+      AlertBox.showAlert("Fatal Error", "Unable to go to page!"," Could not load fxml file.",
+          AlertType.ERROR);
       e.printStackTrace();
     } catch (Exception e){
       e.printStackTrace();
-      AlertBox.display("Fatal Error", "Unknown source.");
+      AlertBox.showAlert("Fatal Error", "Unknown source.","",AlertType.ERROR);
     }
 
   }

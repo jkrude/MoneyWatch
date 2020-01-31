@@ -84,10 +84,8 @@ public class Money {
 
   @Override
   public String toString() {
-    return "Money{" +
-        "currency=" + currency +
-        ", value=" + value.toString() +
-        '}';
+    return
+        value.toString() + ',' + currency.toString();
   }
 
 

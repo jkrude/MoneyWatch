@@ -45,7 +45,7 @@ public class StartController extends AbstractController {
     URL resource = getClass().getClassLoader().getResource("september.CSV");
     File file;
       if (resource == null) {
-          AlertBox.display("Error", "Failed loading september.CSV for demo purpose");
+          AlertBox.showAlert("Error", "Failed loading september.CSV for demo purpose","",AlertType.ERROR);
           return;
       } else {
           file = new File(resource.getFile());
@@ -68,7 +68,7 @@ public class StartController extends AbstractController {
       sc.close();
 
     } catch (IOException e) {
-      AlertBox.display("Error", "File couldn't be opened");
+      AlertBox.showAlert("Error", "File couldn't be opened","",AlertType.ERROR);
     }
   }
 

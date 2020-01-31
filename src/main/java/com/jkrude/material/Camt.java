@@ -7,8 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
@@ -269,16 +267,16 @@ public class Camt {
     for (int i = 0; i < transferDate.size(); i++) {
       DateDataPoint dateDataPoint = new DateDataPoint();
       dateDataPoint.setContractAccount(accountIban.get(i));
-      dateDataPoint.setTransferValidation(validationDate.get(i));
+      dateDataPoint.setValidationDate(validationDate.get(i));
       dateDataPoint.setTransferSpecification(transferSpecification.get(i));
       dateDataPoint.setUsage(usage.get(i));
       dateDataPoint.setCreditorId(creditorId.get(i));
       dateDataPoint.setMandateReference(mandateReference.get(i));
       dateDataPoint.setCustomerReference(customerReference.get(i));
-      dateDataPoint.setCollectorReference(collectionReference.get(i));
+      dateDataPoint.setCollectionReference(collectionReference.get(i));
       dateDataPoint.setDebitOriginalAmount(debitOriginalAmount.get(i));
       dateDataPoint.setBackDebit(backDebit.get(i));
-      dateDataPoint.setReceiverOrPayer(otherParty.get(i));
+      dateDataPoint.setOtherParty(otherParty.get(i));
       dateDataPoint.setIban(iban.get(i));
       dateDataPoint.setBic(bic.get(i));
       dateDataPoint.setAmount(amount.get(i));
@@ -458,16 +456,16 @@ public class Camt {
   public static class DateDataPoint {
 
     private String contractAccount;
-    private String transferValidation;
+    private String validationDate;
     private String transferSpecification;
     private String usage;
     private String creditorId;
     private String mandateReference;
     private String customerReference;
-    private String collectorReference;
+    private String collectionReference;
     private String debitOriginalAmount;
     private String backDebit;
-    private String receiverOrPayer;
+    private String otherParty;
     private String iban;
     private String bic;
     private Money amount;
@@ -480,8 +478,8 @@ public class Camt {
       return contractAccount;
     }
 
-    public String getTransferValidation() {
-      return transferValidation;
+    public String getValidationDate() {
+      return validationDate;
     }
 
     public String getTransferSpecification() {
@@ -504,8 +502,8 @@ public class Camt {
       return customerReference;
     }
 
-    public String getCollectorReference() {
-      return collectorReference;
+    public String getCollectionReference() {
+      return collectionReference;
     }
 
     public String getDebitOriginalAmount() {
@@ -516,8 +514,8 @@ public class Camt {
       return backDebit;
     }
 
-    public String getReceiverOrPayer() {
-      return receiverOrPayer;
+    public String getOtherParty() {
+      return otherParty;
     }
 
     public String getIban() {
@@ -532,6 +530,12 @@ public class Camt {
       return amount;
     }
 
+    //TODO
+    // Hack for LineChartController.setupSeries: amountColumn.setCellValueFactory(new PropertyValueFactory<>("amountAsDouble"));
+    public Double getAmountAsDouble() {
+      return amount.getValue().doubleValue();
+    }
+
     public String getInfo() {
       return info;
     }
@@ -543,8 +547,8 @@ public class Camt {
       this.contractAccount = contractAccount;
     }
 
-    public void setTransferValidation(String transferValidation) {
-      this.transferValidation = transferValidation;
+    public void setValidationDate(String validationDate) {
+      this.validationDate = validationDate;
     }
 
     public void setTransferSpecification(String transferSpecification) {
@@ -567,8 +571,8 @@ public class Camt {
       this.customerReference = customerReference;
     }
 
-    public void setCollectorReference(String collectorReference) {
-      this.collectorReference = collectorReference;
+    public void setCollectionReference(String collectionReference) {
+      this.collectionReference = collectionReference;
     }
 
     public void setDebitOriginalAmount(String debitOriginalAmount) {
@@ -579,8 +583,9 @@ public class Camt {
       this.backDebit = backDebit;
     }
 
-    public void setReceiverOrPayer(String receiverOrPayer) {
-      this.receiverOrPayer = receiverOrPayer;
+    public void setOtherParty(String otherParty) {
+      this.otherParty
+          = otherParty;
     }
 
     public void setIban(String iban) {
