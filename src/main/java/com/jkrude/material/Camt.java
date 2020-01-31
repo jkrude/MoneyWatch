@@ -152,13 +152,13 @@ public class Camt {
   }
 
   // TODO
-  public List<DateDataPoint> getDPsForChartData(XYChart.Data<Number, Number> xyData) {
+  public List<DateDataPoint> getDataPointForDate(long nbr) {
     for (Date date : dateMap.keySet()) {
-      if (date.toInstant().toEpochMilli() == xyData.getXValue().longValue()) {
+      if (date.toInstant().toEpochMilli() == nbr) {
         return dateMap.get(date);
       }
     }
-    return null;
+    throw new IllegalArgumentException("DateMap does not contain this date: " + nbr);
   }
 
 
