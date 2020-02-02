@@ -32,7 +32,21 @@ public class Camt {
     IBAN,
     BIC,
     //AMOUNT,
-    INFO
+    INFO;
+
+    @Override
+    public String toString() {
+      switch (this) {
+        case IBAN:
+          return "Iban";
+        case USAGE:
+          return "Verwendungszweck";
+        case OTHER_PARTY:
+          return "Beguenstigter/Zahlungspflichtiger";
+        default:
+          return super.toString();
+      }
+    }
   }
 
 

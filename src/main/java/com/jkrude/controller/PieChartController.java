@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 
 public class PieChartController extends AbstractController {
 
+  public Button categoryButton;
   private boolean populatedChart = false;
 
   @FXML
@@ -26,26 +27,28 @@ public class PieChartController extends AbstractController {
     try {
       ArrayList<Data> data = model.getCamtList().get(0)
           .getPieChartData(TestData.getProfile().getPieCategories());
-    // Colors are only displayed for positive values
-    data.forEach(d -> d.setPieValue(Math.abs(d.getPieValue())));
-    pieChart.getData().addAll(data);
-    populatedChart = true;
-    } catch (NullPointerException e){
+      // Colors are only displayed for positive values
+      data.forEach(d -> d.setPieValue(Math.abs(d.getPieValue())));
+      pieChart.getData().addAll(data);
+      populatedChart = true;
+    } catch (NullPointerException e) {
       e.printStackTrace();
-    } catch (Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
-      AlertBox.showAlert("Fatal Error", "Interal Error","", AlertType.ERROR);
+      AlertBox.showAlert("Fatal Error", "Internal Error", "", AlertType.ERROR);
     }
   }
 
-  protected void checkIntegrity(){
-    if(populatedChart){
-      return;
-    } else {
+  protected void checkIntegrity() {
+    if (!populatedChart) {
       initialize();
-      if(!populatedChart){
+      if (!populatedChart) {
         throw new IllegalStateException("Chart could not get populated");
       }
     }
+  }
+
+  public void goToCategories(ActionEvent event) {
+    AbstractController.goTo("categoryEditor", event);
   }
 }

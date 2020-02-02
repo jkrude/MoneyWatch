@@ -23,7 +23,7 @@ public abstract class AbstractController {
     if(wasInitialised){
       throw new IllegalStateException();
     } else {
-      String[] fxmlFiles = {"startScene", "lineChartScene", "pieChartScene"};
+      String[] fxmlFiles = {"startScene", "lineChartScene", "pieChartScene", "categoryEditor"};
       for (String fxmlFile : fxmlFiles) {
         URL fxmlURL;
         try {

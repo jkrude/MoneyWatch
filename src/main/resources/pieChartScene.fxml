@@ -1,18 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.scene.control.Button?>
 <AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.controller.PieChartController">
    <children>
-      <BorderPane prefHeight="720.0" prefWidth="1280.0">
+      <BorderPane prefHeight="720.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <center>
-      <PieChart fx:id="pieChart" BorderPane.alignment="CENTER" stylesheets="@css/pieChart.css" title="Categories" />
+            <AnchorPane BorderPane.alignment="CENTER">
+               <children>
+            <PieChart fx:id="pieChart" prefHeight="662.0" prefWidth="1280.0" stylesheets="@css/pieChart.css" title="Categories" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0" />
+               </children>
+            </AnchorPane>
       </center>
-      <top>
-      <Button fx:id="backButton" mnemonicParsing="false" text="Back" BorderPane.alignment="TOP_LEFT" />
-      </top>
+         <top>
+            <AnchorPane BorderPane.alignment="CENTER_LEFT">
+               <children>
+                  <ButtonBar prefHeight="26.0" prefWidth="1280.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0">
+                     <buttons>
+                        <Button fx:id="backButton" mnemonicParsing="false" text="Back" ButtonBar.buttonData="LEFT" />
+                        <Button fx:id="categoryButton" mnemonicParsing="false" onAction="#goToCategories" text="Categories" ButtonBar.buttonData="RIGHT" />
+                     </buttons>
+                  </ButtonBar>
+               </children>
+            </AnchorPane>
+         </top>
       </BorderPane>
    </children>
 </AnchorPane>
