@@ -15,7 +15,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.transform.Shear;
 import javafx.stage.Stage;
 
 public class StartController extends AbstractController {
@@ -24,7 +23,11 @@ public class StartController extends AbstractController {
   public Button goToMonthOverviewBtn;
   public Button loadFileBtn;
 
-
+  @FXML
+  public void initialize() {
+    //TODO
+    loadFile();
+  }
   @FXML
   private void handleButtonAction(ActionEvent event) {
     System.out.println("You clicked me!");
@@ -73,12 +76,14 @@ public class StartController extends AbstractController {
   }
 
   public void goToPieChart(ActionEvent actionEvent) {
-
-    super.goTo("pieChartScene.fxml", actionEvent);
+    super.goTo("pieChartScene", actionEvent);
   }
 
   public void goToMonthOverview(ActionEvent actionEvent) {
-    super.goTo("lineChartScene.fxml", actionEvent);
+    super.goTo("lineChartScene", actionEvent);
+  }
 
+  @Override
+  protected void checkIntegrity() {
   }
 }

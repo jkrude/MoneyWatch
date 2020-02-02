@@ -5,15 +5,15 @@ import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.DateDataPoint;
 import com.jkrude.material.Money;
 import com.jkrude.material.Utility;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
-import javafx.fxml.Initializable;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -23,15 +23,21 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
 
-public class LineChartController extends AbstractController implements Initializable {
+public class LineChartController extends AbstractController {
 
   public LineChart<Number, Number> lineChart;
+  public Button backButton;
+  private boolean chartIsPopulated = false;
 
 
-  @Override
-  public void initialize(URL url, ResourceBundle resourceBundle) {
+  @FXML
+  public void initialize() {
+    backButton.setOnAction(AbstractController::goBack);
     Camt camt = model.getCamtList().get(0);
-
+    if (camt == null) {
+      chartIsPopulated = false;
+      return;
+    }
     NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
     setupAxis(xAxis, camt);
 
@@ -46,6 +52,7 @@ public class LineChartController extends AbstractController implements Initializ
 
       setContextMenu(d.getNode());
     }
+    chartIsPopulated =true;
   }
 
   private void setupAxis(NumberAxis xAxis, Camt camt) {
@@ -128,5 +135,16 @@ public class LineChartController extends AbstractController implements Initializ
 
     node.setOnContextMenuRequested(
         event -> contextMenu.show(node, event.getScreenX(), event.getScreenY()));
+  }
+
+
+  @Override
+  protected void checkIntegrity() {
+    if (!chartIsPopulated) {
+      initialize();
+      if (!chartIsPopulated) {
+        throw new IllegalStateException("Chart could not be populated");
+      }
+    }
   }
 }

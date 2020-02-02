@@ -10,4 +10,9 @@ public class IgnoreListController extends AbstractController {
   public IgnoreListController() {
 
   }
+
+  @Override
+  protected void checkIntegrity() {
+
+  }
 }

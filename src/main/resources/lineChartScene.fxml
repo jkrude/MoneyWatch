@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.controller.LineChartController">
    <children>
-       <LineChart fx:id="lineChart" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720" prefWidth="1280">
-         <xAxis>
-             <NumberAxis side="BOTTOM" />
-         </xAxis>
-         <yAxis>
-             <NumberAxis side="LEFT" />
-         </yAxis>
-       </LineChart>
+      <BorderPane prefHeight="200.0" prefWidth="200.0">
+        <center>
+             <LineChart fx:id="lineChart" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720" prefWidth="1280" BorderPane.alignment="CENTER">
+               <xAxis>
+                   <NumberAxis side="BOTTOM" />
+               </xAxis>
+               <yAxis>
+                   <NumberAxis side="LEFT" />
+               </yAxis>
+             </LineChart>
+        </center>
+        <top>
+            <Button fx:id="backButton" mnemonicParsing="false" text="Back" BorderPane.alignment="TOP_LEFT" />
+        </top>
+      </BorderPane>
    </children>
 </AnchorPane>
