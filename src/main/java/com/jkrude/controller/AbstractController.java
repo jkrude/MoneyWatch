@@ -2,7 +2,7 @@ package com.jkrude.controller;
 
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Model;
-import com.jkrude.material.Model.MapValue;
+import com.jkrude.material.Model.ScnCntrlPair;
 import com.jkrude.test.TestData;
 import java.io.IOException;
 import java.net.URL;
@@ -37,14 +37,14 @@ public abstract class AbstractController {
           Scene scene = new Scene(fxmlLoader.load());
           // Save the controller and scene.
           AbstractController controller = fxmlLoader.getController();
-          model.getLoadedFxmlFiles().put(fxmlFile, new MapValue(scene, controller));
+          model.getLoadedFxmlFiles().put(fxmlFile, new ScnCntrlPair(scene, controller));
 
         } catch (IOException e) {
           e.printStackTrace();
         }
       }
       // Set currScene to startScene.
-      model.setCurrScene(model.getLoadedFxmlFiles().get("startScene").getScene());
+      model.setCurrScenePair(model.getLoadedFxmlFiles().get("startScene"));
       primaryStage.setTitle("Money Watch");
       primaryStage.setScene(model.getLoadedFxmlFiles().get("startScene").getScene());
       primaryStage.show();
@@ -56,18 +56,18 @@ public abstract class AbstractController {
     // Get the stage for the actionEvent
     Stage stage = getStageForActionEvent(actionEvent);
     try {
-      if (model.getCurrScene() == null) {
+      if (model.getCurrScenePair() == null) {
         throw new IllegalStateException();
       }
 
-      Model.MapValue mapValue = model.getLoadedFxmlFiles().get(pathToFxml);
+      Model.ScnCntrlPair scnCntrlPair = model.getLoadedFxmlFiles().get(pathToFxml);
       // Prepare scene.
-      mapValue.getController().checkIntegrity();
+      scnCntrlPair.getController().checkIntegrity();
       // Switch to scene.
-      stage.setScene(mapValue.getScene());
+      stage.setScene(scnCntrlPair.getScene());
 
-      model.getLastSceneStack().push(model.getCurrScene());
-      model.setCurrScene(mapValue.getScene());
+      model.getLastSceneStack().push(model.getCurrScenePair());
+      model.setCurrScenePair(scnCntrlPair);
     } catch (IllegalStateException e) {
       AlertBox.showAlert("Fatal Error", "Unable to go to page!", " Could not load fxml file.",
           AlertType.ERROR);
@@ -81,10 +81,11 @@ public abstract class AbstractController {
   protected static void goBack(ActionEvent actionEvent) {
     Stage stage = getStageForActionEvent(actionEvent);
     try {
-      Scene lastScene = model.getLastSceneStack().pop();
+      Model.ScnCntrlPair lastScenePair = model.getLastSceneStack().pop();
       //TODO integrityCheck necessary?
-      stage.setScene(lastScene);
-      model.setCurrScene(lastScene);
+      lastScenePair.getController().checkIntegrity();
+      stage.setScene(lastScenePair.getScene());
+      model.setCurrScenePair(lastScenePair);
     } catch (IllegalStateException e) {
       AlertBox.showAlert("Fatal Error", "Unable to go to page!", " Could not load fxml file.",
           AlertType.ERROR);

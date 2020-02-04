@@ -11,11 +11,11 @@ import javafx.scene.Scene;
 public class Model {
 
   private List<Camt> camtList;
-  private Stack<Scene> lastSceneStack;
-  private Scene currScene;
+  private Stack<ScnCntrlPair> lastSceneStack;
+  private ScnCntrlPair currScenePair;
   private Profile profile;
 
-  private Map<String, MapValue> loadedFxmlFiles;
+  private Map<String, ScnCntrlPair> loadedFxmlFiles;
 
   public Model(List<Camt> camtList) {
     if (camtList == null) {
@@ -38,23 +38,23 @@ public class Model {
     return camtList;
   }
 
-  public Stack<Scene> getLastSceneStack() {
+  public Stack<ScnCntrlPair> getLastSceneStack() {
     return lastSceneStack;
   }
 
-  public Scene getCurrScene() {
-    return currScene;
+  public ScnCntrlPair getCurrScenePair() {
+    return currScenePair;
   }
 
-  public void setCurrScene(Scene currScene) {
-    this.currScene = currScene;
+  public void setCurrScenePair(ScnCntrlPair currScenePair) {
+    this.currScenePair = currScenePair;
   }
 
-  public Map<String, MapValue> getLoadedFxmlFiles() {
+  public Map<String, ScnCntrlPair> getLoadedFxmlFiles() {
     return loadedFxmlFiles;
   }
 
-  public void setLoadedFxmlFiles(Map<String, MapValue> loadedFxmlFiles) {
+  public void setLoadedFxmlFiles(Map<String, ScnCntrlPair> loadedFxmlFiles) {
     this.loadedFxmlFiles = loadedFxmlFiles;
   }
 
@@ -66,12 +66,12 @@ public class Model {
     this.profile = profile;
   }
 
-  public static class MapValue {
+  public static class ScnCntrlPair {
 
     private Scene scene;
     private AbstractController controller;
 
-    public MapValue(Scene scene, AbstractController controller) {
+    public ScnCntrlPair(Scene scene, AbstractController controller) {
       this.scene = scene;
       this.controller = controller;
     }

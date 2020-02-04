@@ -156,7 +156,7 @@ public class TestData {
     categoryEating.getIdentifierList().addAll(pieEntries);
     profile.addCategory(categoryEating);
 
-    PieCategory categoryLiving = new PieCategory("Living");
+    PieCategory categoryLiving = new PieCategory("Leben");
     ListProperty<PieCategory.Entry> setLiving = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
     setLiving.add(new PieCategory.Entry("DE56800400000850447400", Camt.ListType.IBAN));
     setLiving.add(new PieCategory.Entry("DE15200411550651304800", Camt.ListType.IBAN));
@@ -164,13 +164,15 @@ public class TestData {
     categoryLiving.getIdentifierList().addAll(setLiving);
     profile.addCategory(categoryLiving);
 
-    PieCategory categoryTravel = new PieCategory("Travel");
+    PieCategory categoryTravel = new PieCategory("Reise");
     ListProperty<PieCategory.Entry> setTravel = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
     setTravel.add(new PieCategory.Entry("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS ",
         Camt.ListType.USAGE));
-
     categoryTravel.getIdentifierList().addAll(setTravel);
     profile.addCategory(categoryTravel);
+
+    PieCategory categoryEmpty = new PieCategory("Empty");
+    profile.addCategory(categoryEmpty);
 
     return profile;
   }
