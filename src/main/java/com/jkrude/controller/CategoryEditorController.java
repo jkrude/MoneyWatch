@@ -5,11 +5,9 @@ import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.PieCategory.Entry;
-import com.jkrude.test.TestData;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -27,24 +25,25 @@ import javafx.scene.control.cell.PropertyValueFactory;
 public class CategoryEditorController extends AbstractController {
 
   @FXML
-  public Button backButton;
+  private Button backButton;
   @FXML
-  public ListView<PieCategory> listView;
+  private ListView<PieCategory> listView;
   @FXML
-  public Label categoryName;
+  private Label categoryNameLabel;
   @FXML
-  public TableView<PieCategory.Entry> table;
+  private TableView<PieCategory.Entry> table;
   @FXML
-  public TableColumn<PieCategory.Entry, String> typeColumn;
+  private TableColumn<PieCategory.Entry, String> typeColumn;
   @FXML
-  public TableColumn<PieCategory.Entry, String> patternColumn;
+  private TableColumn<PieCategory.Entry, String> patternColumn;
   @FXML
-  public ChoiceBox<Camt.ListType> typeChoices;
+  private ChoiceBox<Camt.ListType> typeChoices;
   @FXML
-  public TextField patternInputField;
-
-  private ObservableList<Entry> entriesForCategory;
-
+  private TextField patternInputField;
+  @FXML
+  private Button addCategoryButton;
+  @FXML
+  private TextField categoryNameInputField;
 
   @FXML
   public void initialize() {
@@ -54,15 +53,18 @@ public class CategoryEditorController extends AbstractController {
     backButton.setOnAction(AbstractController::goBack);
 
     // Setup listView
-    ObservableList<PieCategory> items = FXCollections
-        .observableArrayList(TestData.getProfile().getPieCategories());
+    listView.itemsProperty()
+        .bindBidirectional(AbstractController.model.getProfile().getCategoriesProperty());
+    listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-    listView.setItems(items);
-    //TODO if(items != null){
+    //TODO
+    // if(categories != null){
     listView.getSelectionModel().select(0);
-    entriesForCategory = FXCollections
-        .observableArrayList(listView.getSelectionModel().getSelectedItem().getIdentifierList());
+    table.setItems(listView.getSelectionModel().getSelectedItem().getIdentifierList());
+    ;
+    categoryNameLabel.setText(listView.getSelectionModel().getSelectedItem().getName());
     //}
+
     // Set name for listView entries
     listView.setCellFactory(
         callback ->
@@ -78,16 +80,15 @@ public class CategoryEditorController extends AbstractController {
               }
             }
     );
-    listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     // Listener if an item was selected
     listView.getSelectionModel().selectedItemProperty().addListener(
         (ObservableValue<? extends PieCategory> ov, PieCategory oldVal,
             PieCategory newVal) -> {
-          categoryName.setText(newVal.getName());
-          entriesForCategory = FXCollections.observableArrayList(newVal.getIdentifierList());
+          categoryNameLabel.setText(newVal.getName());
+          table.itemsProperty().unbindBidirectional(oldVal.getIdentifierProperty());
+          table.itemsProperty().bindBidirectional(newVal.getIdentifierProperty());
         }
     );
-    categoryName.setText(items.get(0).getName());
 
     // Setup table
     typeColumn.setCellValueFactory(
@@ -95,7 +96,6 @@ public class CategoryEditorController extends AbstractController {
     typeColumn.prefWidthProperty().bind(table.widthProperty().divide(2));
     patternColumn.setCellValueFactory(new PropertyValueFactory<>("pattern"));
     patternColumn.prefWidthProperty().bind(table.widthProperty().divide(2));
-    table.setItems(entriesForCategory);
   }
 
   public void addEntryToCategory(ActionEvent event) {
@@ -105,9 +105,15 @@ public class CategoryEditorController extends AbstractController {
     //TODO
     // Error if entry already in List -> equals method necessary in PieCategory.Entry
     // Input validation
-    entriesForCategory.add(entry);
+    table.getItems().add(entry);
   }
 
+  public void addCategory(ActionEvent event) {
+    //TODO input validation
+    PieCategory category = new PieCategory(categoryNameInputField.getText());
+    listView.getItems().add(category);
+    listView.getSelectionModel().select(listView.getItems().size() - 1);
+  }
 
   @Override
   protected void checkIntegrity() {

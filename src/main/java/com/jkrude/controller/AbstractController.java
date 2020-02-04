@@ -3,6 +3,7 @@ package com.jkrude.controller;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Model;
 import com.jkrude.material.Model.MapValue;
+import com.jkrude.test.TestData;
 import java.io.IOException;
 import java.net.URL;
 import javafx.event.ActionEvent;
@@ -19,10 +20,13 @@ public abstract class AbstractController {
 
   protected abstract void checkIntegrity();
 
-  public static void init(Stage primaryStage){
-    if(wasInitialised){
+  public static void init(Stage primaryStage) {
+    if (wasInitialised) {
       throw new IllegalStateException();
     } else {
+      // Get preset Categories form TestData
+      loadConfig();
+
       String[] fxmlFiles = {"startScene", "lineChartScene", "pieChartScene", "categoryEditor"};
       for (String fxmlFile : fxmlFiles) {
         URL fxmlURL;
@@ -33,7 +37,7 @@ public abstract class AbstractController {
           Scene scene = new Scene(fxmlLoader.load());
           // Save the controller and scene.
           AbstractController controller = fxmlLoader.getController();
-          model.getLoadedFxmlFiles().put(fxmlFile, new MapValue(scene,controller));
+          model.getLoadedFxmlFiles().put(fxmlFile, new MapValue(scene, controller));
 
         } catch (IOException e) {
           e.printStackTrace();
@@ -52,7 +56,7 @@ public abstract class AbstractController {
     // Get the stage for the actionEvent
     Stage stage = getStageForActionEvent(actionEvent);
     try {
-      if(model.getCurrScene() == null){
+      if (model.getCurrScene() == null) {
         throw new IllegalStateException();
       }
 
@@ -91,8 +95,12 @@ public abstract class AbstractController {
     }
   }
 
-  public static Stage getStageForActionEvent(ActionEvent event){
+  public static Stage getStageForActionEvent(ActionEvent event) {
     return (Stage) ((Node) event.getSource()).getScene()
         .getWindow();
+  }
+
+  private static void loadConfig() {
+    model.setProfile(TestData.getProfile());
   }
 }

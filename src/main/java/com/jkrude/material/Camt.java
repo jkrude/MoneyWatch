@@ -5,11 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
@@ -177,9 +178,9 @@ public class Camt {
   /*
   PieChart associated methods.
    */
-  public ArrayList<PieChart.Data> getPieChartData(HashSet<PieCategory> categories) {
+  public ObservableList<PieChart.Data> getPieChartData(ObservableList<PieCategory> categories) {
 
-    ArrayList<PieChart.Data> pieChartData = new ArrayList<>();
+    ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
     HashMap<String, Money> dataHashMap = new HashMap<>();
 
     for (int i = 0; i < this.transferDate.size(); ++i) {

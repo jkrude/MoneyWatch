@@ -1,8 +1,7 @@
 package com.jkrude.controller;
 
 import com.jkrude.material.AlertBox;
-import com.jkrude.test.TestData;
-import java.util.ArrayList;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
@@ -25,8 +24,8 @@ public class PieChartController extends AbstractController {
     backButton.setOnAction(AbstractController::goBack);
 
     try {
-      ArrayList<Data> data = model.getCamtList().get(0)
-          .getPieChartData(TestData.getProfile().getPieCategories());
+      ObservableList<Data> data = model.getCamtList().get(0)
+          .getPieChartData(model.getProfile().getPieCategories());
       // Colors are only displayed for positive values
       data.forEach(d -> d.setPieValue(Math.abs(d.getPieValue())));
       pieChart.getData().addAll(data);

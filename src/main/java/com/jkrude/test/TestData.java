@@ -3,6 +3,7 @@ package com.jkrude.test;
 import com.jkrude.material.Camt;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
+import com.jkrude.material.PieCategory.Entry;
 import com.jkrude.material.Profile;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,6 +12,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
 
 public class TestData {
 
@@ -142,18 +146,18 @@ public class TestData {
   }
 
   public static Profile getProfile() {
-    Profile profile = new Profile(new HashSet<>());
+    Profile profile = new Profile();
     PieCategory categoryEating = new PieCategory("Essen");
-    HashSet<PieCategory.Entry> set = new HashSet<>();
-    set.add(new PieCategory.Entry("NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE",
+    ListProperty<Entry> pieEntries = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
+    pieEntries.add(new PieCategory.Entry("NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE",
         Camt.ListType.OTHER_PARTY));
-    set.add(new PieCategory.Entry("DANKE, IHR LIDL//Dresden/DE", Camt.ListType.OTHER_PARTY));
+    pieEntries.add(new PieCategory.Entry("DANKE, IHR LIDL//Dresden/DE", Camt.ListType.OTHER_PARTY));
 
-    categoryEating.getIdentifierList().addAll(set);
+    categoryEating.getIdentifierList().addAll(pieEntries);
     profile.addCategory(categoryEating);
 
     PieCategory categoryLiving = new PieCategory("Living");
-    HashSet<PieCategory.Entry> setLiving = new HashSet<>();
+    ListProperty<PieCategory.Entry> setLiving = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
     setLiving.add(new PieCategory.Entry("DE56800400000850447400", Camt.ListType.IBAN));
     setLiving.add(new PieCategory.Entry("DE15200411550651304800", Camt.ListType.IBAN));
 
@@ -161,7 +165,7 @@ public class TestData {
     profile.addCategory(categoryLiving);
 
     PieCategory categoryTravel = new PieCategory("Travel");
-    HashSet<PieCategory.Entry> setTravel = new HashSet<>();
+    ListProperty<PieCategory.Entry> setTravel = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
     setTravel.add(new PieCategory.Entry("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS ",
         Camt.ListType.USAGE));
 

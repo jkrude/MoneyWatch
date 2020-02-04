@@ -1,13 +1,22 @@
 package com.jkrude.material;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Profile {
 
-  private HashSet<PieCategory> pieCategories;
+  private ListProperty<PieCategory> pieCategories;
 
-  public Profile(HashSet<PieCategory> pieCategories) {
-    this.pieCategories = pieCategories;
+
+  public Profile() {
+    this.pieCategories = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
+  }
+
+  public Profile(ArrayList<PieCategory> pieCategories) {
+    this.pieCategories = new SimpleListProperty<>(FXCollections.observableList(pieCategories));
   }
 
 
@@ -18,15 +27,14 @@ public class Profile {
     if (category == null) {
       throw new NullPointerException("category was null");
     }
-
     this.pieCategories.add(category);
   }
 
-  public HashSet<PieCategory> getPieCategories() {
-    return pieCategories;
+  public ObservableList<PieCategory> getPieCategories() {
+    return pieCategories.get();
   }
 
-  public void setPieCategories(HashSet<PieCategory> pieCategories) {
-    this.pieCategories = pieCategories;
+  public ListProperty<PieCategory> getCategoriesProperty() {
+    return pieCategories;
   }
 }

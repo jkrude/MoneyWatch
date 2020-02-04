@@ -1,7 +1,11 @@
 package com.jkrude.material;
 
 import com.jkrude.material.Camt.ListType;
-import java.util.HashSet;
+import java.util.ArrayList;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class PieCategory {
 
@@ -9,7 +13,7 @@ public class PieCategory {
   private String name;
 
 
-  private HashSet<PieCategory.Entry> identifierList;
+  private ListProperty<Entry> identifierList;
 
   public static class Entry {
 
@@ -41,20 +45,24 @@ public class PieCategory {
 
   public PieCategory(String name) {
     this.name = name;
-    this.identifierList = new HashSet<>();
+    this.identifierList = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
+    ;
   }
 
-  public PieCategory(String name, HashSet<PieCategory.Entry> identifierMap) {
+  public PieCategory(String name, SimpleListProperty<Entry> identifierList) {
     this.name = name;
-    this.identifierList = identifierMap;
+    this.identifierList = identifierList;
   }
-
 
   public String getName() {
     return name;
   }
 
-  public HashSet<PieCategory.Entry> getIdentifierList() {
+  public ObservableList<Entry> getIdentifierList() {
+    return identifierList.getValue();
+  }
+
+  public ListProperty<Entry> getIdentifierProperty() {
     return identifierList;
   }
 
@@ -62,9 +70,7 @@ public class PieCategory {
     this.name = name;
   }
 
-  public void setIdentifierList(
-      HashSet<PieCategory.Entry> identifierList) {
+  public void setIdentifierList(ListProperty<Entry> identifierList) {
     this.identifierList = identifierList;
   }
-
 }
