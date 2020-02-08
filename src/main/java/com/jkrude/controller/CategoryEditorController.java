@@ -78,6 +78,15 @@ public class CategoryEditorController extends AbstractController {
                   setText(item.getName());
                   //Set contextMenu
                   setContextMenu(getContextMenuForLVCell(this));
+                  emptyProperty().addListener(
+                      (obs, wasEmpty, isNowEmpty) -> {
+                        if(isNowEmpty){
+                          setContextMenu(null);
+                        }else{
+                          setContextMenu(getContextMenuForLVCell(this));
+                        }
+                      }
+                  );
                 } else {
                   setText(null);
                 }
