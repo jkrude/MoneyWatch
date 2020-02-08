@@ -5,6 +5,7 @@ import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.PieCategory.Entry;
+import java.util.Optional;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -12,13 +13,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 
@@ -55,13 +59,11 @@ public class CategoryEditorController extends AbstractController {
     // Setup listView
     listView.itemsProperty()
         .bindBidirectional(AbstractController.model.getProfile().getCategoriesProperty());
-    listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
     //TODO
     // if(categories != null){
-    listView.getSelectionModel().select(0);
+    listView.getSelectionModel().selectFirst();
     table.setItems(listView.getSelectionModel().getSelectedItem().getIdentifierList());
-    ;
     categoryNameLabel.setText(listView.getSelectionModel().getSelectedItem().getName());
     //}
 
@@ -72,8 +74,10 @@ public class CategoryEditorController extends AbstractController {
               @Override
               protected void updateItem(PieCategory item, boolean empty) {
                 super.updateItem(item, empty);
-                if (item != null) {
+                if (item != null && !empty) {
                   setText(item.getName());
+                  //Set contextMenu
+                  setContextMenu(getContextMenuForLVCell(this));
                 } else {
                   setText(null);
                 }
@@ -113,6 +117,27 @@ public class CategoryEditorController extends AbstractController {
     PieCategory category = new PieCategory(categoryNameInputField.getText());
     listView.getItems().add(category);
     listView.getSelectionModel().select(listView.getItems().size() - 1);
+  }
+
+  private ContextMenu getContextMenuForLVCell(ListCell<PieCategory> cell) {
+    ContextMenu contextMenu = new ContextMenu();
+    MenuItem mIRename = new MenuItem("Rename");
+    mIRename.setOnAction(event -> newNameDialog(cell));
+    MenuItem mIDelete = new MenuItem("Delete");
+    mIDelete.setOnAction(event -> cell.getListView().getItems().remove(cell.getItem()));
+
+    contextMenu.getItems().addAll(mIRename,mIDelete);
+    return contextMenu;
+  }
+
+  private void newNameDialog(ListCell<PieCategory> cell) {
+    TextInputDialog textInputDialog = new TextInputDialog("New Name");
+    textInputDialog.setHeaderText("");
+    textInputDialog.setTitle("Change the name");
+    Optional<String> result = textInputDialog.showAndWait();
+    if (result.isPresent() && !result.get().isBlank()) {
+      cell.setText(result.get());
+    }
   }
 
   @Override
