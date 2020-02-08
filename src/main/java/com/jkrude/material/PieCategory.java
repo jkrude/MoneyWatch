@@ -4,13 +4,15 @@ import com.jkrude.material.Camt.ListType;
 import java.util.ArrayList;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class PieCategory {
 
 
-  private String name;
+  private StringProperty name;
 
 
   private ListProperty<Entry> identifierList;
@@ -43,18 +45,21 @@ public class PieCategory {
   }
 
 
-  public PieCategory(String name) {
+  public PieCategory(StringProperty name) {
     this.name = name;
     this.identifierList = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
-    ;
+  }
+  public PieCategory(String name){
+    this.name =new SimpleStringProperty(name);
+    this.identifierList = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   }
 
-  public PieCategory(String name, SimpleListProperty<Entry> identifierList) {
+  public PieCategory(StringProperty name, SimpleListProperty<Entry> identifierList) {
     this.name = name;
     this.identifierList = identifierList;
   }
 
-  public String getName() {
+  public StringProperty getName() {
     return name;
   }
 
@@ -66,7 +71,7 @@ public class PieCategory {
     return identifierList;
   }
 
-  public void setName(String name) {
+  public void setName(StringProperty name) {
     this.name = name;
   }
 

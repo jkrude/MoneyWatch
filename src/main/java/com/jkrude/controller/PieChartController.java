@@ -2,6 +2,8 @@ package com.jkrude.controller;
 
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.PieCategory;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -45,6 +47,8 @@ public class PieChartController extends AbstractController {
           pieCategory.getIdentifierList().addListener(
               (ListChangeListener<? super PieCategory.Entry>) change -> dirtyFlag = true
           );
+          pieCategory.getName().addListener(
+              (observableValue, s, t1) -> dirtyFlag = true);
         }
     );
   }

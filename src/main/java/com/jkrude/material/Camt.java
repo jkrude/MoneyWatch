@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.PieChart;
@@ -181,7 +182,7 @@ public class Camt {
   public ObservableList<PieChart.Data> getPieChartData(ObservableList<PieCategory> categories) {
 
     ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
-    HashMap<String, Money> dataHashMap = new HashMap<>();
+    HashMap<StringProperty, Money> dataHashMap = new HashMap<>();
 
     for (int i = 0; i < this.transferDate.size(); ++i) {
       boolean found = false;
@@ -243,12 +244,12 @@ public class Camt {
         }
       }
     }
-    dataHashMap.forEach((String key, Money value) -> pieChartData
-        .add(new PieChart.Data(key, value.getValue().doubleValue())));
+    dataHashMap.forEach((StringProperty key, Money value) -> pieChartData
+        .add(new PieChart.Data(key.get(), value.getValue().doubleValue())));
     return pieChartData;
   }
 
-  private <T> boolean searchForCategory(HashMap<String, Money> dataHashMap, int i,
+  private <T> boolean searchForCategory(HashMap<StringProperty, Money> dataHashMap, int i,
       PieCategory category, PieCategory.Entry entry, List<T> list) {
 
     boolean found = false;

@@ -18,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -59,13 +58,17 @@ public class CategoryEditorController extends AbstractController {
     // Setup listView
     listView.itemsProperty()
         .bindBidirectional(AbstractController.model.getProfile().getCategoriesProperty());
+    listView.setPlaceholder(new Label("No categories configured."));
 
-    //TODO
-    // if(categories != null){
+    table.setPlaceholder(new Label("No category selected yet or category is empty"));
+
+    if(listView.getItems() != null && !listView.getItems().isEmpty()){
     listView.getSelectionModel().selectFirst();
     table.setItems(listView.getSelectionModel().getSelectedItem().getIdentifierList());
-    categoryNameLabel.setText(listView.getSelectionModel().getSelectedItem().getName());
-    //}
+    categoryNameLabel.setText(listView.getSelectionModel().getSelectedItem().getName().get());
+    }else{
+      categoryNameLabel.setText("");
+    }
 
     // Set name for listView entries
     listView.setCellFactory(
@@ -75,7 +78,7 @@ public class CategoryEditorController extends AbstractController {
               protected void updateItem(PieCategory item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item != null && !empty) {
-                  setText(item.getName());
+                  textProperty().bind(item.getName());
                   //Set contextMenu
                   setContextMenu(getContextMenuForLVCell(this));
                   emptyProperty().addListener(
@@ -88,6 +91,7 @@ public class CategoryEditorController extends AbstractController {
                       }
                   );
                 } else {
+                  textProperty().unbind();
                   setText(null);
                 }
               }
@@ -97,7 +101,7 @@ public class CategoryEditorController extends AbstractController {
     listView.getSelectionModel().selectedItemProperty().addListener(
         (ObservableValue<? extends PieCategory> ov, PieCategory oldVal,
             PieCategory newVal) -> {
-          categoryNameLabel.setText(newVal.getName());
+          categoryNameLabel.setText(newVal.getName().get());
           table.itemsProperty().unbindBidirectional(oldVal.getIdentifierProperty());
           table.itemsProperty().bindBidirectional(newVal.getIdentifierProperty());
         }
@@ -145,7 +149,8 @@ public class CategoryEditorController extends AbstractController {
     textInputDialog.setTitle("Change the name");
     Optional<String> result = textInputDialog.showAndWait();
     if (result.isPresent() && !result.get().isBlank()) {
-      cell.setText(result.get());
+      // Binded biderectional
+      cell.getItem().getName().set(result.get());
     }
   }
 
