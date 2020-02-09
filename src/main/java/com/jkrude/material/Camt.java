@@ -72,7 +72,6 @@ public class Camt {
   // Maps every date to a number of transactions that happened that day.
   private TreeMap<Date, List<DateDataPoint>> dateMap;
 
-  private List<XYChart.Data<Number, Number>> lineChartData;
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
 
 
@@ -141,40 +140,6 @@ public class Camt {
     this.csvFileParser(sc);
     this.generateDateMap();
   }
-
-  /*
-  LineChart associated methods.
-   */
-  public List<XYChart.Data<Number, Number>> getLineChartData() {
-    if (lineChartData == null || lineChartData.isEmpty()) {
-      generateLineChart();
-    }
-    return lineChartData;
-  }
-
-  private void generateLineChart() {
-    lineChartData = new ArrayList<>();
-    Set<Date> set = dateMap.keySet();
-    Money currAmount = new Money(0);
-
-    for (Date d : set) {
-      for (DateDataPoint dateDataPoint : dateMap.get(d)) {
-        currAmount.add(dateDataPoint.amount);
-      }
-      lineChartData.add(new Data<>(d.toInstant().toEpochMilli(), currAmount.getValue()));
-    }
-  }
-
-  // TODO
-  public List<DateDataPoint> getDataPointForDate(long nbr) {
-    for (Date date : dateMap.keySet()) {
-      if (date.toInstant().toEpochMilli() == nbr) {
-        return dateMap.get(date);
-      }
-    }
-    throw new IllegalArgumentException("DateMap does not contain this date: " + nbr);
-  }
-
 
   /*
   PieChart associated methods.
