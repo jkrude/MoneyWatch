@@ -1,21 +1,15 @@
 package com.jkrude.material;
 
+import com.jkrude.material.PieCategory.Entry;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
-import javafx.scene.chart.PieChart;
 
 public class Camt {
 
@@ -52,7 +46,7 @@ public class Camt {
     }
   }
 
-  private List<Camt.Entry> source;
+  private List<CamtEntry> source;
 
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
 
@@ -157,13 +151,13 @@ public class Camt {
 
   public TreeMap<Date, List<DateDataPoint>> getSourceAsDateMap() {
     TreeMap<Date, List<DateDataPoint>> dateMap = new TreeMap<>();
-    for (Camt.Entry entry : source) {
-      if(dateMap.containsKey(entry.getDate())){
-        dateMap.get(entry.getDate()).add(entry.getDataPoint());
+    for (CamtEntry camtEntry : source) {
+      if(dateMap.containsKey(camtEntry.getDate())){
+        dateMap.get(camtEntry.getDate()).add(camtEntry.getDataPoint());
       }else{
         List<DateDataPoint> list = new ArrayList<>();
-        list.add(entry.getDataPoint());
-        dateMap.put(entry.getDate(),list);
+        list.add(camtEntry.getDataPoint());
+        dateMap.put(camtEntry.getDate(),list);
       }
     }
     return dateMap;
@@ -176,91 +170,61 @@ public class Camt {
     if (sc == null) {
       throw new NullPointerException();
     }
-    sc.useDelimiter("[;\\n]");
-    String line;
-    int column = 0; // ranges form 0 to 16
+    sc.useDelimiter("[\\n]");
+
     if (sc.hasNextLine()) {
       sc.nextLine(); // discard first line
+    }else{
+      throw new ParseException("File is empty or could not be parsed", 0);
     }
 
     Money currAmount = null;
     Date currDate = null;
-    DateDataPoint currDateDataPoint = new DateDataPoint();
-    while (sc.hasNext()) {
-      line = sc.next().replaceAll("\"", "");
-      switch (column) {
-        case 0:
-          currDateDataPoint.setContractAccount(line);
-          break;
-        case 1:
-          try {
-            currDate = dateFormatter.parse(line);
-          } catch (ParseException e){
-            e.printStackTrace();
-            throw e;
-          }
-          break;
-        case 2:
-          currDateDataPoint.setValidationDate(line);
-          break;
-        case 3:
-          currDateDataPoint.setTransferSpecification(line);
-          break;
-        case 4:
-          currDateDataPoint.setUsage(line);
-          break;
-        case 5:
-          currDateDataPoint.setCreditorId(line);
-          break;
-        case 6:
-          currDateDataPoint.setMandateReference(line);
-          break;
-        case 7:
-          currDateDataPoint.setCustomerReference(line);
-          break;
-        case 8:
-          currDateDataPoint.setCollectionReference(line);
-          break;
-        case 9:
-          currDateDataPoint.setDebitOriginalAmount(line);
-          break;
-        case 10:
-          currDateDataPoint.setBackDebit(line);
-          break;
-        case 11:
-          currDateDataPoint.setOtherParty(line);
-          break;
-        case 12:
-          currDateDataPoint.setIban(line);
-          break;
-        case 13:
-          currDateDataPoint.setBic(line);
-          break;
-        case 14:
-          currAmount = new Money(line.replace(",", "."));
-          break;
-        case 15:
-          if (line.equals(Money.EURO.toString())) {
-            currDateDataPoint.setAmount(currAmount);
-          } else {
-            throw new IllegalArgumentException(
-                "Currently not supporting other Currency's than EURO:"
-                    + "Problem at row: " + source.size() + 1 + ", found: " + line);
-          }
-          break;
-        case 16:
-          currDateDataPoint.setInfo(line);
-          break;
-      }
+    DateDataPoint currDDP = new DateDataPoint();
 
-      if(column == 16 && currDate != null) {
-        source.add(new Entry(currDate, currDateDataPoint));
+    while (sc.hasNext()) {
+      final String line = sc.next().replaceAll("\"", "");
+      final String[] strings = line.split(";");
+      if(strings.length != 17){
+        throw new ParseException("Line was not splittable into 17 parts with delimiter ';' ",source.size());
       }
-      column++;
-      column %= 17;
+      currDDP.setContractAccount(strings[0]);
+      try {
+        currDate = dateFormatter.parse(strings[1]);
+      } catch (ParseException e) {
+        e.printStackTrace();
+        throw e;
+      }
+      currDDP.setValidationDate(strings[2]);
+      currDDP.setTransferSpecification(strings[3]);
+      currDDP.setUsage(strings[4]);
+      currDDP.setCreditorId(strings[5]);
+      currDDP.setMandateReference(strings[6]);
+      currDDP.setCustomerReference(strings[7]);
+      currDDP.setCollectionReference(strings[8]);
+      currDDP.setDebitOriginalAmount(strings[9]);
+      currDDP.setBackDebit(strings[10]);
+      currDDP.setOtherParty(strings[11]);
+      currDDP.setIban(strings[12]);
+      currDDP.setBic(strings[13]);
+      currAmount = new Money(strings[14].replace(",", "."));
+      if (strings[15].equals(Money.EURO.toString())) {
+        currDDP.setAmount(currAmount);
+      } else {
+        throw new IllegalArgumentException(
+            "Currently not supporting other Currency's than EURO:"
+                + "Problem at row: " + source.size() + 1 + ", found: " + line);
+      }
+      currDDP.setInfo(strings[16]);
+      source.add(new CamtEntry(currDate, currDDP));
     }
   }
-    /*
+
+  public List<CamtEntry> getSource(){
+    return source;
+  }
+
+  /*
   Class to hold the i. element from every list (except the date).
   This is used for the date map.
    */
@@ -416,11 +380,11 @@ public class Camt {
     }
   }
 
-  public static class Entry {
+  public static class CamtEntry {
     private ObjectProperty<Date> date;
     private ObjectProperty<DateDataPoint> dataPoint;
 
-    public Entry(Date date, DateDataPoint dataPoint) {
+    public CamtEntry(Date date, DateDataPoint dataPoint) {
       this.date = new SimpleObjectProperty<>(date);
       this.dataPoint = new SimpleObjectProperty<>(dataPoint);
     }
