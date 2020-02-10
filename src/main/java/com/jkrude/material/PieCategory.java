@@ -1,7 +1,8 @@
 package com.jkrude.material;
 
-import com.jkrude.material.Camt.ListType;
+import com.jkrude.material.Camt.CamtEntry;
 import java.util.ArrayList;
+import java.util.function.Predicate;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -11,50 +12,22 @@ import javafx.collections.ObservableList;
 
 public class PieCategory {
 
-
   private StringProperty name;
 
+  private ListProperty<Predicate<CamtEntry>> identifierList;
 
-  private ListProperty<Entry> identifierList;
-
-  public static class Entry {
-
-    private String pattern;
-    private Camt.ListType type;
-
-    public Entry(String pattern, Camt.ListType type) {
-      this.pattern = pattern;
-      this.type = type;
-    }
-
-    public String getPattern() {
-      return pattern;
-    }
-
-    public ListType getType() {
-      return type;
-    }
-
-    public void setPattern(String pattern) {
-      this.pattern = pattern;
-    }
-
-    public void setType(ListType type) {
-      this.type = type;
-    }
-  }
-
-
+  
   public PieCategory(StringProperty name) {
     this.name = name;
     this.identifierList = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   }
-  public PieCategory(String name){
-    this.name =new SimpleStringProperty(name);
+
+  public PieCategory(String name) {
+    this.name = new SimpleStringProperty(name);
     this.identifierList = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   }
 
-  public PieCategory(StringProperty name, SimpleListProperty<Entry> identifierList) {
+  public PieCategory(StringProperty name, SimpleListProperty<Predicate<CamtEntry>> identifierList) {
     this.name = name;
     this.identifierList = identifierList;
   }
@@ -63,11 +36,11 @@ public class PieCategory {
     return name;
   }
 
-  public ObservableList<Entry> getIdentifierList() {
+  public ObservableList<Predicate<CamtEntry>> getIdentifierList() {
     return identifierList.getValue();
   }
 
-  public ListProperty<Entry> getIdentifierProperty() {
+  public ListProperty<Predicate<CamtEntry>> getIdentifierProperty() {
     return identifierList;
   }
 
@@ -75,7 +48,7 @@ public class PieCategory {
     this.name = name;
   }
 
-  public void setIdentifierList(ListProperty<Entry> identifierList) {
+  public void setIdentifierList(ListProperty<Predicate<CamtEntry>> identifierList) {
     this.identifierList = identifierList;
   }
 }
