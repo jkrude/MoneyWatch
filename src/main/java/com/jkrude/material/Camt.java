@@ -1,6 +1,5 @@
 package com.jkrude.material;
 
-import com.jkrude.material.PieCategory.Entry;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,8 +7,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.TreeMap;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Camt {
 
@@ -46,13 +49,21 @@ public class Camt {
     }
   }
 
-  private List<CamtEntry> source;
+  public SimpleDateFormat getDateFormatter() {
+    return dateFormatter;
+  }
+
+  private ListProperty<CamtEntry> source;
 
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
 
 
   public Camt() {
-    source = new ArrayList<>();
+    source = new SimpleListProperty<>(FXCollections.observableArrayList());
+  }
+
+  public Camt(ObservableList<CamtEntry> entries) {
+    source = new SimpleListProperty<>(entries);
   }
 
   public Camt(Scanner sc) throws ParseException, IllegalArgumentException {
@@ -152,12 +163,12 @@ public class Camt {
   public TreeMap<Date, List<DateDataPoint>> getSourceAsDateMap() {
     TreeMap<Date, List<DateDataPoint>> dateMap = new TreeMap<>();
     for (CamtEntry camtEntry : source) {
-      if(dateMap.containsKey(camtEntry.getDate())){
+      if (dateMap.containsKey(camtEntry.getDate())) {
         dateMap.get(camtEntry.getDate()).add(camtEntry.getDataPoint());
-      }else{
+      } else {
         List<DateDataPoint> list = new ArrayList<>();
         list.add(camtEntry.getDataPoint());
-        dateMap.put(camtEntry.getDate(),list);
+        dateMap.put(camtEntry.getDate(), list);
       }
     }
     return dateMap;
@@ -167,26 +178,28 @@ public class Camt {
   Construct a Camt-Obj. from a CSV-File
    */
   public void csvFileParser(Scanner sc) throws ParseException, IllegalArgumentException {
-    if (sc == null) {
+    if (sc == null || source == null) {
       throw new NullPointerException();
     }
     sc.useDelimiter("[\\n]");
 
     if (sc.hasNextLine()) {
       sc.nextLine(); // discard first line
-    }else{
+    } else {
       throw new ParseException("File is empty or could not be parsed", 0);
     }
 
-    Money currAmount = null;
-    Date currDate = null;
-    DateDataPoint currDDP = new DateDataPoint();
+
 
     while (sc.hasNext()) {
+      final Money currAmount;
+      final Date currDate;
+      final DateDataPoint currDDP = new DateDataPoint();
       final String line = sc.next().replaceAll("\"", "");
       final String[] strings = line.split(";");
-      if(strings.length != 17){
-        throw new ParseException("Line was not splittable into 17 parts with delimiter ';' ",source.size());
+      if (strings.length != 17) {
+        throw new ParseException("Line was not splittable into 17 parts with delimiter ';' ",
+            source.size());
       }
       currDDP.setContractAccount(strings[0]);
       try {
@@ -220,7 +233,11 @@ public class Camt {
     }
   }
 
-  public List<CamtEntry> getSource(){
+  public ObservableList<CamtEntry> getSource() {
+    return source.get();
+  }
+
+  public ListProperty<CamtEntry> sourceProperty() {
     return source;
   }
 
@@ -246,9 +263,34 @@ public class Camt {
     private Money amount;
     private String info;
 
+    public DateDataPoint() {
+    }
+
+    public DateDataPoint(String contractAccount, String validationDate,
+        String transferSpecification, String usage, String creditorId,
+        String mandateReference, String customerReference, String collectionReference,
+        String debitOriginalAmount, String backDebit, String otherParty, String iban,
+        String bic, Money amount, String info) {
+      this.contractAccount = contractAccount;
+      this.validationDate = validationDate;
+      this.transferSpecification = transferSpecification;
+      this.usage = usage;
+      this.creditorId = creditorId;
+      this.mandateReference = mandateReference;
+      this.customerReference = customerReference;
+      this.collectionReference = collectionReference;
+      this.debitOriginalAmount = debitOriginalAmount;
+      this.backDebit = backDebit;
+      this.otherParty = otherParty;
+      this.iban = iban;
+      this.bic = bic;
+      this.amount = amount;
+      this.info = info;
+    }
+
     /*
-    Getter.
-     */
+        Getter.
+         */
     public String getContractAccount() {
       return contractAccount;
     }
@@ -381,6 +423,7 @@ public class Camt {
   }
 
   public static class CamtEntry {
+
     private ObjectProperty<Date> date;
     private ObjectProperty<DateDataPoint> dataPoint;
 
