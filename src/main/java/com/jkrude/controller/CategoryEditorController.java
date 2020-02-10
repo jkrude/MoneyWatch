@@ -25,7 +25,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 
-public class CategoryEditorController extends AbstractController {
+public class CategoryEditorController extends ParentController {
 
   @FXML
   private Button backButton;
@@ -53,11 +53,11 @@ public class CategoryEditorController extends AbstractController {
 
     typeChoices.setItems(
         FXCollections.observableArrayList(ListType.IBAN, ListType.USAGE, ListType.OTHER_PARTY));
-    backButton.setOnAction(AbstractController::goBack);
+    backButton.setOnAction(ParentController::goBack);
 
     // Setup listView
     listView.itemsProperty()
-        .bindBidirectional(AbstractController.model.getProfile().getCategoriesProperty());
+        .bindBidirectional(ParentController.model.getProfile().getCategoriesProperty());
     listView.setPlaceholder(new Label("No categories configured."));
 
     table.setPlaceholder(new Label("No category selected yet or category is empty"));

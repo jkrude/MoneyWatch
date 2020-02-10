@@ -28,21 +28,35 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
 
-public class LineChartController extends AbstractController {
+public class LineChartController extends ParentController {
 
-  public LineChart<Number, Number> lineChart;
-  private Map<Number, Date> dateLookupTable;
-  public Button backButton;
+  @FXML
+  private LineChart<Number, Number> lineChart;
+  @FXML
+  private Button backButton;
+  // Controller specific var:
   private boolean chartIsPopulated = false;
+  private Map<Number, Date> dateLookupTable;
+
 
   public LineChartController() {
     dateLookupTable = new HashMap<>();
   }
 
+  @Override
+  protected void checkIntegrity() {
+    if (!chartIsPopulated) {
+      initialize();
+      if (!chartIsPopulated) {
+        throw new IllegalStateException("Chart could not be populated");
+      }
+    }
+  }
 
+  // Fetch datasource -> setup series & setupAxis & setupTooltip usw.
   @FXML
   public void initialize() {
-    backButton.setOnAction(AbstractController::goBack);
+    backButton.setOnAction(ParentController::goBack);
     if (dateLookupTable == null) {
       throw new IllegalStateException("dateLookupTable was not initialized");
     }
@@ -68,16 +82,6 @@ public class LineChartController extends AbstractController {
       setContextMenu(d.getNode());
     }
     chartIsPopulated = true;
-  }
-
-  @Override
-  protected void checkIntegrity() {
-    if (!chartIsPopulated) {
-      initialize();
-      if (!chartIsPopulated) {
-        throw new IllegalStateException("Chart could not be populated");
-      }
-    }
   }
 
   private void setupAxis(NumberAxis xAxis, XYChart.Series<Number, Number> series,Camt camt) {

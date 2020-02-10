@@ -2,8 +2,6 @@ package com.jkrude.controller;
 
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.PieCategory;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,7 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
 
-public class PieChartController extends AbstractController {
+public class PieChartController extends ParentController {
 
   private boolean populatedChart = false;
   private boolean dirtyFlag = false; //Marks if chart is up to date with model
@@ -29,7 +27,7 @@ public class PieChartController extends AbstractController {
 
   @FXML
   public void initialize() {
-    backButton.setOnAction(AbstractController::goBack);
+    backButton.setOnAction(ParentController::goBack);
     model.getProfile().getPieCategories().addListener(
         (ListChangeListener<PieCategory>) change -> {
           dirtyFlag = true;
@@ -92,6 +90,6 @@ public class PieChartController extends AbstractController {
   }
 
   public void goToCategories(ActionEvent event) {
-    AbstractController.goTo("categoryEditor", event);
+    ParentController.goTo("categoryEditor", event);
   }
 }

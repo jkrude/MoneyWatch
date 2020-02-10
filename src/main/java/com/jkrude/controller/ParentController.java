@@ -13,7 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 
-public abstract class AbstractController {
+public abstract class ParentController {
 
   static protected Model model = new Model();
   static private boolean wasInitialised = false;
@@ -32,11 +32,11 @@ public abstract class AbstractController {
         URL fxmlURL;
         try {
           // Load Scene with FXMLLoader.
-          fxmlURL = AbstractController.class.getClassLoader().getResource(fxmlFile + ".fxml");
+          fxmlURL = ParentController.class.getClassLoader().getResource(fxmlFile + ".fxml");
           FXMLLoader fxmlLoader = new FXMLLoader(fxmlURL);
           Scene scene = new Scene(fxmlLoader.load());
           // Save the controller and scene.
-          AbstractController controller = fxmlLoader.getController();
+          ParentController controller = fxmlLoader.getController();
           model.getLoadedFxmlFiles().put(fxmlFile, new ScnCntrlPair(scene, controller));
 
         } catch (IOException e) {

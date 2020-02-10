@@ -1,6 +1,6 @@
 package com.jkrude.main;
 
-import com.jkrude.controller.AbstractController;
+import com.jkrude.controller.ParentController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -8,7 +8,7 @@ public class Main extends Application {
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    AbstractController.init(primaryStage);
+    ParentController.init(primaryStage);
   }
 
   public static void main(String[] args) {

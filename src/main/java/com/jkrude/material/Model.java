@@ -1,6 +1,6 @@
 package com.jkrude.material;
 
-import com.jkrude.controller.AbstractController;
+import com.jkrude.controller.ParentController;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,9 +69,9 @@ public class Model {
   public static class ScnCntrlPair {
 
     private Scene scene;
-    private AbstractController controller;
+    private ParentController controller;
 
-    public ScnCntrlPair(Scene scene, AbstractController controller) {
+    public ScnCntrlPair(Scene scene, ParentController controller) {
       this.scene = scene;
       this.controller = controller;
     }
@@ -80,7 +80,7 @@ public class Model {
       return scene;
     }
 
-    public AbstractController getController() {
+    public ParentController getController() {
       return controller;
     }
   }

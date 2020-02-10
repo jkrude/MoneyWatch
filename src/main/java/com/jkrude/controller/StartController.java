@@ -10,14 +10,10 @@ import java.text.ParseException;
 import java.util.Scanner;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.stage.Stage;
 
-public class StartController extends AbstractController {
+public class StartController extends ParentController {
 
   public Button goToPieChartBtn;
   public Button goToMonthOverviewBtn;
@@ -28,20 +24,10 @@ public class StartController extends AbstractController {
     //TODO
     loadFile();
   }
-  @FXML
-  private void handleButtonAction(ActionEvent event) {
-    System.out.println("You clicked me!");
 
-    Stage stageTheEventSourceNodeBelongs = (Stage) ((Node) event.getSource()).getScene()
-        .getWindow();
-
-    try {
-      FXMLLoader loader = new FXMLLoader(getClass().getResource("ignoreListScene.fxml"));
-
-      stageTheEventSourceNodeBelongs.setScene(new Scene(loader.load()));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  // No checks to be done
+  @Override
+  protected void checkIntegrity() {
   }
 
   public void loadFile() {
@@ -76,14 +62,10 @@ public class StartController extends AbstractController {
   }
 
   public void goToPieChart(ActionEvent actionEvent) {
-    super.goTo("pieChartScene", actionEvent);
+    goTo("pieChartScene", actionEvent);
   }
 
   public void goToMonthOverview(ActionEvent actionEvent) {
-    super.goTo("lineChartScene", actionEvent);
-  }
-
-  @Override
-  protected void checkIntegrity() {
+    goTo("lineChartScene", actionEvent);
   }
 }
