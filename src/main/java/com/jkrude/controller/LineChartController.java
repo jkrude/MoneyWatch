@@ -107,7 +107,7 @@ public class LineChartController extends ParentController {
   }
 
   private void genDataFromSource(XYChart.Series<Number, Number> series, Camt source) {
-    TreeMap<Date, List<DateDataPoint>> dateMap = source.getDateMap();
+    TreeMap<Date, List<DateDataPoint>> dateMap = source.getSourceAsDateMap();
     Set<Date> set = dateMap.keySet();
     Money currAmount = new Money(0);
 
@@ -132,7 +132,7 @@ public class LineChartController extends ParentController {
   private void setClickListener(XYChart.Data<Number, Number> data, Camt camt) {
     // Add click Listener for every day
     Date date = dateLookupTable.get(data.getXValue());
-    List<DateDataPoint> dateDataPoints = camt.getDateMap().get(date);
+    List<DateDataPoint> dateDataPoints = camt.getSourceAsDateMap().get(date);
 
     TableView<DateDataPoint> tableView = new TableView<>();
     tableView.setEditable(false);

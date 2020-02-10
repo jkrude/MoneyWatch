@@ -6,11 +6,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.scene.chart.PieChart;
 
 public class Camt {
@@ -48,105 +52,29 @@ public class Camt {
     }
   }
 
-
-  private List<String> accountIban;
-  private List<Date> transferDate;
-  private List<String> validationDate;
-  private List<String> transferSpecification;
-  private List<String> usage;
-  private List<String> creditorId;
-  private List<String> mandateReference;
-  private List<String> customerReference;
-  private List<String> collectionReference;
-  private List<String> debitOriginalAmount;
-  private List<String> backDebit;
-  private List<String> otherParty;
-  private List<String> iban;
-  private List<String> bic;
-  private List<Money> amount;
-  private List<String> info;
-
-  // Maps every date to a number of transactions that happened that day.
-  private TreeMap<Date, List<DateDataPoint>> dateMap;
+  private List<Camt.Entry> source;
 
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
 
 
   public Camt() {
-    this.accountIban = new ArrayList<>();
-    this.transferDate = new ArrayList<>();
-    this.validationDate = new ArrayList<>();
-    this.transferSpecification = new ArrayList<>();
-    this.usage = new ArrayList<>();
-    this.creditorId = new ArrayList<>();
-    this.mandateReference = new ArrayList<>();
-    this.customerReference = new ArrayList<>();
-    this.collectionReference = new ArrayList<>();
-    this.debitOriginalAmount = new ArrayList<>();
-    this.backDebit = new ArrayList<>();
-    this.otherParty = new ArrayList<>();
-    this.iban = new ArrayList<>();
-    this.bic = new ArrayList<>();
-    this.amount = new ArrayList<>();
-    this.info = new ArrayList<>();
-
-    this.dateMap = new TreeMap<>();
-  }
-
-  public Camt(
-      List<String> accountIban,
-      List<Date> transferDate,
-      List<String> validationDate,
-      List<String> transferSpecification,
-      List<String> usage,
-      List<String> creditorId,
-      List<String> mandateReference,
-      List<String> customerReference,
-      List<String> collectionReference,
-      List<String> debitOriginalAmount,
-      List<String> backDebit,
-      List<String> otherParty,
-      List<String> iban,
-      List<String> bic,
-      List<Money> amount,
-      List<String> info) {
-    this.accountIban = accountIban;
-    this.transferDate = transferDate;
-    this.validationDate = validationDate;
-    this.transferSpecification = transferSpecification;
-    this.usage = usage;
-    this.creditorId = creditorId;
-    this.mandateReference = mandateReference;
-    this.customerReference = customerReference;
-    this.collectionReference = collectionReference;
-    this.debitOriginalAmount = debitOriginalAmount;
-    this.backDebit = backDebit;
-    this.otherParty = otherParty;
-    this.iban = iban;
-    this.bic = bic;
-    this.amount = amount;
-    this.info = info;
-
-    this.dateMap = new TreeMap<>();
-    generateDateMap();
-
+    source = new ArrayList<>();
   }
 
   public Camt(Scanner sc) throws ParseException, IllegalArgumentException {
     this();
     this.csvFileParser(sc);
-    this.generateDateMap();
   }
 
   /*
   PieChart associated methods.
-   */
+
   public ObservableList<PieChart.Data> getPieChartData(ObservableList<PieCategory> categories) {
 
     ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
     HashMap<StringProperty, Money> dataHashMap = new HashMap<>();
 
-    for (int i = 0; i < this.transferDate.size(); ++i) {
+    for (int i = 0; i < this.source.size(); ++i) {
       boolean found = false;
 
       for (PieCategory category : categories) {
@@ -225,54 +153,20 @@ public class Camt {
     }
     return found;
   }
+*/
 
-
-  public TreeMap<Date, List<DateDataPoint>> getDateMap() {
-    if (dateMap == null) {
-      generateDateMap();
+  public TreeMap<Date, List<DateDataPoint>> getSourceAsDateMap() {
+    TreeMap<Date, List<DateDataPoint>> dateMap = new TreeMap<>();
+    for (Camt.Entry entry : source) {
+      if(dateMap.containsKey(entry.getDate())){
+        dateMap.get(entry.getDate()).add(entry.getDataPoint());
+      }else{
+        List<DateDataPoint> list = new ArrayList<>();
+        list.add(entry.getDataPoint());
+        dateMap.put(entry.getDate(),list);
+      }
     }
     return dateMap;
-  }
-
-  private void generateDateMap() {
-
-    Date currDate = transferDate.get(0);
-    List<DateDataPoint> list = new ArrayList<>();
-    /*
-    for loop adds list from i-1 if new date occurs
-    after for loop checks where to put last list
-     */
-    for (int i = 0; i < transferDate.size(); i++) {
-      DateDataPoint dateDataPoint = new DateDataPoint();
-      dateDataPoint.setContractAccount(accountIban.get(i));
-      dateDataPoint.setValidationDate(validationDate.get(i));
-      dateDataPoint.setTransferSpecification(transferSpecification.get(i));
-      dateDataPoint.setUsage(usage.get(i));
-      dateDataPoint.setCreditorId(creditorId.get(i));
-      dateDataPoint.setMandateReference(mandateReference.get(i));
-      dateDataPoint.setCustomerReference(customerReference.get(i));
-      dateDataPoint.setCollectionReference(collectionReference.get(i));
-      dateDataPoint.setDebitOriginalAmount(debitOriginalAmount.get(i));
-      dateDataPoint.setBackDebit(backDebit.get(i));
-      dateDataPoint.setOtherParty(otherParty.get(i));
-      dateDataPoint.setIban(iban.get(i));
-      dateDataPoint.setBic(bic.get(i));
-      dateDataPoint.setAmount(amount.get(i));
-      dateDataPoint.setInfo(info.get(i));
-      // date != dates[i-1] -> save list (with entries from i-1)
-      if (!currDate.equals(transferDate.get(i))) {
-        dateMap.put(currDate, list);
-        list = new ArrayList<>();
-        currDate = transferDate.get(i);
-      }
-      list.add(dateDataPoint);
-    }
-    // Check where to put last generated list (DataPoints)
-    if (currDate.equals(transferDate.get(transferDate.size() - 1))) {
-      dateMap.put(currDate, list);
-    } else {
-      dateMap.get(currDate).addAll(list);
-    }
   }
 
   /*
@@ -296,138 +190,77 @@ public class Camt {
       line = sc.next().replaceAll("\"", "");
       switch (column) {
         case 0:
-          accountIban.add(line);
           currDateDataPoint.setContractAccount(line);
           break;
         case 1:
-          currDate = dateFormatter.parse(line);
-          transferDate.add(currDate);
+          try {
+            currDate = dateFormatter.parse(line);
+          } catch (ParseException e){
+            e.printStackTrace();
+            throw e;
+          }
           break;
         case 2:
-          validationDate.add(line);
+          currDateDataPoint.setValidationDate(line);
           break;
         case 3:
-          transferSpecification.add(line);
+          currDateDataPoint.setTransferSpecification(line);
           break;
         case 4:
-          usage.add(line);
+          currDateDataPoint.setUsage(line);
           break;
         case 5:
-          creditorId.add(line);
+          currDateDataPoint.setCreditorId(line);
           break;
         case 6:
-          mandateReference.add(line);
+          currDateDataPoint.setMandateReference(line);
           break;
         case 7:
-          customerReference.add(line);
+          currDateDataPoint.setCustomerReference(line);
           break;
         case 8:
-          collectionReference.add(line);
+          currDateDataPoint.setCollectionReference(line);
           break;
         case 9:
-          debitOriginalAmount.add(line);
+          currDateDataPoint.setDebitOriginalAmount(line);
           break;
         case 10:
-          backDebit.add(line);
+          currDateDataPoint.setBackDebit(line);
           break;
         case 11:
-          otherParty.add(line);
+          currDateDataPoint.setOtherParty(line);
           break;
         case 12:
-          iban.add(line);
+          currDateDataPoint.setIban(line);
           break;
         case 13:
-          bic.add(line);
+          currDateDataPoint.setBic(line);
           break;
         case 14:
           currAmount = new Money(line.replace(",", "."));
           break;
         case 15:
           if (line.equals(Money.EURO.toString())) {
-            amount.add(currAmount);
+            currDateDataPoint.setAmount(currAmount);
           } else {
             throw new IllegalArgumentException(
                 "Currently not supporting other Currency's than EURO:"
-                    + "Problem at row: " + amount.size() + 1 + ", found: " + line);
+                    + "Problem at row: " + source.size() + 1 + ", found: " + line);
           }
           break;
         case 16:
-          info.add(line);
+          currDateDataPoint.setInfo(line);
           break;
+      }
+
+      if(column == 16 && currDate != null) {
+        source.add(new Entry(currDate, currDateDataPoint));
       }
       column++;
       column %= 17;
     }
   }
-
-  /*
-  Getter.
-   */
-  public List<Date> getTransferDate() {
-    return transferDate;
-  }
-
-  public List<Money> getAmount() {
-    return amount;
-  }
-
-  public List<String> getAccountIban() {
-    return accountIban;
-  }
-
-  public List<String> getValidationDate() {
-    return validationDate;
-  }
-
-  public List<String> getTransferSpecification() {
-    return transferSpecification;
-  }
-
-  public List<String> getUsage() {
-    return usage;
-  }
-
-  public List<String> getCreditorId() {
-    return creditorId;
-  }
-
-  public List<String> getMandateReference() {
-    return mandateReference;
-  }
-
-  public List<String> getCustomerReference() {
-    return customerReference;
-  }
-
-  public List<String> getCollectionReference() {
-    return collectionReference;
-  }
-
-  public List<String> getDebitOriginalAmount() {
-    return debitOriginalAmount;
-  }
-
-  public List<String> getBackDebit() {
-    return backDebit;
-  }
-
-  public List<String> getOtherParty() {
-    return otherParty;
-  }
-
-  public List<String> getIban() {
-    return iban;
-  }
-
-  public List<String> getBic() {
-    return bic;
-  }
-
-  public List<String> getInfo() {
-    return info;
-  }
-
-  /*
+    /*
   Class to hold the i. element from every list (except the date).
   This is used for the date map.
    */
@@ -583,4 +416,37 @@ public class Camt {
     }
   }
 
+  public static class Entry {
+    private ObjectProperty<Date> date;
+    private ObjectProperty<DateDataPoint> dataPoint;
+
+    public Entry(Date date, DateDataPoint dataPoint) {
+      this.date = new SimpleObjectProperty<>(date);
+      this.dataPoint = new SimpleObjectProperty<>(dataPoint);
+    }
+
+    public Date getDate() {
+      return date.get();
+    }
+
+    public ObjectProperty<Date> dateProperty() {
+      return date;
+    }
+
+    public void setDate(Date date) {
+      this.date.set(date);
+    }
+
+    public DateDataPoint getDataPoint() {
+      return dataPoint.get();
+    }
+
+    public ObjectProperty<DateDataPoint> dataPointProperty() {
+      return dataPoint;
+    }
+
+    public void setDataPoint(DateDataPoint dataPoint) {
+      this.dataPoint.set(dataPoint);
+    }
+  }
 }

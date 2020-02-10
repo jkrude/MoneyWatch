@@ -1,6 +1,7 @@
 package com.jkrude.controller;
 
 import com.jkrude.material.AlertBox;
+import com.jkrude.material.Camt;
 import com.jkrude.material.PieCategory;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -78,15 +79,6 @@ public class PieChartController extends ParentController {
       Tooltip.install(data.getNode(),tlp);
     }
 
-  }
-
-  protected void checkIntegrity() {
-    if (!populatedChart || dirtyFlag) {
-      setupChart();
-      if (!populatedChart || dirtyFlag) {
-        throw new IllegalStateException("Chart could not get populated");
-      }
-    }
   }
 
   public void goToCategories(ActionEvent event) {
