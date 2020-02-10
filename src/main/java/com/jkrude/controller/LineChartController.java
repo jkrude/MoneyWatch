@@ -117,7 +117,7 @@ public class LineChartController extends ParentController {
       }
       Number dateAsNumber = d.toInstant().toEpochMilli();
       dateLookupTable.put(dateAsNumber, d);
-      series.getData().add(new Data<>(dateAsNumber, currAmount.getValue()));
+      series.getData().add(new Data<>(dateAsNumber, currAmount.getAmount()));
     }
   }
 

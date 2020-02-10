@@ -9,7 +9,7 @@ public class Money {
 
   public static final Currency EURO = Currency.getInstance("EUR");
   private Currency currency;
-  private BigDecimal value;
+  private BigDecimal amount;
 
 
   /*
@@ -18,37 +18,37 @@ public class Money {
 
   public Money() {
     this.currency = EURO;
-    this.value = scaleToTwo(new BigDecimal(0));
+    this.amount = scaleToTwo(new BigDecimal(0));
   }
 
   public Money(String curr, int val) {
     this.currency = Currency.getInstance(curr);
-    this.value = scaleToTwo(new BigDecimal(val));
+    this.amount = scaleToTwo(new BigDecimal(val));
   }
 
   public Money(double val) {
     this.currency = EURO;
-    this.value = scaleToTwo(new BigDecimal(val));
+    this.amount = scaleToTwo(new BigDecimal(val));
   }
 
   public Money(String curr, BigDecimal bigDec) {
     this.currency = Currency.getInstance(curr);
-    this.value = scaleToTwo(bigDec);
+    this.amount = scaleToTwo(bigDec);
   }
 
   public Money(int val) {
     this.currency = EURO;
-    this.value = scaleToTwo(new BigDecimal(val));
+    this.amount = scaleToTwo(new BigDecimal(val));
   }
 
   public Money(Currency curr, BigDecimal bigDec) {
     this(bigDec);
-    this.value = scaleToTwo(bigDec);
+    this.amount = scaleToTwo(bigDec);
   }
 
   public Money(BigDecimal bigDecimal) {
     this.currency = EURO;
-    this.value = scaleToTwo(bigDecimal);
+    this.amount = scaleToTwo(bigDecimal);
   }
 
   public Money(Currency currency, String val) {
@@ -58,7 +58,7 @@ public class Money {
 
   public Money(String val) {
     this.currency = EURO;
-    this.value = scaleToTwo(new BigDecimal(val));
+    this.amount = scaleToTwo(new BigDecimal(val));
   }
 
   /*
@@ -74,18 +74,18 @@ public class Money {
     }
     Money money = (Money) o;
     return Objects.equals(currency, money.currency) &&
-        Objects.equals(value, money.value);
+        Objects.equals(amount, money.amount);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(EURO, currency, value);
+    return Objects.hash(EURO, currency, amount);
   }
 
   @Override
   public String toString() {
     return
-        value.toString() + ',' + currency.toString();
+        amount.toString() + ',' + currency.toString();
   }
 
 
@@ -104,7 +104,7 @@ public class Money {
     if (!a.currency.equals(b.currency)) {
       throw new IllegalArgumentException("Currencies didnt match!");
     }
-    BigDecimal c = a.value.add(b.value);
+    BigDecimal c = a.amount.add(b.amount);
     return new Money(a.currency, c);
   }
 
@@ -112,7 +112,7 @@ public class Money {
     if (!a.currency.equals(b.currency)) {
       throw new IllegalArgumentException("Currencies didnt match!");
     }
-    BigDecimal c = a.value.subtract(b.value);
+    BigDecimal c = a.amount.subtract(b.amount);
     return new Money(a.currency, c);
   }
 
@@ -120,26 +120,26 @@ public class Money {
     if (!this.currency.equals(b.currency)) {
       throw new IllegalArgumentException("Currencies didnt match!");
     }
-    this.value = this.value.add(b.value);
+    this.amount = this.amount.add(b.amount);
   }
 
   public void sub(Money b) {
     if (!this.currency.equals(b.currency)) {
       throw new IllegalArgumentException("Currencies didnt match!");
     }
-    this.value = this.value.subtract(b.value);
+    this.amount = this.amount.subtract(b.amount);
     ;
   }
 
   /*
    * Getter and setter.
    */
-  public BigDecimal getValue() {
-    return value;
+  public BigDecimal getAmount() {
+    return amount;
   }
 
-  public void setValue(int val) {
-    this.value = scaleToTwo(new BigDecimal(val));
+  public void setAmount(int val) {
+    this.amount = scaleToTwo(new BigDecimal(val));
   }
 
 }

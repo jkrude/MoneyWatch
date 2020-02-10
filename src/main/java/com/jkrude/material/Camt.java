@@ -7,14 +7,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.TreeMap;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.PieChart;
-import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Data;
 
 public class Camt {
 
@@ -210,7 +207,7 @@ public class Camt {
       }
     }
     dataHashMap.forEach((StringProperty key, Money value) -> pieChartData
-        .add(new PieChart.Data(key.get(), value.getValue().doubleValue())));
+        .add(new PieChart.Data(key.get(), value.getAmount().doubleValue())));
     return pieChartData;
   }
 
@@ -514,7 +511,7 @@ public class Camt {
     //TODO
     // Hack for LineChartController.setupSeries: amountColumn.setCellValueFactory(new PropertyValueFactory<>("amountAsDouble"));
     public Double getAmountAsDouble() {
-      return amount.getValue().doubleValue();
+      return amount.getAmount().doubleValue();
     }
 
     public String getInfo() {
