@@ -1,11 +1,14 @@
 package com.jkrude.material;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import javafx.util.StringConverter;
 
 public abstract class Utility {
+
+  public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
 
   public static StringConverter<Number> convertFromInstant() {
     return new StringConverter<Number>() {

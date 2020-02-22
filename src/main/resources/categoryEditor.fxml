@@ -20,10 +20,10 @@
           <children>
                   <VBox alignment="CENTER" prefHeight="660.0" prefWidth="377.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                  <ListView fx:id="listView" prefHeight="660.0" prefWidth="377.0" />
+                  <ListView fx:id="categoryLV" prefHeight="660.0" prefWidth="377.0" />
                         <HBox alignment="CENTER" spacing="24.0">
                            <TextField fx:id="categoryNameInputField" promptText="Name" />
-                          <Button fx:id="addCategoryButton" mnemonicParsing="false" text="Add" onAction="#addCategory"/>
+                          <Button fx:id="addCategoryButton" mnemonicParsing="false" onAction="#addCategory" text="Add" />
                         </HBox>
                      </children>
                   </VBox>
@@ -31,7 +31,7 @@
         </AnchorPane>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
           <children>
-            <VBox alignment="TOP_CENTER">
+            <VBox alignment="TOP_CENTER" prefHeight="660.0" prefWidth="893.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <children>
                 <AnchorPane>
                   <children>
@@ -45,12 +45,7 @@
                     </Label>
                   </children>
                 </AnchorPane>
-                <TableView fx:id="table" prefHeight="200.0" prefWidth="200.0">
-                  <columns>
-                    <TableColumn fx:id="typeColumn" prefWidth="75.0" text="Type" />
-                    <TableColumn fx:id="patternColumn" prefWidth="75.0" text="Pattern" />
-                  </columns>
-                </TableView>
+                        <ListView fx:id="ruleLV" prefHeight="200.0" prefWidth="200.0" />
                 <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="64.0">
                   <children>
                     <ChoiceBox fx:id="typeChoices" minWidth="-Infinity" prefWidth="200.0" />

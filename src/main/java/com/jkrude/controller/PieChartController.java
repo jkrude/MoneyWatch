@@ -3,9 +3,9 @@ package com.jkrude.controller;
 import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
+import com.jkrude.material.Rule;
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.function.Predicate;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -48,7 +48,7 @@ public class PieChartController extends ParentController {
           if (change.next() && !change.getAddedSubList().isEmpty()) {
             change.getAddedSubList().forEach(
                 item -> item.getIdentifierList().addListener(
-                    (ListChangeListener<? super Predicate<CamtEntry>>) change1 -> dirtyFlag = true
+                    (ListChangeListener<? super Rule>) change1 -> dirtyFlag = true
                 )
             );
           }
@@ -57,7 +57,7 @@ public class PieChartController extends ParentController {
     model.getProfile().getPieCategories().forEach(
         pieCategory -> {
           pieCategory.getIdentifierList().addListener(
-              (ListChangeListener<? super Predicate<CamtEntry>>) change -> dirtyFlag = true
+              (ListChangeListener<? super Rule>) change -> dirtyFlag = true
           );
           pieCategory.getName().addListener(
               (observableValue, s, t1) -> dirtyFlag = true);
@@ -82,8 +82,8 @@ public class PieChartController extends ParentController {
     categories.forEach(pieCategory -> categoryHashMap.put(pieCategory.getName(), new Money(0)));
     for (CamtEntry camtEntry : source) {
       for (PieCategory category : categories) {
-        for (Predicate<CamtEntry> predicate : category.getIdentifierList()) {
-          if (predicate.test(camtEntry)) {
+        for (Rule rule : category.getIdentifierList()) {
+          if (rule.getPredicate().test(camtEntry)) {
             if (camtEntry.getDataPoint().getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
               categoryHashMap.get(category.getName()).add(camtEntry.getDataPoint().getAmount());
             } else {

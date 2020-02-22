@@ -51,12 +51,12 @@ public class Money {
     this.amount = scaleToTwo(bigDecimal);
   }
 
-  public Money(Currency currency, String val) {
+  public Money(Currency currency, String val) throws NumberFormatException {
     this(val);
     this.currency = currency;
   }
 
-  public Money(String val) {
+  public Money(String val) throws NumberFormatException {
     this.currency = EURO;
     this.amount = scaleToTwo(new BigDecimal(val));
   }

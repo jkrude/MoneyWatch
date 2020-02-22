@@ -14,9 +14,9 @@ public class PieCategory {
 
   private StringProperty name;
 
-  private ListProperty<Predicate<CamtEntry>> identifierList;
+  private ListProperty<Rule> identifierList;
 
-  
+
   public PieCategory(StringProperty name) {
     this.name = name;
     this.identifierList = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
@@ -27,7 +27,7 @@ public class PieCategory {
     this.identifierList = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
   }
 
-  public PieCategory(StringProperty name, SimpleListProperty<Predicate<CamtEntry>> identifierList) {
+  public PieCategory(StringProperty name,  ListProperty<Rule> identifierList) {
     this.name = name;
     this.identifierList = identifierList;
   }
@@ -36,11 +36,11 @@ public class PieCategory {
     return name;
   }
 
-  public ObservableList<Predicate<CamtEntry>> getIdentifierList() {
+  public ObservableList<Rule> getIdentifierList() {
     return identifierList.getValue();
   }
 
-  public ListProperty<Predicate<CamtEntry>> getIdentifierProperty() {
+  public  ListProperty<Rule> getIdentifierProperty() {
     return identifierList;
   }
 
@@ -48,7 +48,7 @@ public class PieCategory {
     this.name = name;
   }
 
-  public void setIdentifierList(ListProperty<Predicate<CamtEntry>> identifierList) {
+  public void setIdentifierList( ListProperty<Rule> identifierList) {
     this.identifierList = identifierList;
   }
 }

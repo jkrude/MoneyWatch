@@ -31,7 +31,7 @@ public class Camt {
     OTHER_PARTY,
     IBAN,
     BIC,
-    //AMOUNT,
+    AMOUNT,
     INFO;
 
     @Override
