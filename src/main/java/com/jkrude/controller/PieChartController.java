@@ -1,11 +1,20 @@
 package com.jkrude.controller;
 
+import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt.CamtEntry;
+import com.jkrude.material.Camt.DateDataPoint;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -14,14 +23,21 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 public class PieChartController extends ParentController {
 
   private boolean populatedChart = false;
   private boolean dirtyFlag = false; //Marks if chart is up to date with model
+  private Map<String, List<CamtEntry>> chartDataMap;
 
   @FXML
   private Button categoryButton;
@@ -39,6 +55,7 @@ public class PieChartController extends ParentController {
 
   @FXML
   public void initialize() {
+    chartDataMap = new HashMap<>();
     backButton.setOnAction(ParentController::goBack);
 
     // Setup change-listener for data-invalidation
@@ -69,30 +86,47 @@ public class PieChartController extends ParentController {
     pieChart.getData().clear();
     ObservableList<CamtEntry> source = model.getCamtList().get(0).getSource();
     ObservableList<PieCategory> categories = model.getProfile().getPieCategories();
-    pieChart.getData().addAll(genDataFromSource(source, categories));
+    Pair<ObservableList<Data>, Map<String, List<CamtEntry>>> result = genDataFromSource(source, categories);
+    if(result.getValue() != null && !result.getValue().isEmpty()){
+      AlertBox.showAlert("Ignorierte gefundene Überweisungen","Manche Überweisungen werden nicht in der Grafik genutzt","Im Diagramm werden nur die Ausgaben betrachtet. Einige Regeln konnten allerdings auch auf Eingaben angewendet werden",
+          AlertType.WARNING);
+    }
+    pieChart.getData().addAll(result.getKey());
     setupToolTip(pieChart.getData());
+    setupPopUp(pieChart.getData());
     populatedChart = true;
     dirtyFlag = false;
   }
 
-  private ObservableList<PieChart.Data> genDataFromSource(ObservableList<CamtEntry> source,
+  private Pair<ObservableList<Data>,Map<String, List<CamtEntry>>> genDataFromSource(ObservableList<CamtEntry> source,
       ObservableList<PieCategory> categories) {
+
+    Map<String, List<CamtEntry>> ignoredPositiveEntries = new HashMap<>();
     ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
     HashMap<StringProperty, Money> categoryHashMap = new HashMap<>();
-    categories.forEach(pieCategory -> categoryHashMap.put(pieCategory.getName(), new Money(0)));
+    chartDataMap.clear();
+    categories.forEach(pieCategory -> {
+      categoryHashMap.put(pieCategory.getName(), new Money(0));
+      chartDataMap.put(pieCategory.getName().get(), new ArrayList<>());
+    });
     for (CamtEntry camtEntry : source) {
       for (PieCategory category : categories) {
         for (Rule rule : category.getIdentifierList()) {
           if (rule.getPredicate().test(camtEntry)) {
             if (camtEntry.getDataPoint().getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
               categoryHashMap.get(category.getName()).add(camtEntry.getDataPoint().getAmount());
+              chartDataMap.get(category.getName().get()).add(camtEntry);
             } else {
-              //FIXME what to do with positive values?
-              throw new IllegalArgumentException("Found matching positive value");
+              if(ignoredPositiveEntries.containsKey(category.getName().get())){
+                ignoredPositiveEntries.get(category.getName().get()).add(camtEntry);
+              }else{
+                List<CamtEntry> list = new ArrayList<>();
+                list.add(camtEntry);
+                ignoredPositiveEntries.put(category.getName().get(),list);
+              }
             }
           }
         }
-
       }
     }
 
@@ -100,7 +134,7 @@ public class PieChartController extends ParentController {
     categoryHashMap.forEach(
         (key, value) -> pieChartData
             .add(new Data(key.get(), Math.abs(value.getAmount().doubleValue()))));
-    return pieChartData;
+    return new Pair<>(pieChartData,ignoredPositiveEntries);
   }
 
   private void setupToolTip(final ObservableList<PieChart.Data> chartData) {
@@ -110,7 +144,32 @@ public class PieChartController extends ParentController {
       tlp.setShowDelay(new Duration(100));
       Tooltip.install(data.getNode(), tlp);
     }
+  }
 
+  private void setupPopUp(final ObservableList<PieChart.Data> chartData){
+    for (final PieChart.Data data: chartData){
+      TableView<CamtEntry> tableView = new TableView<>();
+      tableView.setEditable(false);
+      TableColumn<CamtEntry, Date > dateColumn = new TableColumn<>("Datum:");
+      dateColumn.setCellValueFactory(
+          camtEntryDateCellDataFeatures -> new SimpleObjectProperty<Date>(camtEntryDateCellDataFeatures.getValue().getDate()));
+      TableColumn<CamtEntry, String> usageColumn = new TableColumn<>("Usage");
+      usageColumn.setCellValueFactory(callback -> new SimpleStringProperty(callback.getValue().getDataPoint().getUsage()));
+
+      TableColumn<CamtEntry, Double > amountColumn = new TableColumn<>("Amount");
+      amountColumn.setCellValueFactory(callback -> new SimpleObjectProperty<>(callback.getValue().getDataPoint().getAmount().getAmount().doubleValue()));
+
+      tableView.getColumns().add(dateColumn);
+      tableView.getColumns().add(usageColumn);
+      tableView.getColumns().add(amountColumn);
+      tableView.getItems().addAll(chartDataMap.get(data.getName()));
+      data.getNode().setOnMouseClicked(
+          event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+              AlertBox.displayGeneric("Title", tableView, 1000, 400);
+            }
+          });
+    }
   }
 
   public void goToCategories(ActionEvent event) {
