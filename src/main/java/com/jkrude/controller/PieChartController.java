@@ -6,7 +6,10 @@ import com.jkrude.material.Camt.DateDataPoint;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
+import com.jkrude.material.UI.TableStageController;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,6 +24,8 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Alert.AlertType;
@@ -30,6 +35,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
 
@@ -148,27 +155,29 @@ public class PieChartController extends ParentController {
 
   private void setupPopUp(final ObservableList<PieChart.Data> chartData){
     for (final PieChart.Data data: chartData){
-      TableView<CamtEntry> tableView = new TableView<>();
-      tableView.setEditable(false);
-      TableColumn<CamtEntry, Date > dateColumn = new TableColumn<>("Datum:");
-      dateColumn.setCellValueFactory(
-          camtEntryDateCellDataFeatures -> new SimpleObjectProperty<Date>(camtEntryDateCellDataFeatures.getValue().getDate()));
-      TableColumn<CamtEntry, String> usageColumn = new TableColumn<>("Usage");
-      usageColumn.setCellValueFactory(callback -> new SimpleStringProperty(callback.getValue().getDataPoint().getUsage()));
-
-      TableColumn<CamtEntry, Double > amountColumn = new TableColumn<>("Amount");
-      amountColumn.setCellValueFactory(callback -> new SimpleObjectProperty<>(callback.getValue().getDataPoint().getAmount().getAmount().doubleValue()));
-
-      tableView.getColumns().add(dateColumn);
-      tableView.getColumns().add(usageColumn);
-      tableView.getColumns().add(amountColumn);
-      tableView.getItems().addAll(chartDataMap.get(data.getName()));
-      data.getNode().setOnMouseClicked(
-          event -> {
-            if (event.getButton() == MouseButton.PRIMARY) {
-              AlertBox.displayGeneric("Title", tableView, 1000, 400);
-            }
-          });
+      try{
+        URL resource = getClass().getClassLoader().getResource("table.fxml");
+        if (resource != null) {
+          FXMLLoader loader = new FXMLLoader(resource);
+          Pane pane = loader.load();
+          TableStageController controller = loader.getController();
+          controller.setItems(chartDataMap.get(data.getName()));
+          Stage stage = new Stage();
+          Scene scene = new Scene(pane);
+          stage.setScene(scene);
+          data.getNode().setOnMouseClicked(
+              event -> {
+                if (event.getButton() == MouseButton.PRIMARY) {
+                  stage.showAndWait();
+                }
+              });
+        }else{
+          AlertBox.showAlert("Fatal Error","","Internal Error", AlertType.ERROR);
+        }
+      } catch (IOException e) {
+        AlertBox.showAlert("Fatal Error","","Internal Error", AlertType.ERROR);
+        e.printStackTrace();
+      }
     }
   }
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.material.UI.TableStageController">
+   <VBox prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <children>
+        <TableView fx:id="table" prefHeight="400.0" prefWidth="600.0">
+          <columns>
+            <TableColumn fx:id="accountIban" text="IBAN" />
+            <TableColumn fx:id="transferDate" text="Buchungstag" />
+            <TableColumn fx:id="validationDate" text="Valutadatum" />
+            <TableColumn fx:id="transferSpecification" text="Buchungstext" />
+            <TableColumn fx:id="usage" text="Verwendungszweck" />
+            <TableColumn fx:id="creditorId" text="Glaubiger ID" />
+            <TableColumn fx:id="mandateReference" text="Mandatsreferenz" />
+            <TableColumn fx:id="customerReferenceRndToEnd" text="Kundenreferenz" />
+            <TableColumn fx:id="collectionReference" text="Sammlerreferenz" />
+            <TableColumn fx:id="debitOriginalAmount" text="Lastschrif Ursprungsbetrag" />
+            <TableColumn fx:id="backDebit" text="Auslagenersatz Ruecklastschrift" />
+            <TableColumn fx:id="otherParty" text="Beguenstigter/Zahlungspflichtiger" />
+            <TableColumn fx:id="iban" text="IBAN" />
+            <TableColumn fx:id="bic" text="BIC" />
+            <TableColumn fx:id="amount" text="Betrag" />
+            <TableColumn fx:id="info" text="Info" />
+          </columns>
+        </TableView>
+         <ButtonBar prefHeight="34.0" prefWidth="600.0">
+           <buttons>
+             <Button mnemonicParsing="false" onAction="#close" prefHeight="101.0" prefWidth="50.0" text="Close" />
+           </buttons>
+            <padding>
+               <Insets bottom="10.0" left="16.0" right="16.0" top="10.0" />
+            </padding>
+         </ButtonBar>
+      </children>
+   </VBox>
+</AnchorPane>
