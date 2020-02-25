@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
@@ -28,12 +29,17 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.util.Pair;
 
 
 public class CategoryEditorController extends ParentController {
 
   public ListView<Rule> ruleLV;
+  public ToggleButton secondAndBtn;
+  public ToggleButton firstAndBtn;
+  public TextField secondAndTF;
+  public TextField firstAndTF;
+  public ChoiceBox<ListType> firstAndCB;
+  public ChoiceBox<ListType> secondAndCB;
   @FXML
   private Button backButton;
   @FXML
@@ -41,19 +47,16 @@ public class CategoryEditorController extends ParentController {
   @FXML
   private Label categoryNameLabel;
   @FXML
-  private ChoiceBox<Camt.ListType> typeChoices;
+  private ChoiceBox<Camt.ListType> defaultCB;
   @FXML
-  private TextField patternInputField;
-  @FXML
-  private Button addCategoryButton;
+  private TextField defaultTF;
   @FXML
   private TextField categoryNameInputField;
 
   @FXML
   public void initialize() {
 
-    typeChoices.setItems(
-        FXCollections.observableArrayList(ListType.IBAN, ListType.USAGE, ListType.OTHER_PARTY));
+    setupAddRuleLayout();
     backButton.setOnAction(ParentController::goBack);
 
     // Setup data-source
@@ -112,22 +115,52 @@ public class CategoryEditorController extends ParentController {
     ruleLV.setCellFactory(callback -> new RuleCell());
   }
 
+
+  private void setupAddRuleLayout() {
+    ObservableList<ListType> typeChoiceList = FXCollections
+        .observableArrayList(ListType.IBAN, ListType.USAGE, ListType.OTHER_PARTY);
+    defaultCB.setItems(typeChoiceList);
+
+    firstAndCB.setItems(typeChoiceList);
+    addListenerForCB(firstAndCB, defaultCB);
+    firstAndCB.visibleProperty().bind(firstAndBtn.selectedProperty());
+    firstAndTF.visibleProperty().bind(firstAndBtn.selectedProperty());
+
+    secondAndBtn.visibleProperty().bind(firstAndBtn.selectedProperty());
+    addListenerForCB(secondAndCB, firstAndCB);
+    secondAndCB.visibleProperty().bind(secondAndBtn.selectedProperty());
+    secondAndTF.visibleProperty().bind(secondAndBtn.selectedProperty());
+  }
+
+  private void addListenerForCB(ChoiceBox<ListType> observingChoiceBox,
+      ChoiceBox<ListType> observedChoiceBox) {
+    observedChoiceBox.getSelectionModel().selectedItemProperty().addListener(
+        (ObservableValue<? extends ListType> obsValue, ListType oldV, ListType newV) -> {
+            observingChoiceBox
+                .setItems(observedChoiceBox.getItems().filtered(type1 -> !type1.equals(newV)));
+        });
+  }
+
   public void addEntryToCategory(ActionEvent event) {
-    //FIXME
-    Pair<Camt.ListType, String> pair = new Pair<>(typeChoices.getSelectionModel().getSelectedItem(),patternInputField.getText());
-    Map<ListType, String > map = new HashMap<>();
-    map.put(typeChoices.getSelectionModel().getSelectedItem(),patternInputField.getText());
     try {
-      Rule rule = Rule.RuleFactory.generate(map,"");
+      Map<ListType, String> inputMap = new HashMap<>();
+      inputMap.put(defaultCB.getSelectionModel().getSelectedItem(), defaultTF.getText());
+      if (firstAndBtn.isSelected()) {
+        inputMap.put(firstAndCB.getSelectionModel().getSelectedItem(), firstAndTF.getText());
+        if (secondAndBtn.isSelected()) {
+          inputMap.put(secondAndCB.getSelectionModel().getSelectedItem(), secondAndTF.getText());
+        }
+        firstAndBtn.setSelected(false);
+      }
+      Rule rule = Rule.RuleFactory.generate(inputMap, "");
       ruleLV.getItems().add(rule);
     } catch (ParseException e) {
       e.printStackTrace();
-      AlertBox.showAlert("Fehlerhafte Eingabe", "Das Datum war nicht im Format mm.dd.yy","Eingabe"+patternInputField.getText(),
+      AlertBox.showAlert("Fehlerhafte Eingabe", "Das Datum war nicht im Format mm.dd.yy",
+          "Eingabe: " + defaultTF
+              .getText(),
           AlertType.ERROR);
     }
-    /* Predicate<CamtEntry> entry = new Entry(patternInputField.getText(),
-        );
-    */
     //TODO
     // Error if entry already in List -> equals method necessary in PieCategory.Entry
     // Input validation
@@ -171,11 +204,10 @@ public class CategoryEditorController extends ParentController {
     HBox hbox = new HBox();
     Label label = new Label("(empty)");
     Pane pane = new Pane();
-    ToggleButton button = new ToggleButton();
 
     public RuleCell() {
       super();
-      hbox.getChildren().addAll(button, label, pane);
+      hbox.getChildren().addAll(label, pane);
       HBox.setHgrow(pane, Priority.ALWAYS);
     }
 
@@ -187,7 +219,8 @@ public class CategoryEditorController extends ParentController {
       } else {
         StringBuilder stringBuilder = new StringBuilder();
         rule.getIdentifierMap()
-            .forEach((key, value) -> stringBuilder.append(key).append(": ").append(value));
+            .forEach((key, value) -> stringBuilder.append(key).append(": ").append(value).append(", "));
+        stringBuilder.delete(stringBuilder.lastIndexOf(","),stringBuilder.length()-1);
         label.setText(stringBuilder.toString());
         setGraphic(hbox);
       }

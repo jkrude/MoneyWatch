@@ -31,7 +31,7 @@
         </AnchorPane>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
           <children>
-            <VBox alignment="TOP_CENTER" prefHeight="660.0" prefWidth="893.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="CENTER" prefHeight="660.0" prefWidth="893.0" spacing="16.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <children>
                 <AnchorPane>
                   <children>
@@ -46,16 +46,28 @@
                   </children>
                 </AnchorPane>
                         <ListView fx:id="ruleLV" prefHeight="200.0" prefWidth="200.0" />
-                <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="64.0">
-                  <children>
-                    <ChoiceBox fx:id="typeChoices" minWidth="-Infinity" prefWidth="200.0" />
-                    <TextField fx:id="patternInputField" prefWidth="200.0" promptText="Pattern" />
-                    <Button mnemonicParsing="false" onAction="#addEntryToCategory" text="Add" />
-                  </children>
-                  <opaqueInsets>
-                    <Insets />
-                  </opaqueInsets>
-                </HBox>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="64.0">
+                        <children>
+                          <ChoiceBox fx:id="defaultCB" minWidth="-Infinity" prefWidth="200.0" />
+                          <TextField fx:id="defaultTF" prefWidth="200.0" promptText="Pattern" />
+                          <Button mnemonicParsing="false" onAction="#addEntryToCategory" text="Add" />
+                        </children>
+                      </HBox>
+                             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="64.0">
+                               <ToggleButton fx:id="firstAndBtn" mnemonicParsing="false" text="And" />
+                               <ChoiceBox fx:id="firstAndCB" prefWidth="150.0" />
+                               <TextField fx:id="firstAndTF"/>
+                             </HBox>
+                             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="64.0">
+                               <ToggleButton fx:id="secondAndBtn" mnemonicParsing="false" text="And" />
+                               <ChoiceBox fx:id="secondAndCB" prefWidth="150.0" />
+                               <TextField fx:id="secondAndTF"/>
+                             </HBox>
+                           </children>
+                        </VBox>
+
               </children>
             </VBox>
           </children>
