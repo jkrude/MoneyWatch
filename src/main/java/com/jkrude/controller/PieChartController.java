@@ -2,7 +2,6 @@ package com.jkrude.controller;
 
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt.CamtEntry;
-import com.jkrude.material.Camt.DateDataPoint;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
@@ -11,15 +10,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,24 +24,20 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.util.Pair;
 
 public class PieChartController extends ParentController {
 
   private boolean populatedChart = false;
-  private boolean dirtyFlag = false; //Marks if chart is up to date with model
+  //Marks if chart is up to date with model
+  private boolean dirtyFlag = false;
+  // Saves witch CamtEntries where found for a category
   private Map<String, List<CamtEntry>> chartDataMap;
 
-  @FXML
-  private Button categoryButton;
   @FXML
   private PieChart pieChart;
   @FXML
@@ -93,43 +83,59 @@ public class PieChartController extends ParentController {
     pieChart.getData().clear();
     ObservableList<CamtEntry> source = model.getCamtList().get(0).getSource();
     ObservableList<PieCategory> categories = model.getProfile().getPieCategories();
-    Pair<ObservableList<Data>, Map<String, List<CamtEntry>>> result = genDataFromSource(source, categories);
-    if(result.getValue() != null && !result.getValue().isEmpty()){
-      AlertBox.showAlert("Ignorierte gefundene Überweisungen","Manche Überweisungen werden nicht in der Grafik genutzt","Im Diagramm werden nur die Ausgaben betrachtet. Einige Regeln konnten allerdings auch auf Eingaben angewendet werden",
+    Map<String, List<CamtEntry>> ignoredPosEntries = new HashMap<>();
+
+    // Populate the chart with data
+    fillListWithGenChartData(
+        source,
+        categories,
+        ignoredPosEntries,
+        pieChart.getData());
+    // Give feedback for possible unintended behaviour
+    if (!ignoredPosEntries.isEmpty()) {
+      AlertBox.showAlert("Ignorierte gefundene Überweisungen",
+          "Manche Überweisungen werden nicht in der Grafik genutzt",
+          "Im Diagramm werden nur die Ausgaben betrachtet. Einige Regeln konnten allerdings auch auf Eingaben angewendet werden",
           AlertType.WARNING);
     }
-    pieChart.getData().addAll(result.getKey());
+
     setupToolTip(pieChart.getData());
     setupPopUp(pieChart.getData());
     populatedChart = true;
     dirtyFlag = false;
   }
 
-  private Pair<ObservableList<Data>,Map<String, List<CamtEntry>>> genDataFromSource(ObservableList<CamtEntry> source,
-      ObservableList<PieCategory> categories) {
+  private void fillListWithGenChartData(
+      ObservableList<CamtEntry> source,
+      ObservableList<PieCategory> categories,
+      Map<String, List<CamtEntry>> ignoredPositiveEntries,
+      ObservableList<PieChart.Data> pieChartData
+  ) {
+    // Check for every rule for every category for every CamtEntry(transactions) if the predicate tests positive
+    // When a CamtEntry tests positive but the amount is positive it gets marked in the ignoredPositiveEntries
 
-    Map<String, List<CamtEntry>> ignoredPositiveEntries = new HashMap<>();
-    ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+    // For every category add the amount for matching CamtEntries
     HashMap<StringProperty, Money> categoryHashMap = new HashMap<>();
     chartDataMap.clear();
+    // Setup maps with lists for simpler traversing
     categories.forEach(pieCategory -> {
       categoryHashMap.put(pieCategory.getName(), new Money(0));
       chartDataMap.put(pieCategory.getName().get(), new ArrayList<>());
     });
-    for (CamtEntry camtEntry : source) {
-      for (PieCategory category : categories) {
-        for (Rule rule : category.getIdentifierList()) {
+    for (final CamtEntry camtEntry : source) {
+      for (final PieCategory category : categories) {
+        for (final Rule rule : category.getIdentifierList()) {
           if (rule.getPredicate().test(camtEntry)) {
             if (camtEntry.getDataPoint().getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
               categoryHashMap.get(category.getName()).add(camtEntry.getDataPoint().getAmount());
               chartDataMap.get(category.getName().get()).add(camtEntry);
             } else {
-              if(ignoredPositiveEntries.containsKey(category.getName().get())){
+              if (ignoredPositiveEntries.containsKey(category.getName().get())) {
                 ignoredPositiveEntries.get(category.getName().get()).add(camtEntry);
-              }else{
+              } else {
                 List<CamtEntry> list = new ArrayList<>();
                 list.add(camtEntry);
-                ignoredPositiveEntries.put(category.getName().get(),list);
+                ignoredPositiveEntries.put(category.getName().get(), list);
               }
             }
           }
@@ -141,10 +147,10 @@ public class PieChartController extends ParentController {
     categoryHashMap.forEach(
         (key, value) -> pieChartData
             .add(new Data(key.get(), Math.abs(value.getAmount().doubleValue()))));
-    return new Pair<>(pieChartData,ignoredPositiveEntries);
   }
 
   private void setupToolTip(final ObservableList<PieChart.Data> chartData) {
+    // Display the amount for the data-point
     for (final PieChart.Data data : chartData) {
       String displayingText = String.valueOf(data.getPieValue()) + '€';
       Tooltip tlp = new Tooltip(displayingText);
@@ -153,9 +159,11 @@ public class PieChartController extends ParentController {
     }
   }
 
-  private void setupPopUp(final ObservableList<PieChart.Data> chartData){
-    for (final PieChart.Data data: chartData){
-      try{
+  private void setupPopUp(final ObservableList<PieChart.Data> chartData) {
+    // PopUp for every data-point to display transactions for this day
+    // Uses the prebuild table fxml
+    for (final PieChart.Data data : chartData) {
+      try {
         URL resource = getClass().getClassLoader().getResource("table.fxml");
         if (resource != null) {
           FXMLLoader loader = new FXMLLoader(resource);
@@ -171,11 +179,11 @@ public class PieChartController extends ParentController {
                   stage.showAndWait();
                 }
               });
-        }else{
-          AlertBox.showAlert("Fatal Error","","Internal Error", AlertType.ERROR);
+        } else {
+          AlertBox.showAlert("Fatal Error", "", "Internal Error", AlertType.ERROR);
         }
       } catch (IOException e) {
-        AlertBox.showAlert("Fatal Error","","Internal Error", AlertType.ERROR);
+        AlertBox.showAlert("Fatal Error", "", "Internal Error", AlertType.ERROR);
         e.printStackTrace();
       }
     }
