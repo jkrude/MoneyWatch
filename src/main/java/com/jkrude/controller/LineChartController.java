@@ -1,15 +1,10 @@
 package com.jkrude.controller;
 
-import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Camt.DateDataPoint;
 import com.jkrude.material.Money;
-import com.jkrude.material.UI.TableStageController;
+import com.jkrude.material.UI.TableControllerManager;
 import com.jkrude.material.Utility;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,26 +12,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class LineChartController extends ParentController {
@@ -47,6 +33,7 @@ public class LineChartController extends ParentController {
   private Button backButton;
   // Controller specific var:
   private boolean chartIsPopulated = false;
+  // Saves the Date to its converted( to Instant to long ) version
   private Map<Number, Date> dateLookupTable;
 
 
@@ -95,7 +82,7 @@ public class LineChartController extends ParentController {
     chartIsPopulated = true;
   }
 
-  private void setupAxis(NumberAxis xAxis, XYChart.Series<Number, Number> series,Camt camt) {
+  private void setupAxis(NumberAxis xAxis, XYChart.Series<Number, Number> series, Camt camt) {
     xAxis.setAutoRanging(false);
     xAxis.setLowerBound(
         series.getData().get(0).getXValue()
@@ -142,71 +129,13 @@ public class LineChartController extends ParentController {
 
   private void setClickListener(XYChart.Data<Number, Number> data, Camt camt) {
     // Add click Listener for every day
-    try {
-      URL resource = getClass().getClassLoader().getResource("table.fxml");
-      if (resource != null) {
-        FXMLLoader loader = new FXMLLoader(resource);
-        Pane pane = loader.load();
-        TableStageController controller = loader.getController();
-        Date date = dateLookupTable.get(data.getXValue());
-        List<CamtEntry> items = new ArrayList<>(camt.getSource().filtered(camtEntry -> camtEntry.getDate().equals(date)));
-        controller.setItems(items);
-        Stage stage = new Stage();
-        Scene scene = new Scene(pane);
-        stage.setScene(scene);
-        data.getNode().setOnMouseClicked(
-            event -> {
-              if (event.getButton() == MouseButton.PRIMARY) {
-                stage.showAndWait();
-              }
-            });
-      }else{
-        AlertBox.showAlert("Fatal Error","","Internal Error", AlertType.ERROR);
-      }
-    } catch (IOException e) {
-      AlertBox.showAlert("Fatal Error","","Internal Error", AlertType.ERROR);
-      e.printStackTrace();
-    }
-
-   /* Date date = dateLookupTable.get(data.getXValue());
-    List<DateDataPoint> dateDataPoints = camt.getSourceAsDateMap().get(date);
-
-    TableView<DateDataPoint> tableView = new TableView<>();
-    tableView.setEditable(false);
-    TableColumn<DateDataPoint, String> fromToColumn = new TableColumn<>("From/To");
-    fromToColumn.setCellValueFactory(new PropertyValueFactory<>("otherParty"));
-    TableColumn<DateDataPoint, String> usageColumn = new TableColumn<>("Usage");
-    usageColumn.setCellValueFactory(new PropertyValueFactory<>("usage"));
-    TableColumn<DateDataPoint, Double> amountColumn = new TableColumn<>("Amount");
-    amountColumn.setCellValueFactory(new PropertyValueFactory<>("amountAsDouble"));
-    tableView.getColumns().add(fromToColumn);
-    tableView.getColumns().add(usageColumn);
-    tableView.getColumns().add(amountColumn);
-
-    tableView.getItems().addAll(dateDataPoints);
-    *//*for (DateDataPoint dateDataPoint : l) {
-      String  string =
-          "From/To: "
-          + dateDataPoint.getReceiverOrPayer() + "\n"
-          + "Usage: "
-          + dateDataPoint.getUsage() + "\n"
-          + "Amount: "
-          + dateDataPoint.getAmount().getValue().toString() + "\n";
-      tableView.getItems().add(string);
-    }
-    String text = Utility.convertFromInstant().toString(data.getXValue().longValue()) + "\n" +
-        "Total : " + data.getYValue();
-    // Add Alert with more Information
-    final String textAndTotal =
-        text + "\n" + "Total at this date:" + totalThatDay.getValue().toString();
-
-     *//*
     data.getNode().setOnMouseClicked(
         event -> {
           if (event.getButton() == MouseButton.PRIMARY) {
-            AlertBox.displayGeneric("Title", tableView, 1000, 400);
+            TableControllerManager.showAsTablePopUp(camt.getSource().filtered(
+                camtEntry -> camtEntry.getDate().equals(dateLookupTable.get(data.getXValue()))));
           }
-        });*/
+        });
   }
 
   private void setContextMenu(Node node) {

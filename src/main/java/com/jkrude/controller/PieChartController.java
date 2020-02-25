@@ -5,29 +5,23 @@ import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
-import com.jkrude.material.UI.TableStageController;
-import java.io.IOException;
+import com.jkrude.material.UI.TableControllerManager;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class PieChartController extends ParentController {
@@ -36,7 +30,7 @@ public class PieChartController extends ParentController {
   //Marks if chart is up to date with model
   private boolean dirtyFlag = false;
   // Saves witch CamtEntries where found for a category
-  private Map<String, List<CamtEntry>> chartDataMap;
+  private Map<String, ObservableList<CamtEntry>> chartDataMap;
 
   @FXML
   private PieChart pieChart;
@@ -52,7 +46,7 @@ public class PieChartController extends ParentController {
 
   @FXML
   public void initialize() {
-    chartDataMap = new HashMap<>();
+    chartDataMap = new HashMap<String, ObservableList<CamtEntry>>();
     backButton.setOnAction(ParentController::goBack);
 
     // Setup change-listener for data-invalidation
@@ -120,7 +114,7 @@ public class PieChartController extends ParentController {
     // Setup maps with lists for simpler traversing
     categories.forEach(pieCategory -> {
       categoryHashMap.put(pieCategory.getName(), new Money(0));
-      chartDataMap.put(pieCategory.getName().get(), new ArrayList<>());
+      chartDataMap.put(pieCategory.getName().get(), FXCollections.observableArrayList());
     });
     for (final CamtEntry camtEntry : source) {
       for (final PieCategory category : categories) {
@@ -163,29 +157,9 @@ public class PieChartController extends ParentController {
     // PopUp for every data-point to display transactions for this day
     // Uses the prebuild table fxml
     for (final PieChart.Data data : chartData) {
-      try {
-        URL resource = getClass().getClassLoader().getResource("table.fxml");
-        if (resource != null) {
-          FXMLLoader loader = new FXMLLoader(resource);
-          Pane pane = loader.load();
-          TableStageController controller = loader.getController();
-          controller.setItems(chartDataMap.get(data.getName()));
-          Stage stage = new Stage();
-          Scene scene = new Scene(pane);
-          stage.setScene(scene);
-          data.getNode().setOnMouseClicked(
-              event -> {
-                if (event.getButton() == MouseButton.PRIMARY) {
-                  stage.showAndWait();
-                }
-              });
-        } else {
-          AlertBox.showAlert("Fatal Error", "", "Internal Error", AlertType.ERROR);
-        }
-      } catch (IOException e) {
-        AlertBox.showAlert("Fatal Error", "", "Internal Error", AlertType.ERROR);
-        e.printStackTrace();
-      }
+      data.getNode().setOnMouseClicked(
+          mouseEvent -> TableControllerManager.showAsTablePopUp(chartDataMap.get(data.getName()))
+      );
     }
   }
 

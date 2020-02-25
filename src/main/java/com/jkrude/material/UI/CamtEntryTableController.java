@@ -4,36 +4,31 @@ import com.jkrude.controller.ParentController;
 import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.Money;
+import com.jkrude.material.Utility;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-public class TableStageController {
+public class CamtEntryTableController {
 
   public TableView<CamtEntry> table;
   // Columns
   public TableColumn<CamtEntry, String> accountIban;
-  public TableColumn<CamtEntry, Date> transferDate;
+  public TableColumn<CamtEntry, String> transferDate;
   public TableColumn<CamtEntry, String> validationDate;
   public TableColumn<CamtEntry, String> transferSpecification;
   public TableColumn<CamtEntry, String> usage;
@@ -48,13 +43,13 @@ public class TableStageController {
   public TableColumn<CamtEntry, String> bic;
   public TableColumn<CamtEntry, Money> amount;
   public TableColumn<CamtEntry, String> info;
-  public Button cancelBtn;
+
   private SimpleIntegerProperty activatedColumns = new SimpleIntegerProperty(4);
   private SimpleIntegerProperty columnWidth;
 
 
   @FXML
-  public void initialize() {
+  private void initialize() {
     columnWidth = new SimpleIntegerProperty();
     columnWidth.bind(table.widthProperty().divide(activatedColumns));
     accountIban.setVisible(false);
@@ -71,8 +66,8 @@ public class TableStageController {
     info.setVisible(false);
 
     accountIban.prefWidthProperty().bind(columnWidth);
-    transferDate.setCellValueFactory(callback -> new SimpleObjectProperty<Date>(
-        callback.getValue().getDate()));
+    transferDate.setCellValueFactory(callback -> new SimpleStringProperty(
+        Utility.dateFormatter.format(callback.getValue().getDate())));
     validationDate.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getDataPoint().getValidationDate()));
     transferSpecification.setCellValueFactory(callback -> new SimpleStringProperty(
@@ -102,7 +97,31 @@ public class TableStageController {
     info.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getDataPoint().getInfo()));
 
-     ContextMenu contextMenu = new ContextMenu();
+    amount.setCellFactory(
+        new Callback<>() {
+          @Override
+          public TableCell<CamtEntry, Money> call(
+              TableColumn<CamtEntry, Money> camtEntryMoneyTableColumn) {
+            return new TableCell<CamtEntry, Money>() {
+              @Override
+              protected void updateItem(Money money, boolean empty) {
+                super.updateItem(money, empty);
+                if (!empty) {
+                  setText(money.toString());
+                  if (money.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+                    setTextFill(Color.RED);
+                  } else {
+                    setTextFill(Color.GREEN);
+                  }
+                } else {
+                  setText(null);
+                }
+              }
+            };
+          }
+        });
+
+    ContextMenu contextMenu = new ContextMenu();
 
     ComboBox<ListType> possibleColumns = new ComboBox<>();
     /*possibleColumns.setCellFactory(new Callback<ListView<ListType>, ListCell<ListType>>() {
@@ -140,17 +159,17 @@ public class TableStageController {
     MenuItem choiceItem = new MenuItem("Aktivierte Spalten");
     choiceItem.setGraphic(possibleColumns);
     contextMenu.getItems().add(choiceItem);
-    table.setContextMenu(contextMenu);
+    //FIXME
+    // table.setContextMenu(contextMenu);
   }
 
   public void setItems(List<CamtEntry> tableItems) {
     table.getItems().addAll(tableItems);
   }
 
-  public void close(ActionEvent event){
+  @FXML
+  private void close(ActionEvent event) {
     Stage stage = ParentController.getStageForActionEvent(event);
     stage.close();
   }
-
-
 }
