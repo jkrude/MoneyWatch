@@ -5,7 +5,7 @@ import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.Objects;
 
-public class Money {
+public class Money implements Comparable<Money>{
 
   public static final Currency EURO = Currency.getInstance("EUR");
   private Currency currency;
@@ -15,7 +15,6 @@ public class Money {
   /*
    * Constructors.
    */
-
   public Money() {
     this.currency = EURO;
     this.amount = scaleToTwo(new BigDecimal(0));
@@ -88,6 +87,14 @@ public class Money {
         amount.toString() + ',' + currency.toString();
   }
 
+  @Override
+  public int compareTo(Money o) {
+    if(this.currency.equals(o.currency)){
+      return this.getAmount().compareTo(o.getAmount());
+    }else{
+      throw new IllegalArgumentException("Cant compare values of different currency");
+    }
+  }
 
   /*
    * Static functions.
