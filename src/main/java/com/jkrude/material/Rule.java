@@ -5,20 +5,25 @@ import com.jkrude.material.Camt.ListType;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Predicate;
+import javafx.beans.property.MapProperty;
+import javafx.beans.property.SimpleMapProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.util.Pair;
 
 public class Rule {
 
   private Predicate<CamtEntry> predicate;
-  private Map<ListType,String> identifierMap;
-  private String note;
 
-  private Rule(Predicate<CamtEntry> predicate,Map<ListType,String> identifierMap,String note) {
+  private MapProperty<ListType, String> identifierMap;
+  private StringProperty note;
+
+  private Rule(Predicate<CamtEntry> predicate, MapProperty<ListType, String> identifierMap,
+      StringProperty note) {
     this.predicate = predicate;
     this.identifierMap = identifierMap;
     this.note = note;
@@ -28,18 +33,43 @@ public class Rule {
     return predicate;
   }
 
-  public String getNote() {
-    return note;
+  public String  getNote() {
+    return note.get();
   }
 
   public Map<ListType, String> getIdentifierMap() {
+    return identifierMap.get();
+  }
+
+  public MapProperty<ListType, String> identifierMapProperty() {
     return identifierMap;
+  }
+
+  public StringProperty noteProperty() {
+    return note;
   }
 
 
   public static class RuleFactory{
 
-    public static Rule generate(Map<ListType, String> map, String note) throws ParseException, NumberFormatException{
+    public static Rule generate(Pair<ListType, String> pair, String note) throws ParseException, NumberFormatException{
+      MapProperty<ListType, String> map = new SimpleMapProperty<>(FXCollections.observableMap(new HashMap<>()));
+      map.put(pair.getKey(),pair.getValue());
+      return generate(map,new SimpleStringProperty(note));
+    }
+
+    public static Rule generate(Pair<ListType, String> pair, StringProperty note) throws ParseException, NumberFormatException{
+      MapProperty<ListType, String> map = new SimpleMapProperty<>(FXCollections.observableMap(new HashMap<>()));
+      map.put(pair.getKey(),pair.getValue());
+      return generate(map,note);
+    }
+    public static Rule generate(Map<ListType, String> map, String note) throws ParseException, NumberFormatException {
+      MapProperty<ListType, String> mapProperty = new SimpleMapProperty<>(FXCollections.observableMap(map));
+      StringProperty stringProperty = new SimpleStringProperty(note);
+      return generate(mapProperty,stringProperty);
+    }
+
+    public static Rule generate(MapProperty<ListType, String> map, StringProperty note) throws ParseException, NumberFormatException{
       if(map.isEmpty()){
         throw new IllegalArgumentException("No Qualifier");
       }
@@ -110,12 +140,6 @@ public class Rule {
         concatPred = concatPred.and(innerPredicate);
       }
       return new Rule(concatPred,map,note);
-    }
-
-    public static Rule generate(Pair<ListType, String> pair, String note) throws ParseException, NumberFormatException{
-      Map<ListType, String > map = new HashMap<>();
-      map.put(pair.getKey(),pair.getValue());
-      return generate(map,note);
     }
   }
 }
