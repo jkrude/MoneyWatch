@@ -52,7 +52,7 @@
                         <children>
                           <ChoiceBox fx:id="defaultCB" minWidth="-Infinity" prefWidth="200.0" />
                           <TextField fx:id="defaultTF" prefWidth="200.0" promptText="Pattern" />
-                          <Button mnemonicParsing="false" onAction="#addEntryToCategory" text="Add" />
+                          <Button mnemonicParsing="false" onAction="#addRuleToCategory" text="Add" />
                         </children>
                       </HBox>
                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="64.0">

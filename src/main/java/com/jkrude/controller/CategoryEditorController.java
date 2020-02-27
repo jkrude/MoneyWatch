@@ -136,21 +136,31 @@ public class CategoryEditorController extends ParentController {
       ChoiceBox<ListType> observedChoiceBox) {
     observedChoiceBox.getSelectionModel().selectedItemProperty().addListener(
         (ObservableValue<? extends ListType> obsValue, ListType oldV, ListType newV) -> {
-            observingChoiceBox
-                .setItems(observedChoiceBox.getItems().filtered(type1 -> !type1.equals(newV)));
+          observingChoiceBox
+              .setItems(observedChoiceBox.getItems().filtered(type1 -> !type1.equals(newV)));
         });
   }
 
-  public void addEntryToCategory(ActionEvent event) {
+  public void addRuleToCategory(ActionEvent event) {
+    //TODO
+    // Error if entry already in List -> equals method necessary in PieCategory.Entry
+    // Input validation
     try {
       Map<ListType, String> inputMap = new HashMap<>();
-      inputMap.put(defaultCB.getSelectionModel().getSelectedItem(), defaultTF.getText());
-      if (firstAndBtn.isSelected()) {
+      if (!defaultCB.getSelectionModel().isEmpty()) {
+        inputMap.put(defaultCB.getSelectionModel().getSelectedItem(), defaultTF.getText());
+      }
+      if (firstAndBtn.isSelected() && !firstAndCB.getSelectionModel().isEmpty()) {
         inputMap.put(firstAndCB.getSelectionModel().getSelectedItem(), firstAndTF.getText());
-        if (secondAndBtn.isSelected()) {
+        if (secondAndBtn.isSelected() && !secondAndCB.getSelectionModel().isEmpty()) {
           inputMap.put(secondAndCB.getSelectionModel().getSelectedItem(), secondAndTF.getText());
         }
         firstAndBtn.setSelected(false);
+        secondAndBtn.setSelected(false);
+      }
+      if (inputMap.isEmpty()) {
+        AlertBox.showAlert("Fehlende Eingabe", "Kein Typ ausgewählt", "", AlertType.WARNING);
+        return;
       }
       Rule rule = Rule.RuleFactory.generate(inputMap, "");
       ruleLV.getItems().add(rule);
@@ -161,9 +171,6 @@ public class CategoryEditorController extends ParentController {
               .getText(),
           AlertType.ERROR);
     }
-    //TODO
-    // Error if entry already in List -> equals method necessary in PieCategory.Entry
-    // Input validation
   }
 
   public void addCategory(ActionEvent event) {
@@ -219,8 +226,9 @@ public class CategoryEditorController extends ParentController {
       } else {
         StringBuilder stringBuilder = new StringBuilder();
         rule.getIdentifierMap()
-            .forEach((key, value) -> stringBuilder.append(key).append(": ").append(value).append(", "));
-        stringBuilder.delete(stringBuilder.lastIndexOf(","),stringBuilder.length()-1);
+            .forEach(
+                (key, value) -> stringBuilder.append(key).append(": ").append(value).append(", "));
+        stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
         label.setText(stringBuilder.toString());
         setGraphic(hbox);
       }
