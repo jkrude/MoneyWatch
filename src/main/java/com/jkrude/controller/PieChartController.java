@@ -32,6 +32,8 @@ public class PieChartController extends ParentController {
   // Saves witch CamtEntries where found for a category
   private Map<String, ObservableList<CamtEntry>> chartDataMap;
 
+  public static final String catNameUnmatchedTrans = "Undefiniert";
+
   @FXML
   private PieChart pieChart;
   @FXML
@@ -110,15 +112,28 @@ public class PieChartController extends ParentController {
 
     // For every category add the amount for matching CamtEntries
     HashMap<StringProperty, Money> categoryHashMap = new HashMap<>();
+    // Collect all entries with no matching rule
+    List<CamtEntry> negTransactionsWithoutRule = new ArrayList<>();
+    List<CamtEntry> posTransactionsWithoutRule = new ArrayList<>();
+
     chartDataMap.clear();
     // Setup maps with lists for simpler traversing
     categories.forEach(pieCategory -> {
       categoryHashMap.put(pieCategory.getName(), new Money(0));
       chartDataMap.put(pieCategory.getName().get(), FXCollections.observableArrayList());
     });
+
     for (final CamtEntry camtEntry : source) {
+      // An entry can only belong to one category (one rule)
+      boolean foundMatchingRule = false;
       for (final PieCategory category : categories) {
+        if (foundMatchingRule) {
+          break;
+        }
         for (final Rule rule : category.getIdentifierList()) {
+          if (foundMatchingRule) {
+            break;
+          }
           if (rule.getPredicate().test(camtEntry)) {
             if (camtEntry.getDataPoint().getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
               categoryHashMap.get(category.getName()).add(camtEntry.getDataPoint().getAmount());
@@ -132,7 +147,15 @@ public class PieChartController extends ParentController {
                 ignoredPositiveEntries.put(category.getName().get(), list);
               }
             }
+            foundMatchingRule = true;
           }
+        }
+      }
+      if (!foundMatchingRule) {
+        if (camtEntry.getDataPoint().getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
+          negTransactionsWithoutRule.add(camtEntry);
+        } else {
+          posTransactionsWithoutRule.add(camtEntry);
         }
       }
     }
@@ -141,6 +164,12 @@ public class PieChartController extends ParentController {
     categoryHashMap.forEach(
         (key, value) -> pieChartData
             .add(new Data(key.get(), Math.abs(value.getAmount().doubleValue()))));
+    // Handle all the transactions where no rule matched
+    chartDataMap
+        .put(catNameUnmatchedTrans, FXCollections.observableArrayList(negTransactionsWithoutRule));
+    pieChartData.add(
+        new Data(catNameUnmatchedTrans,
+            Money.sum(negTransactionsWithoutRule).getAmount().doubleValue()));
   }
 
   private void setupToolTip(final ObservableList<PieChart.Data> chartData) {
