@@ -1,6 +1,5 @@
 package com.jkrude.controller;
 
-import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
@@ -19,25 +18,33 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
 
 public class PieChartController extends ParentController {
 
   private boolean populatedChart = false;
-  //Marks if chart is up to date with model
+  // Marks if chart is up to date with model
   private boolean dirtyFlag = false;
   // Saves witch CamtEntries where found for a category
-  private Map<String, ObservableList<CamtEntry>> chartDataMap;
-
+  private Map<String, ObservableList<CamtEntry>> negEntryLookup;
+  private Map<String, ObservableList<CamtEntry>> posEntryLookup;
+  // The default name for the slice for transactions without matching rule
   public static final String catNameUnmatchedTrans = "Undefiniert";
+
+  private ObservableList<PieChart.Data> posChartData;
+  private ObservableList<PieChart.Data> negChartData;
+
 
   @FXML
   private PieChart pieChart;
   @FXML
-  private Button backButton;
+  private Button backBtn;
+
+  @FXML
+  private ToggleButton negPosTglBtn;
 
   @Override
   protected void checkIntegrity() {
@@ -48,8 +55,17 @@ public class PieChartController extends ParentController {
 
   @FXML
   public void initialize() {
-    chartDataMap = new HashMap<String, ObservableList<CamtEntry>>();
-    backButton.setOnAction(ParentController::goBack);
+    negEntryLookup = new HashMap<>();
+    posEntryLookup = new HashMap<>();
+    negChartData = FXCollections.observableArrayList();
+    posChartData = FXCollections.observableArrayList();
+
+    backBtn.setOnAction(ParentController::goBack);
+
+    negPosTglBtn.selectedProperty().addListener(
+        (observableValue, oldV, newV) -> {
+          changeChartData(newV);
+        });
 
     // Setup change-listener for data-invalidation
     model.getProfile().getPieCategories().addListener(
@@ -79,22 +95,12 @@ public class PieChartController extends ParentController {
     pieChart.getData().clear();
     ObservableList<CamtEntry> source = model.getCamtList().get(0).getSource();
     ObservableList<PieCategory> categories = model.getProfile().getPieCategories();
-    Map<String, List<CamtEntry>> ignoredPosEntries = new HashMap<>();
 
     // Populate the chart with data
     fillListWithGenChartData(
         source,
-        categories,
-        ignoredPosEntries,
-        pieChart.getData());
-    // Give feedback for possible unintended behaviour
-    if (!ignoredPosEntries.isEmpty()) {
-      AlertBox.showAlert("Ignorierte gefundene Überweisungen",
-          "Manche Überweisungen werden nicht in der Grafik genutzt",
-          "Im Diagramm werden nur die Ausgaben betrachtet. Einige Regeln konnten allerdings auch auf Eingaben angewendet werden",
-          AlertType.WARNING);
-    }
-
+        categories);
+    pieChart.getData().addAll(negChartData);
     setupToolTip(pieChart.getData());
     setupPopUp(pieChart.getData());
     populatedChart = true;
@@ -103,24 +109,30 @@ public class PieChartController extends ParentController {
 
   private void fillListWithGenChartData(
       ObservableList<CamtEntry> source,
-      ObservableList<PieCategory> categories,
-      Map<String, List<CamtEntry>> ignoredPositiveEntries,
-      ObservableList<PieChart.Data> pieChartData
+      ObservableList<PieCategory> categories
   ) {
     // Check for every rule for every category for every CamtEntry(transactions) if the predicate tests positive
     // When a CamtEntry tests positive but the amount is positive it gets marked in the ignoredPositiveEntries
 
     // For every category add the amount for matching CamtEntries
-    HashMap<StringProperty, Money> categoryHashMap = new HashMap<>();
+    HashMap<StringProperty, Money> negEntriesForCategories = new HashMap<>();
+    HashMap<StringProperty, Money> posEntriesForCategories = new HashMap<>();
+
     // Collect all entries with no matching rule
     List<CamtEntry> negTransactionsWithoutRule = new ArrayList<>();
     List<CamtEntry> posTransactionsWithoutRule = new ArrayList<>();
 
-    chartDataMap.clear();
+    negEntryLookup.clear();
+    posEntryLookup.clear();
+    negChartData.clear();
+    posChartData.clear();
+
     // Setup maps with lists for simpler traversing
     categories.forEach(pieCategory -> {
-      categoryHashMap.put(pieCategory.getName(), new Money(0));
-      chartDataMap.put(pieCategory.getName().get(), FXCollections.observableArrayList());
+      negEntriesForCategories.put(pieCategory.getName(), new Money(0));
+      negEntryLookup.put(pieCategory.getName().get(), FXCollections.observableArrayList());
+      posEntriesForCategories.put(pieCategory.getName(), new Money(0));
+      posEntryLookup.put(pieCategory.getName().get(), FXCollections.observableArrayList());
     });
 
     for (final CamtEntry camtEntry : source) {
@@ -136,16 +148,13 @@ public class PieChartController extends ParentController {
           }
           if (rule.getPredicate().test(camtEntry)) {
             if (camtEntry.getDataPoint().getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
-              categoryHashMap.get(category.getName()).add(camtEntry.getDataPoint().getAmount());
-              chartDataMap.get(category.getName().get()).add(camtEntry);
+              negEntriesForCategories.get(category.getName())
+                  .add(camtEntry.getDataPoint().getAmount());
+              negEntryLookup.get(category.getName().get()).add(camtEntry);
             } else {
-              if (ignoredPositiveEntries.containsKey(category.getName().get())) {
-                ignoredPositiveEntries.get(category.getName().get()).add(camtEntry);
-              } else {
-                List<CamtEntry> list = new ArrayList<>();
-                list.add(camtEntry);
-                ignoredPositiveEntries.put(category.getName().get(), list);
-              }
+              posEntriesForCategories.get(category.getName())
+                  .add(camtEntry.getDataPoint().getAmount());
+              posEntryLookup.get(category.getName().get()).add(camtEntry);
             }
             foundMatchingRule = true;
           }
@@ -161,15 +170,37 @@ public class PieChartController extends ParentController {
     }
 
     // Colors are only displayed for positive values
-    categoryHashMap.forEach(
-        (key, value) -> pieChartData
+    negEntriesForCategories.forEach(
+        (key, value) -> negChartData
             .add(new Data(key.get(), Math.abs(value.getAmount().doubleValue()))));
     // Handle all the transactions where no rule matched
-    chartDataMap
+    negEntryLookup
         .put(catNameUnmatchedTrans, FXCollections.observableArrayList(negTransactionsWithoutRule));
-    pieChartData.add(
+    negChartData.add(
         new Data(catNameUnmatchedTrans,
             Money.sum(negTransactionsWithoutRule).getAmount().doubleValue()));
+    // Do the same for the chart with positive values
+    posEntriesForCategories.forEach(
+        (key, value) -> posChartData
+            .add(new Data(key.get(), value.getAmount().doubleValue())));
+    posEntryLookup
+        .put(catNameUnmatchedTrans, FXCollections.observableArrayList(posTransactionsWithoutRule));
+    posChartData.add(
+        new Data(catNameUnmatchedTrans,
+            Money.sum(posTransactionsWithoutRule).getAmount().doubleValue()));
+
+  }
+
+  private void changeChartData(boolean newValue) {
+    pieChart.getData().clear();
+    if (newValue) {
+      pieChart.getData().addAll(posChartData);
+    } else {
+      pieChart.getData().addAll(negChartData);
+    }
+    setupToolTip(pieChart.getData());
+    setupPopUp(pieChart.getData());
+
   }
 
   private void setupToolTip(final ObservableList<PieChart.Data> chartData) {
@@ -187,7 +218,13 @@ public class PieChartController extends ParentController {
     // Uses the prebuild table fxml
     for (final PieChart.Data data : chartData) {
       data.getNode().setOnMouseClicked(
-          mouseEvent -> TableControllerManager.showAsTablePopUp(chartDataMap.get(data.getName()))
+          mouseEvent -> {
+            if(negPosTglBtn.isSelected()){
+              TableControllerManager.showAsTablePopUp(posEntryLookup.get(data.getName()));
+            }else{
+              TableControllerManager.showAsTablePopUp(negEntryLookup.get(data.getName()));
+            }
+          }
       );
     }
   }
