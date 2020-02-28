@@ -1,8 +1,10 @@
 package com.jkrude.material;
 
+import com.jkrude.material.Camt.CamtEntry;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;
+import java.util.List;
 import java.util.Objects;
 
 public class Money implements Comparable<Money>{
@@ -121,6 +123,12 @@ public class Money implements Comparable<Money>{
     }
     BigDecimal c = a.amount.subtract(b.amount);
     return new Money(a.currency, c);
+  }
+
+  public static Money sum(List<Camt.CamtEntry> camtEntries){
+    Money total = new Money();
+    camtEntries.forEach(camtEntry -> total.add(camtEntry.getDataPoint().getAmount()));
+    return total;
   }
 
   public void add(Money b) {
