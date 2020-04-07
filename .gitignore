@@ -5,3 +5,4 @@ target/
 *.CSV
 *.ods#
 *.ods
+resources/pers.json
