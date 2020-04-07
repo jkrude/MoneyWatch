@@ -4,7 +4,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 import javafx.beans.property.ListProperty;
@@ -17,36 +19,54 @@ import javafx.collections.ObservableList;
 public class Camt {
 
   public enum ListType {
-    ACCOUNT_IBAN,
-    TRANSFER_DATE,
-    VALIDATION_DATE,
-    TRANSFER_SPECIFICATION,
-    USAGE,
-    CREDITOR_ID,
-    MANDATE_REFERENCE,
-    CUSTOMER_REFERENCE_END_TO_END,
-    COLLECTION_REFERENCE,
-    DEBIT_ORIGINAL_AMOUNT,
-    BACK_DEBIT,
-    OTHER_PARTY,
-    IBAN,
-    BIC,
-    AMOUNT,
-    INFO;
+    ACCOUNT_IBAN("Auftragskonto"),
+    TRANSFER_DATE("Buchungstag"),
+    VALIDATION_DATE("Valutadatum"),
+    TRANSFER_SPECIFICATION("Buchungstext"),
+    USAGE("Verwendungszweck"),
+    CREDITOR_ID("Glaeubiger ID"),
+    MANDATE_REFERENCE("Mandatsreferenz"),
+    CUSTOMER_REFERENCE_END_TO_END("Kundenreferenz (End-to-End)"),
+    COLLECTION_REFERENCE("Sammlerreferenz"),
+    DEBIT_ORIGINAL_AMOUNT("Lastschrift Ursprungsbetrag"),
+    BACK_DEBIT("Auslagenersatz Ruecklastschrift"),
+    OTHER_PARTY("Beguenstigter/Zahlungspflichtiger"),
+    IBAN("Kontonummer/IBAN"),
+    BIC("BIC (SWIFT-Code)"),
+    AMOUNT("Betrag"),
+    INFO("Info");
+
+    private String translation;
+
+    ListType(String s) {
+      this.translation = s;
+    }
+    public String getTranslation(){
+      return translation;
+    }
 
     @Override
     public String toString() {
-      switch (this) {
-        case IBAN:
-          return "Iban";
-        case USAGE:
-          return "Verwendungszweck";
-        case OTHER_PARTY:
-          return "Beguenstigter/Zahlungspflichtiger";
-        default:
-          return super.toString();
+     return translation;
+    }
+
+    private static final Map<String, ListType> lookup = new HashMap<>();
+
+    //Populate the lookup table on loading time
+    static
+    {
+      for(ListType env : ListType.values())
+      {
+        lookup.put(env.getTranslation(), env);
       }
     }
+
+    //This method can be used for reverse lookup purpose
+    public static ListType get(String url)
+    {
+      return lookup.get(url);
+    }
+
   }
 
   public SimpleDateFormat getDateFormatter() {

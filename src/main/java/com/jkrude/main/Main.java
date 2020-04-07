@@ -11,6 +11,12 @@ public class Main extends Application {
     ParentController.init(primaryStage);
   }
 
+  @Override
+  public void stop() throws Exception {
+    super.stop();
+    ParentController.stop();
+  }
+
   public static void main(String[] args) {
     launch(args);
   }

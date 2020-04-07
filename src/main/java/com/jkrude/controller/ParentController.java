@@ -3,6 +3,8 @@ package com.jkrude.controller;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Model;
 import com.jkrude.material.Model.ScnCntrlPair;
+import com.jkrude.material.PersistenceManager;
+import com.jkrude.material.Profile;
 import com.jkrude.test.TestData;
 import java.io.IOException;
 import java.net.URL;
@@ -102,6 +104,10 @@ public abstract class ParentController {
   }
 
   private static void loadConfig() {
-    model.setProfile(TestData.getProfile());
+    model.setProfile(new Profile());
+    PersistenceManager.load(model);
+  }
+  public static void stop() {
+    PersistenceManager.save(model);
   }
 }
