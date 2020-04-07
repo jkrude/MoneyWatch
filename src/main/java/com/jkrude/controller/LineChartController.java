@@ -44,7 +44,7 @@ public class LineChartController extends ParentController {
   @Override
   protected void checkIntegrity() {
     if (!chartIsPopulated) {
-      initialize();
+      setupChart();
       if (!chartIsPopulated) {
         throw new IllegalStateException("Chart could not be populated");
       }
@@ -55,6 +55,9 @@ public class LineChartController extends ParentController {
   @FXML
   public void initialize() {
     backButton.setOnAction(ParentController::goBack);
+  }
+
+  private void setupChart() {
     if (dateLookupTable == null) {
       throw new IllegalStateException("dateLookupTable was not initialized");
     }
