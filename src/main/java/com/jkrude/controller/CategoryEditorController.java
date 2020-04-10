@@ -69,7 +69,7 @@ public class CategoryEditorController extends ParentController {
     // Initialize first selected entry
     if (categoryLV.getItems() != null && !categoryLV.getItems().isEmpty()) {
       categoryLV.getSelectionModel().selectFirst();
-      ruleLV.setItems(categoryLV.getSelectionModel().getSelectedItem().getIdentifierList());
+      ruleLV.setItems(categoryLV.getSelectionModel().getSelectedItem().getRulesRO());
       categoryNameLabel.setText(categoryLV.getSelectionModel().getSelectedItem().getName().get());
     } else {
       categoryNameLabel.setText("");

@@ -11,8 +11,6 @@ import com.jkrude.material.Rule;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -124,7 +122,7 @@ public class TestData {
       pieEntries.add(Rule.RuleFactory.generate(
           new Pair<>(ListType.OTHER_PARTY, "DANKE, IHR LIDL//Dresden/DE"), ""));
 
-      categoryEating.getIdentifierList().addAll(pieEntries);
+      categoryEating.getRulesRO().addAll(pieEntries);
       profile.addCategory(categoryEating);
 
       PieCategory categoryLiving = new PieCategory("Leben");
@@ -136,7 +134,7 @@ public class TestData {
       setLiving.add(Rule.RuleFactory.generate(
           new Pair<>(ListType.IBAN, "DE15200411550651304800"), ""));
 
-      categoryLiving.getIdentifierList().addAll(setLiving);
+      categoryLiving.getRulesRO().addAll(setLiving);
       profile.addCategory(categoryLiving);
 
       PieCategory categoryTravel = new PieCategory("Reise");
@@ -145,7 +143,7 @@ public class TestData {
 
       setTravel.add(Rule.RuleFactory.generate(
           new Pair<>(ListType.USAGE, "PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS "), ""));
-      categoryTravel.getIdentifierList().addAll(setTravel);
+      categoryTravel.getRulesRO().addAll(setTravel);
       profile.addCategory(categoryTravel);
 
       PieCategory categoryEmpty = new PieCategory("Empty");

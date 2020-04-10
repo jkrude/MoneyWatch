@@ -1,54 +1,81 @@
 package com.jkrude.material;
 
-import com.jkrude.material.Camt.CamtEntry;
 import java.util.ArrayList;
-import java.util.function.Predicate;
+import java.util.List;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-public class PieCategory {
+public class PieCategory implements Observable {
 
+  private List<InvalidationListener> invalidationListeners;
+  private InvalidationListener ruleListener = new InvalidationListener() {
+    @Override
+    public void invalidated(Observable observable) {
+      invalidationListeners
+          .forEach((InvalidationListener listener) -> listener.invalidated(PieCategory.this));
+    }
+  };
   private StringProperty name;
+  private ReadOnlyListWrapper<Rule> rules;
 
-  private ListProperty<Rule> identifierList;
 
+  private PieCategory() {
+    this.invalidationListeners = new ArrayList<>();
+    this.name = new SimpleStringProperty();
+    this.rules = new ReadOnlyListWrapper<>(FXCollections.observableList(new ArrayList<>()));
+    this.name.addListener(ruleListener);
+    this.rules.addListener(
+        (ListChangeListener<? super Rule>) change -> invalidationListeners
+            .forEach(invalidationListener -> invalidationListener.invalidated(PieCategory.this)));
+  }
 
   public PieCategory(StringProperty name) {
+    this();
     this.name = name;
-    this.identifierList = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
+    this.name.addListener(ruleListener);
   }
 
   public PieCategory(String name) {
-    this.name = new SimpleStringProperty(name);
-    this.identifierList = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
+    this();
+    this.name.set(name);
   }
 
-  public PieCategory(StringProperty name,  ListProperty<Rule> identifierList) {
+  public PieCategory(StringProperty name, ListProperty<Rule> rules) {
+    this();
     this.name = name;
-    this.identifierList = identifierList;
+    this.name.addListener(ruleListener);
+    this.rules = new ReadOnlyListWrapper<>(rules.getValue());
+    this.rules.addListener(
+        (ListChangeListener<? super Rule>) change -> invalidationListeners
+            .forEach(invalidationListener -> invalidationListener.invalidated(PieCategory.this)));
   }
 
   public StringProperty getName() {
     return name;
   }
 
-  public ObservableList<Rule> getIdentifierList() {
-    return identifierList.getValue();
+  public ObservableList<Rule> getRulesRO() {
+    return rules.getValue();
   }
 
-  public  ListProperty<Rule> getIdentifierProperty() {
-    return identifierList;
+  public ListProperty<Rule> getIdentifierProperty() {
+    return rules;
   }
 
-  public void setName(StringProperty name) {
-    this.name = name;
+  @Override
+  public void addListener(InvalidationListener invalidationListener) {
+    invalidationListeners.add(invalidationListener);
   }
 
-  public void setIdentifierList( ListProperty<Rule> identifierList) {
-    this.identifierList = identifierList;
+  @Override
+  public void removeListener(InvalidationListener invalidationListener) {
+    invalidationListeners.add(invalidationListener);
   }
 }

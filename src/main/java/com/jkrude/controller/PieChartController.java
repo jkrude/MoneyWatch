@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -26,8 +25,8 @@ import javafx.util.Duration;
 public class PieChartController extends ParentController {
 
   private boolean populatedChart = false;
+  private boolean isInvalidated = false;
   // Marks if chart is up to date with model
-  private boolean dirtyFlag = false;
   // Saves witch CamtEntries where found for a category
   private Map<String, ObservableList<CamtEntry>> negEntryLookup;
   private Map<String, ObservableList<CamtEntry>> posEntryLookup;
@@ -48,7 +47,7 @@ public class PieChartController extends ParentController {
 
   @Override
   protected void checkIntegrity() {
-    if (dirtyFlag || !populatedChart) {
+    if (isInvalidated || !populatedChart) {
       setupChart();
     }
   }
@@ -61,34 +60,11 @@ public class PieChartController extends ParentController {
     posChartData = FXCollections.observableArrayList();
 
     backBtn.setOnAction(ParentController::goBack);
-
     negPosTglBtn.selectedProperty().addListener(
         (observableValue, oldV, newV) -> {
           changeChartData(newV);
         });
-
-    // Setup change-listener for data-invalidation
-    model.getProfile().getPieCategories().addListener(
-        (ListChangeListener<PieCategory>) change -> {
-          dirtyFlag = true;
-          if (change.next() && !change.getAddedSubList().isEmpty()) {
-            change.getAddedSubList().forEach(
-                item -> item.getIdentifierList().addListener(
-                    (ListChangeListener<? super Rule>) change1 -> dirtyFlag = true
-                )
-            );
-          }
-        }
-    );
-    model.getProfile().getPieCategories().forEach(
-        pieCategory -> {
-          pieCategory.getIdentifierList().addListener(
-              (ListChangeListener<? super Rule>) change -> dirtyFlag = true
-          );
-          pieCategory.getName().addListener(
-              (observableValue, s, t1) -> dirtyFlag = true);
-        }
-    );
+    model.getProfile().addListener(change -> isInvalidated = true);
   }
 
   private void setupChart() {
@@ -104,7 +80,7 @@ public class PieChartController extends ParentController {
     setupToolTip(pieChart.getData());
     setupPopUp(pieChart.getData());
     populatedChart = true;
-    dirtyFlag = false;
+    isInvalidated = false;
   }
 
   private void fillListWithGenChartData(
@@ -142,7 +118,7 @@ public class PieChartController extends ParentController {
         if (foundMatchingRule) {
           break;
         }
-        for (final Rule rule : category.getIdentifierList()) {
+        for (final Rule rule : category.getRulesRO()) {
           if (foundMatchingRule) {
             break;
           }

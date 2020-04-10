@@ -17,9 +17,8 @@ import javafx.util.Pair;
 
 public class Rule {
 
-  private Predicate<CamtEntry> predicate;
-
-  private MapProperty<ListType, String> identifierMap;
+  private final Predicate<CamtEntry> predicate;
+  private final MapProperty<ListType, String> identifierMap;
   private StringProperty note;
 
   private Rule(Predicate<CamtEntry> predicate, MapProperty<ListType, String> identifierMap,
@@ -33,7 +32,7 @@ public class Rule {
     return predicate;
   }
 
-  public String  getNote() {
+  public String getNote() {
     return note.get();
   }
 
@@ -50,27 +49,35 @@ public class Rule {
   }
 
 
-  public static class RuleFactory{
+  public static class RuleFactory {
 
-    public static Rule generate(Pair<ListType, String> pair, String note) throws ParseException, NumberFormatException{
-      MapProperty<ListType, String> map = new SimpleMapProperty<>(FXCollections.observableMap(new HashMap<>()));
-      map.put(pair.getKey(),pair.getValue());
-      return generate(map,new SimpleStringProperty(note));
+    public static Rule generate(Pair<ListType, String> pair, String note)
+        throws ParseException, NumberFormatException {
+      MapProperty<ListType, String> map = new SimpleMapProperty<>(
+          FXCollections.observableMap(new HashMap<>()));
+      map.put(pair.getKey(), pair.getValue());
+      return generate(map, new SimpleStringProperty(note));
     }
 
-    public static Rule generate(Pair<ListType, String> pair, StringProperty note) throws ParseException, NumberFormatException{
-      MapProperty<ListType, String> map = new SimpleMapProperty<>(FXCollections.observableMap(new HashMap<>()));
-      map.put(pair.getKey(),pair.getValue());
-      return generate(map,note);
+    public static Rule generate(Pair<ListType, String> pair, StringProperty note)
+        throws ParseException, NumberFormatException {
+      MapProperty<ListType, String> map = new SimpleMapProperty<>(
+          FXCollections.observableMap(new HashMap<>()));
+      map.put(pair.getKey(), pair.getValue());
+      return generate(map, note);
     }
-    public static Rule generate(Map<ListType, String> map, String note) throws ParseException, NumberFormatException {
-      MapProperty<ListType, String> mapProperty = new SimpleMapProperty<>(FXCollections.observableMap(map));
+
+    public static Rule generate(Map<ListType, String> map, String note)
+        throws ParseException, NumberFormatException {
+      MapProperty<ListType, String> mapProperty = new SimpleMapProperty<>(
+          FXCollections.observableMap(map));
       StringProperty stringProperty = new SimpleStringProperty(note);
-      return generate(mapProperty,stringProperty);
+      return generate(mapProperty, stringProperty);
     }
 
-    public static Rule generate(MapProperty<ListType, String> map, StringProperty note) throws ParseException, NumberFormatException{
-      if(map.isEmpty()){
+    public static Rule generate(MapProperty<ListType, String> map, StringProperty note)
+        throws ParseException, NumberFormatException {
+      if (map.isEmpty()) {
         throw new IllegalArgumentException("No Qualifier");
       }
       Predicate<CamtEntry> concatPred = camtEntry -> true;
@@ -122,24 +129,27 @@ public class Rule {
                 .equals(mapEntry.getValue());
             break;
           case IBAN:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getIban().equals(mapEntry.getValue());
+            innerPredicate = camtEntry -> camtEntry.getDataPoint().getIban()
+                .equals(mapEntry.getValue());
             break;
           case BIC:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getBic().equals(mapEntry.getValue());
+            innerPredicate = camtEntry -> camtEntry.getDataPoint().getBic()
+                .equals(mapEntry.getValue());
             break;
           case AMOUNT:
             Money amount = new Money(mapEntry.getValue());
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getAmount().equals(amount);
             break;
           case INFO:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getInfo().equals(mapEntry.getValue());
+            innerPredicate = camtEntry -> camtEntry.getDataPoint().getInfo()
+                .equals(mapEntry.getValue());
             break;
           default:
             throw new IllegalArgumentException();
         }
         concatPred = concatPred.and(innerPredicate);
       }
-      return new Rule(concatPred,map,note);
+      return new Rule(concatPred, map, note);
     }
   }
 }

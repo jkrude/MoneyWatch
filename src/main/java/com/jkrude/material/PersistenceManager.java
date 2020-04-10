@@ -33,7 +33,7 @@ public class PersistenceManager {
         JSONObject jCat = new JSONObject();
         jCat.put("name", cat.getName().getValue());
         JSONArray jIds = new JSONArray();
-        for (Rule rule : cat.getIdentifierList()) {
+        for (Rule rule : cat.getRulesRO()) {
           for (Entry<ListType, String> entry : rule.getIdentifierMap().entrySet()) {
             JSONObject jRule = new JSONObject();
             jRule.put("key", entry.getKey().toString());
@@ -75,9 +75,8 @@ public class PersistenceManager {
           identifierList.add(rule);
         }
         PieCategory pieCategory = new PieCategory(nameProp,identifierList);
-        pieCategories.add(pieCategory);
+        model.getProfile().addCategory(pieCategory);
       }
-      model.getProfile().getPieCategories().addAll(pieCategories);
     } catch (ParseException | IOException | java.text.ParseException e) {
       e.printStackTrace();
     }
