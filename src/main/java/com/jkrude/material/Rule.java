@@ -98,7 +98,8 @@ public class Rule {
                 .equals(mapEntry.getValue());
             break;
           case USAGE:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getUsage().equals(mapEntry.getValue());
+            innerPredicate = camtEntry -> camtEntry.getDataPoint().getUsage().toLowerCase()
+                .contains(mapEntry.getValue().toLowerCase());
             break;
           case CREDITOR_ID:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getCreditorId()
@@ -125,8 +126,8 @@ public class Rule {
                 .equals(mapEntry.getValue());
             break;
           case OTHER_PARTY:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getOtherParty()
-                .equals(mapEntry.getValue());
+            innerPredicate = camtEntry -> camtEntry.getDataPoint().getOtherParty().toLowerCase()
+                .contains(mapEntry.getValue().toLowerCase());
             break;
           case IBAN:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getIban()
