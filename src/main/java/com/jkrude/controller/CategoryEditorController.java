@@ -40,6 +40,7 @@ public class CategoryEditorController extends ParentController {
   public TextField firstAndTF;
   public ChoiceBox<ListType> firstAndCB;
   public ChoiceBox<ListType> secondAndCB;
+  public Button addRuleBtn;
   @FXML
   private Button backButton;
   @FXML
@@ -80,22 +81,14 @@ public class CategoryEditorController extends ParentController {
         callback ->
             new ListCell<>() {
               @Override
-              protected void updateItem(PieCategory item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item != null && !empty) {
-                  textProperty().bind(item.getName());
+              protected void updateItem(PieCategory category, boolean empty) {
+                super.updateItem(category, empty);
+                if (category != null && !empty) {
+                  textProperty().bind(category.getName());
                   //Set contextMenu
-                  setContextMenu(getContextMenuForLVCell(this));
-                  emptyProperty().addListener(
-                      (obs, wasEmpty, isNowEmpty) -> {
-                        if (isNowEmpty) {
-                          setContextMenu(null);
-                        } else {
-                          setContextMenu(getContextMenuForLVCell(this));
-                        }
-                      }
-                  );
+                  setContextMenu(getCMForCategoryLVCell(this));
                 } else {
+                  setContextMenu(null);
                   textProperty().unbind();
                   setText(null);
                 }
@@ -113,6 +106,7 @@ public class CategoryEditorController extends ParentController {
     );
 
     ruleLV.setCellFactory(callback -> new RuleCell());
+
   }
 
 
@@ -180,7 +174,7 @@ public class CategoryEditorController extends ParentController {
     categoryLV.getSelectionModel().select(categoryLV.getItems().size() - 1);
   }
 
-  private ContextMenu getContextMenuForLVCell(ListCell<PieCategory> cell) {
+  private ContextMenu getCMForCategoryLVCell(ListCell<PieCategory> cell) {
     ContextMenu contextMenu = new ContextMenu();
     MenuItem mIRename = new MenuItem("Rename");
     mIRename.setOnAction(event -> newNameDialog(cell));
@@ -202,11 +196,49 @@ public class CategoryEditorController extends ParentController {
     }
   }
 
+  private ContextMenu getCMForRuleLVCell(ListCell<Rule> cell) {
+    ContextMenu contextMenu = new ContextMenu();
+    MenuItem mIEdit = new MenuItem("Bearbeiten");
+    mIEdit.setOnAction(event -> editRuleDialog(cell));
+    MenuItem mIDelete = new MenuItem("Löschen");
+    mIDelete.setOnAction(event -> cell.getListView().getItems().remove(cell.getItem()));
+    contextMenu.getItems().addAll(mIEdit, mIDelete);
+    return contextMenu;
+  }
+
+  private void editRuleDialog(ListCell<Rule> cell) {
+    var entrySetIt = cell.getItem().getIdentifierMap().entrySet().iterator();
+    if (entrySetIt.hasNext()) {
+      var entry = entrySetIt.next();
+      defaultCB.getSelectionModel().select(entry.getKey());
+      defaultTF.setText(entry.getValue());
+    }
+    if (entrySetIt.hasNext()) {
+      firstAndBtn.setSelected(true);
+      var entry = entrySetIt.next();
+      firstAndCB.getSelectionModel().select(entry.getKey());
+      firstAndTF.setText(entry.getValue());
+    }
+    if (entrySetIt.hasNext()) {
+      secondAndBtn.setSelected(true);
+      var entry = entrySetIt.next();
+      secondAndCB.getSelectionModel().select(entry.getKey());
+      secondAndTF.setText(entry.getValue());
+    }
+    addRuleBtn.setText("Bestätigen");
+    addRuleBtn.setOnAction(event -> {
+      ruleLV.getItems().remove(cell.getItem());
+      addRuleToCategory(event);
+      addRuleBtn.setOnAction(this::addRuleToCategory);
+      addRuleBtn.setText("Hinzufügen");
+    });
+  }
+
   @Override
   protected void checkIntegrity() {
   }
 
-  private static class RuleCell extends ListCell<Rule> {
+  private class RuleCell extends ListCell<Rule> {
 
     HBox hbox = new HBox();
     Label label = new Label("(empty)");
@@ -221,9 +253,7 @@ public class CategoryEditorController extends ParentController {
     @Override
     protected void updateItem(Rule rule, boolean empty) {
       super.updateItem(rule, empty);
-      if (empty) {
-        setGraphic(null);
-      } else {
+      if (rule != null && !empty) {
         StringBuilder stringBuilder = new StringBuilder();
         rule.getIdentifierMap()
             .forEach(
@@ -231,6 +261,11 @@ public class CategoryEditorController extends ParentController {
         stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
         label.setText(stringBuilder.toString());
         setGraphic(hbox);
+        setContextMenu(getCMForRuleLVCell(this));
+
+      } else {
+        setContextMenu(null);
+        setGraphic(null);
       }
     }
   }
