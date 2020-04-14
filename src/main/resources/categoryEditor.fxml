@@ -2,12 +2,10 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -39,45 +37,33 @@
         </AnchorPane>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
           <children>
-            <VBox alignment="CENTER" prefHeight="660.0" prefWidth="893.0" spacing="16.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="TOP_CENTER" prefHeight="660.0" spacing="16.0"
+              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+              AnchorPane.topAnchor="0.0">
               <children>
-                <AnchorPane>
+                <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="100.0">
                   <children>
-                    <Label fx:id="categoryNameLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="80.0" prefWidth="893.0" text="Kategoriename" textAlignment="CENTER" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="16.0">
+                    <Label fx:id="categoryNameLabel" alignment="CENTER" contentDisplay="CENTER"
+                      prefHeight="80.0" text="Kategoriename" textAlignment="CENTER">
                       <padding>
-                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
                       </padding>
                       <font>
-                        <Font name="System Bold" size="24.0" />
+                        <Font name="System Bold" size="24.0"/>
                       </font>
                     </Label>
+                    <Button fx:id="ruleBtn" mnemonicParsing="false" text="Hinzufügen"
+                      onAction="#newRuleDialog"/>
                   </children>
-                </AnchorPane>
-                        <ListView fx:id="ruleLV" prefHeight="200.0" prefWidth="200.0" />
-                        <VBox prefHeight="200.0" prefWidth="100.0">
-                           <children>
-                      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="64.0">
-                        <children>
-                          <ChoiceBox fx:id="defaultCB" minWidth="-Infinity" prefWidth="200.0" />
-                          <TextField fx:id="defaultTF" prefWidth="200.0" promptText="Pattern" />
-                          <Button fx:id="addRuleBtn" mnemonicParsing="false"
-                            onAction="#addRuleToCategory" text="Hinzufügen"/>
-                        </children>
-                      </HBox>
-                             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="64.0">
-                               <ToggleButton fx:id="firstAndBtn" mnemonicParsing="false"
-                                 text="Und"/>
-                               <ChoiceBox fx:id="firstAndCB" prefWidth="150.0" />
-                               <TextField fx:id="firstAndTF"/>
-                             </HBox>
-                             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="64.0">
-                               <ToggleButton fx:id="secondAndBtn" mnemonicParsing="false"
-                                 text="Und"/>
-                               <ChoiceBox fx:id="secondAndCB" prefWidth="150.0" />
-                               <TextField fx:id="secondAndTF"/>
-                             </HBox>
-                           </children>
-                        </VBox>
+                  <padding>
+                    <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+                  </padding>
+                </HBox>
+                <ListView fx:id="ruleLV" prefHeight="566.0" prefWidth="893.0">
+                  <padding>
+                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+                  </padding>
+                </ListView>
 
               </children>
             </VBox>

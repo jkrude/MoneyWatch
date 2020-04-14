@@ -1,23 +1,13 @@
 package com.jkrude.controller;
 
 
-import com.jkrude.material.AlertBox;
-import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
+import com.jkrude.material.UI.RuleDialog;
 import java.util.Optional;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -25,7 +15,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -34,30 +23,27 @@ import javafx.scene.layout.Priority;
 public class CategoryEditorController extends ParentController {
 
   public ListView<Rule> ruleLV;
-  public ToggleButton secondAndBtn;
-  public ToggleButton firstAndBtn;
-  public TextField secondAndTF;
-  public TextField firstAndTF;
-  public ChoiceBox<ListType> firstAndCB;
-  public ChoiceBox<ListType> secondAndCB;
-  public Button addRuleBtn;
+
   @FXML
   private Button backButton;
+
+  @FXML
+  private Button ruleBtn;
+
   @FXML
   private ListView<PieCategory> categoryLV;
   @FXML
   private Label categoryNameLabel;
   @FXML
-  private ChoiceBox<Camt.ListType> defaultCB;
-  @FXML
-  private TextField defaultTF;
-  @FXML
   private TextField categoryNameInputField;
+
+  @Override
+  protected void checkIntegrity() {
+  }
 
   @FXML
   public void initialize() {
 
-    setupAddRuleLayout();
     backButton.setOnAction(ParentController::goBack);
 
     // Setup data-source
@@ -109,65 +95,17 @@ public class CategoryEditorController extends ParentController {
 
   }
 
-
-  private void setupAddRuleLayout() {
-    ObservableList<ListType> typeChoiceList = FXCollections
-        .observableArrayList(ListType.IBAN, ListType.USAGE, ListType.OTHER_PARTY);
-    defaultCB.setItems(typeChoiceList);
-
-    firstAndCB.setItems(typeChoiceList);
-    addListenerForCB(firstAndCB, defaultCB);
-    firstAndCB.visibleProperty().bind(firstAndBtn.selectedProperty());
-    firstAndTF.visibleProperty().bind(firstAndBtn.selectedProperty());
-
-    secondAndBtn.visibleProperty().bind(firstAndBtn.selectedProperty());
-    addListenerForCB(secondAndCB, firstAndCB);
-    secondAndCB.visibleProperty().bind(secondAndBtn.selectedProperty());
-    secondAndTF.visibleProperty().bind(secondAndBtn.selectedProperty());
+  @FXML
+  private void newRuleDialog() {
+    RuleDialog.show(rule -> {
+      if (rule != null) {
+        ruleLV.getItems().add(rule);
+      }
+    });
   }
 
-  private void addListenerForCB(ChoiceBox<ListType> observingChoiceBox,
-      ChoiceBox<ListType> observedChoiceBox) {
-    observedChoiceBox.getSelectionModel().selectedItemProperty().addListener(
-        (ObservableValue<? extends ListType> obsValue, ListType oldV, ListType newV) -> {
-          observingChoiceBox
-              .setItems(observedChoiceBox.getItems().filtered(type1 -> !type1.equals(newV)));
-        });
-  }
-
-  public void addRuleToCategory(ActionEvent event) {
-    //TODO
-    // Error if entry already in List -> equals method necessary in PieCategory.Entry
-    // Input validation
-    try {
-      Map<ListType, String> inputMap = new HashMap<>();
-      if (!defaultCB.getSelectionModel().isEmpty()) {
-        inputMap.put(defaultCB.getSelectionModel().getSelectedItem(), defaultTF.getText());
-      }
-      if (firstAndBtn.isSelected() && !firstAndCB.getSelectionModel().isEmpty()) {
-        inputMap.put(firstAndCB.getSelectionModel().getSelectedItem(), firstAndTF.getText());
-        if (secondAndBtn.isSelected() && !secondAndCB.getSelectionModel().isEmpty()) {
-          inputMap.put(secondAndCB.getSelectionModel().getSelectedItem(), secondAndTF.getText());
-        }
-        firstAndBtn.setSelected(false);
-        secondAndBtn.setSelected(false);
-      }
-      if (inputMap.isEmpty()) {
-        AlertBox.showAlert("Fehlende Eingabe", "Kein Typ ausgewählt", "", AlertType.WARNING);
-        return;
-      }
-      Rule rule = Rule.RuleFactory.generate(inputMap, "");
-      ruleLV.getItems().add(rule);
-    } catch (ParseException e) {
-      e.printStackTrace();
-      AlertBox.showAlert("Fehlerhafte Eingabe", "Das Datum war nicht im Format mm.dd.yy",
-          "Eingabe: " + defaultTF
-              .getText(),
-          AlertType.ERROR);
-    }
-  }
-
-  public void addCategory(ActionEvent event) {
+  @FXML
+  private void addCategory() {
     //TODO input validation
     PieCategory category = new PieCategory(categoryNameInputField.getText());
     categoryLV.getItems().add(category);
@@ -207,35 +145,13 @@ public class CategoryEditorController extends ParentController {
   }
 
   private void editRuleDialog(ListCell<Rule> cell) {
-    var entrySetIt = cell.getItem().getIdentifierMap().entrySet().iterator();
-    if (entrySetIt.hasNext()) {
-      var entry = entrySetIt.next();
-      defaultCB.getSelectionModel().select(entry.getKey());
-      defaultTF.setText(entry.getValue());
-    }
-    if (entrySetIt.hasNext()) {
-      firstAndBtn.setSelected(true);
-      var entry = entrySetIt.next();
-      firstAndCB.getSelectionModel().select(entry.getKey());
-      firstAndTF.setText(entry.getValue());
-    }
-    if (entrySetIt.hasNext()) {
-      secondAndBtn.setSelected(true);
-      var entry = entrySetIt.next();
-      secondAndCB.getSelectionModel().select(entry.getKey());
-      secondAndTF.setText(entry.getValue());
-    }
-    addRuleBtn.setText("Bestätigen");
-    addRuleBtn.setOnAction(event -> {
-      ruleLV.getItems().remove(cell.getItem());
-      addRuleToCategory(event);
-      addRuleBtn.setOnAction(this::addRuleToCategory);
-      addRuleBtn.setText("Hinzufügen");
-    });
-  }
-
-  @Override
-  protected void checkIntegrity() {
+    RuleDialog.showAndEdit(callbackRule -> {
+          if (callbackRule != null && cell.getItem() != callbackRule) {
+            ruleLV.getItems().remove(cell.getItem());
+            ruleLV.getItems().add(callbackRule);
+          }
+        },
+        cell.getItem().getIdentifierMap().entrySet().iterator());
   }
 
   private class RuleCell extends ListCell<Rule> {

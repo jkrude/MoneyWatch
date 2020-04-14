@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.material.UI.RuleDialog">
+  <VBox alignment="CENTER" prefHeight="400.0" prefWidth="600.0" spacing="64.0"
+    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+    AnchorPane.topAnchor="0.0">
+    <children>
+      <Label text="Regel erstellen" textAlignment="CENTER" wrapText="true">
+        <padding>
+          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+        </padding>
+      </Label>
+      <HBox alignment="CENTER" spacing="32.0">
+        <children>
+          <ChoiceBox fx:id="defaultCB"/>
+          <TextField fx:id="defaultTF" prefHeight="32.0" promptText="Pattern"/>
+          <Button fx:id="addRuleBtn" mnemonicParsing="false" onAction="#addRule" text="Hinzufügen"/>
+        </children>
+        <padding>
+          <Insets left="16.0" right="16.0"/>
+        </padding>
+      </HBox>
+      <HBox alignment="CENTER" spacing="32.0">
+        <ToggleButton fx:id="firstAndBtn" mnemonicParsing="false" text="Und"/>
+        <ChoiceBox fx:id="firstAndCB"/>
+        <TextField fx:id="firstAndTF" prefHeight="32.0">
+          <padding>
+            <Insets left="16.0" right="16.0"/>
+          </padding>
+        </TextField>
+      </HBox>
+      <HBox alignment="CENTER" spacing="32.0">
+        <ToggleButton fx:id="secondAndBtn" mnemonicParsing="false" text="Und"/>
+        <ChoiceBox fx:id="secondAndCB"/>
+        <TextField fx:id="secondAndTF" prefHeight="32.0">
+          <padding>
+            <Insets left="16.0" right="16.0"/>
+          </padding>
+        </TextField>
+      </HBox>
+    </children>
+  </VBox>
+
+</AnchorPane>
