@@ -1,9 +1,12 @@
 package com.jkrude.controller;
 
+import com.jkrude.material.AlertBox;
+import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
+import com.jkrude.material.UI.SourceChooseDialog;
 import com.jkrude.material.UI.TableControllerManager;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,6 +20,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
@@ -41,9 +45,10 @@ public class PieChartController extends ParentController {
   private PieChart pieChart;
   @FXML
   private Button backBtn;
-
   @FXML
   private ToggleButton negPosTglBtn;
+
+  Camt pureCAMT;
 
   @Override
   protected void checkIntegrity() {
@@ -58,6 +63,7 @@ public class PieChartController extends ParentController {
     posEntryLookup = new HashMap<>();
     negChartData = FXCollections.observableArrayList();
     posChartData = FXCollections.observableArrayList();
+    pureCAMT = null;
 
     backBtn.setOnAction(ParentController::goBack);
     negPosTglBtn.selectedProperty().addListener(
@@ -69,7 +75,27 @@ public class PieChartController extends ParentController {
 
   private void setupChart() {
     pieChart.getData().clear();
-    ObservableList<CamtEntry> source = model.getCamtList().get(0).getSource();
+    if (this.pureCAMT == null) {
+      if (model.getCamtList() == null || model.getCamtList().isEmpty()) {
+        AlertBox.showAlert("Daten benötigt", "Keine CSV Dateien geladen",
+            "Wähle im Hauptmenü: Open File",
+            AlertType.ERROR);
+        // TODO
+        return;
+      }
+      SourceChooseDialog.show(
+          camt -> {
+            if (camt != null) {
+              pureCAMT = camt;
+            } else {
+              AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz",
+                  "Möglich ist dies über Klicken + 'OK' oder Doppelklick", AlertType.ERROR);
+              //TODO
+            }
+          }
+          , model.getCamtList());
+    }
+    ObservableList<CamtEntry> source = this.pureCAMT.getSource();
     ObservableList<PieCategory> categories = model.getProfile().getPieCategories();
 
     // Populate the chart with data
@@ -195,9 +221,9 @@ public class PieChartController extends ParentController {
     for (final PieChart.Data data : chartData) {
       data.getNode().setOnMouseClicked(
           mouseEvent -> {
-            if(negPosTglBtn.isSelected()){
+            if (negPosTglBtn.isSelected()) {
               TableControllerManager.showAsTablePopUp(posEntryLookup.get(data.getName()));
-            }else{
+            } else {
               TableControllerManager.showAsTablePopUp(negEntryLookup.get(data.getName()));
             }
           }
