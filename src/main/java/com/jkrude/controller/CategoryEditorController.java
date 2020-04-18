@@ -115,8 +115,7 @@ public class CategoryEditorController extends ParentController {
     // Check if the input is empty
     String inText = categoryNameInputField.getText();
     if (inText.isBlank()) {
-      AlertBox.showAlert("Fehlerhafte Eingabe", "Der Eingegebene Name ist leer", "",
-          AlertType.INFORMATION);
+          showAlertForEmptyInput();
       return;
     }
     PieCategory category = new PieCategory(categoryNameInputField.getText());
@@ -140,10 +139,17 @@ public class CategoryEditorController extends ParentController {
     TextInputDialog textInputDialog = new TextInputDialog("Neuer Name");
     textInputDialog.setHeaderText("");
     textInputDialog.setTitle("Ändere hier den Namen");
+    textInputDialog.getEditor().setText(cell.getItem().getName().get());
     Optional<String> result = textInputDialog.showAndWait();
-    if (result.isPresent() && !result.get().isBlank()) {
-      // Binded biderectional
-      cell.getItem().getName().set(result.get());
+    if (result.isPresent()) {
+      if (result.get().isBlank()) {
+        showAlertForEmptyInput();
+        newNameDialog(cell);
+      } else if (!cell.getItem().getName().get()
+          .equals(result.get())) {
+        // Binded biderectional
+        cell.getItem().getName().set(result.get());
+      }
     }
   }
 
@@ -174,6 +180,11 @@ public class CategoryEditorController extends ParentController {
 
   private void showAlertForExistingRule() {
     AlertBox.showAlert("Fehler", "Regel existiert schon", "", AlertType.ERROR);
+  }
+
+  private void showAlertForEmptyInput() {
+    AlertBox.showAlert("Fehlerhafte Eingabe", "Der Eingegebene Name ist leer", "",
+        AlertType.INFORMATION);
   }
 
   private class RuleCell extends ListCell<Rule> {
