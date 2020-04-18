@@ -1,9 +1,13 @@
 package com.jkrude.material.UI;
 
 import com.jkrude.material.Camt;
+import com.jkrude.material.Camt.DateDataPoint;
+import com.jkrude.material.Utility;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -38,9 +42,10 @@ public class SourceChooseDialog {
           protected void updateItem(Camt camt, boolean empty) {
             super.updateItem(camt, empty);
             if (camt != null && !empty) {
-              var dateMap = camt.getSourceAsDateMap();
-              setText(dateMap.firstEntry().getKey().toString() + dateMap.lastEntry().getKey()
-                  .toString());
+              TreeMap<Date, List<DateDataPoint>> dateMap = camt.getSourceAsDateMap();
+              String firstDate = Utility.dateFormatter.format(dateMap.firstEntry().getKey());
+              String lastDate = Utility.dateFormatter.format(dateMap.lastEntry().getKey());
+              setText(firstDate + " - " + lastDate);
             } else {
               setText(null);
             }
