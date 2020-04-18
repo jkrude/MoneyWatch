@@ -1,12 +1,14 @@
 package com.jkrude.controller;
 
 
+import com.jkrude.material.AlertBox;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
 import com.jkrude.material.UI.RuleDialog;
 import java.util.Optional;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -99,6 +101,10 @@ public class CategoryEditorController extends ParentController {
   private void newRuleDialog() {
     RuleDialog.show(rule -> {
       if (rule != null) {
+        if (ruleLV.getItems().contains(rule)) {
+          showAlertForExistingRule();
+          return;
+        }
         ruleLV.getItems().add(rule);
       }
     });
@@ -106,10 +112,18 @@ public class CategoryEditorController extends ParentController {
 
   @FXML
   private void addCategory() {
-    //TODO input validation
+    // Check if the input is empty
+    String inText = categoryNameInputField.getText();
+    if (inText.isBlank()) {
+      AlertBox.showAlert("Fehlerhafte Eingabe", "Der Eingegebene Name ist leer", "",
+          AlertType.INFORMATION);
+      return;
+    }
     PieCategory category = new PieCategory(categoryNameInputField.getText());
     categoryLV.getItems().add(category);
+    // Clear leftovers
     categoryLV.getSelectionModel().select(categoryLV.getItems().size() - 1);
+    categoryNameInputField.clear();
   }
 
   private ContextMenu getCMForCategoryLVCell(ListCell<PieCategory> cell) {
@@ -118,15 +132,14 @@ public class CategoryEditorController extends ParentController {
     mIRename.setOnAction(event -> newNameDialog(cell));
     MenuItem mIDelete = new MenuItem("Delete");
     mIDelete.setOnAction(event -> cell.getListView().getItems().remove(cell.getItem()));
-
     contextMenu.getItems().addAll(mIRename, mIDelete);
     return contextMenu;
   }
 
   private void newNameDialog(ListCell<PieCategory> cell) {
-    TextInputDialog textInputDialog = new TextInputDialog("New Name");
+    TextInputDialog textInputDialog = new TextInputDialog("Neuer Name");
     textInputDialog.setHeaderText("");
-    textInputDialog.setTitle("Change the name");
+    textInputDialog.setTitle("Ändere hier den Namen");
     Optional<String> result = textInputDialog.showAndWait();
     if (result.isPresent() && !result.get().isBlank()) {
       // Binded biderectional
@@ -147,11 +160,20 @@ public class CategoryEditorController extends ParentController {
   private void editRuleDialog(ListCell<Rule> cell) {
     RuleDialog.showAndEdit(callbackRule -> {
           if (callbackRule != null && cell.getItem() != callbackRule) {
+            if (ruleLV.getItems().contains(callbackRule)) {
+              showAlertForExistingRule();
+              return;
+            }
             ruleLV.getItems().remove(cell.getItem());
             ruleLV.getItems().add(callbackRule);
           }
+          //TODO ELSE
         },
-        cell.getItem().getIdentifierMap().entrySet().iterator());
+        cell.getItem().getIdentifierPairs().iterator());
+  }
+
+  private void showAlertForExistingRule() {
+    AlertBox.showAlert("Fehler", "Regel existiert schon", "", AlertType.ERROR);
   }
 
   private class RuleCell extends ListCell<Rule> {
@@ -171,9 +193,10 @@ public class CategoryEditorController extends ParentController {
       super.updateItem(rule, empty);
       if (rule != null && !empty) {
         StringBuilder stringBuilder = new StringBuilder();
-        rule.getIdentifierMap()
+        rule.getIdentifierPairs()
             .forEach(
-                (key, value) -> stringBuilder.append(key).append(": ").append(value).append(", "));
+                pair -> stringBuilder.append(pair.getKey()).append(": ").append(pair.getValue())
+                    .append(", "));
         stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
         label.setText(stringBuilder.toString());
         setGraphic(hbox);

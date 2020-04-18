@@ -4,12 +4,12 @@ import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Camt.ListType;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
-import javafx.beans.property.MapProperty;
-import javafx.beans.property.SimpleMapProperty;
+import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -18,13 +18,32 @@ import javafx.util.Pair;
 public class Rule {
 
   private final Predicate<CamtEntry> predicate;
-  private final MapProperty<ListType, String> identifierMap;
+  private final SetProperty<Pair<ListType, String>> identifierPairs;
   private StringProperty note;
 
-  private Rule(Predicate<CamtEntry> predicate, MapProperty<ListType, String> identifierMap,
+  @Override
+  public boolean equals(Object o) {
+    // Is true if the identifying pairs are equal
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Rule rule = (Rule) o;
+    return this.getIdentifierPairs().equals(rule.getIdentifierPairs());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(identifierPairs);
+  }
+
+  // Rules should only be constructed with the RuleFactory
+  private Rule(Predicate<CamtEntry> predicate, SetProperty<Pair<ListType, String>> identifierPairs,
       StringProperty note) {
     this.predicate = predicate;
-    this.identifierMap = identifierMap;
+    this.identifierPairs = identifierPairs;
     this.note = note;
   }
 
@@ -36,12 +55,8 @@ public class Rule {
     return note.get();
   }
 
-  public Map<ListType, String> getIdentifierMap() {
-    return identifierMap.get();
-  }
-
-  public MapProperty<ListType, String> identifierMapProperty() {
-    return identifierMap;
+  public Set<Pair<ListType, String>> getIdentifierPairs() {
+    return identifierPairs.get();
   }
 
   public StringProperty noteProperty() {
@@ -51,106 +66,110 @@ public class Rule {
 
   public static class RuleFactory {
 
+    // Wrap note and call next wrapper
     public static Rule generate(Pair<ListType, String> pair, String note)
         throws ParseException, NumberFormatException {
-      MapProperty<ListType, String> map = new SimpleMapProperty<>(
-          FXCollections.observableMap(new HashMap<>()));
-      map.put(pair.getKey(), pair.getValue());
-      return generate(map, new SimpleStringProperty(note));
+      SetProperty<Pair<ListType, String>> container = new SimpleSetProperty<>(
+          FXCollections.observableSet(new HashSet<>()));
+      container.add(pair);
+      return generate(container, new SimpleStringProperty(note));
     }
 
+    // Wrap pair
     public static Rule generate(Pair<ListType, String> pair, StringProperty note)
         throws ParseException, NumberFormatException {
-      MapProperty<ListType, String> map = new SimpleMapProperty<>(
-          FXCollections.observableMap(new HashMap<>()));
-      map.put(pair.getKey(), pair.getValue());
-      return generate(map, note);
+      SetProperty<Pair<ListType, String>> container = new SimpleSetProperty<>(
+          FXCollections.observableSet(new HashSet<>()));
+      container.add(pair);
+      return generate(container, note);
     }
 
-    public static Rule generate(Map<ListType, String> map, String note)
+    // Wrap set and note
+    public static Rule generate(Set<Pair<ListType, String>> container, String note)
         throws ParseException, NumberFormatException {
-      MapProperty<ListType, String> mapProperty = new SimpleMapProperty<>(
-          FXCollections.observableMap(map));
+      SetProperty<Pair<ListType, String>> pairsProperty = new SimpleSetProperty<>(
+          FXCollections.observableSet(container));
       StringProperty stringProperty = new SimpleStringProperty(note);
-      return generate(mapProperty, stringProperty);
+      return generate(pairsProperty, stringProperty);
     }
 
-    public static Rule generate(MapProperty<ListType, String> map, StringProperty note)
+    // Real generator
+    public static Rule generate(SetProperty<Pair<ListType, String>> container, StringProperty note)
         throws ParseException, NumberFormatException {
-      if (map.isEmpty()) {
+      if (container.isEmpty()) {
         throw new IllegalArgumentException("No Qualifier");
       }
       Predicate<CamtEntry> concatPred = camtEntry -> true;
-      for (Entry<ListType, String> mapEntry : map.entrySet()) {
+      for (Pair<ListType, String> pair : container) {
 
         Predicate<CamtEntry> innerPredicate;
-        switch (mapEntry.getKey()) {
+        switch (pair.getKey()) {
           case TRANSFER_DATE:
-            Date date = Utility.dateFormatter.parse(mapEntry.getValue());
+            Date date = Utility.dateFormatter.parse(pair.getValue());
             innerPredicate = camtEntry -> camtEntry.getDate().equals(date);
             break;
           case VALIDATION_DATE:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getValidationDate()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case TRANSFER_SPECIFICATION:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getTransferSpecification()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case USAGE:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getUsage().toLowerCase()
-                .contains(mapEntry.getValue().toLowerCase());
+                .contains(pair.getValue().toLowerCase());
             break;
           case CREDITOR_ID:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getCreditorId()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case MANDATE_REFERENCE:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getMandateReference()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case CUSTOMER_REFERENCE_END_TO_END:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getCustomerReference()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case COLLECTION_REFERENCE:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getCollectionReference()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case DEBIT_ORIGINAL_AMOUNT:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getDebitOriginalAmount()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case BACK_DEBIT:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getBackDebit()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case OTHER_PARTY:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getOtherParty().toLowerCase()
-                .contains(mapEntry.getValue().toLowerCase());
+                .contains(pair.getValue().toLowerCase());
             break;
           case IBAN:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getIban()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case BIC:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getBic()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           case AMOUNT:
-            Money amount = new Money(mapEntry.getValue());
+            Money amount = new Money(pair.getValue());
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getAmount().equals(amount);
             break;
           case INFO:
             innerPredicate = camtEntry -> camtEntry.getDataPoint().getInfo()
-                .equals(mapEntry.getValue());
+                .equals(pair.getValue());
             break;
           default:
             throw new IllegalArgumentException();
         }
         concatPred = concatPred.and(innerPredicate);
       }
-      return new Rule(concatPred, map, note);
+      return new Rule(concatPred, container, note);
     }
   }
 }

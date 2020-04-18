@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Map.Entry;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -34,7 +33,7 @@ public class PersistenceManager {
         jCat.put("name", cat.getName().getValue());
         JSONArray jIds = new JSONArray();
         for (Rule rule : cat.getRulesRO()) {
-          for (Entry<ListType, String> entry : rule.getIdentifierMap().entrySet()) {
+          for (Pair<ListType, String> entry : rule.getIdentifierPairs()) {
             JSONObject jRule = new JSONObject();
             jRule.put("key", entry.getKey().toString());
             jRule.put("value", entry.getValue());

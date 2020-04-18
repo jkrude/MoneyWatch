@@ -4,13 +4,13 @@ import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.Rule;
+import com.jkrude.material.Rule.RuleFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Consumer;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -25,6 +25,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 public class RuleDialog {
 
@@ -100,20 +101,20 @@ public class RuleDialog {
   }
 
   public static void showAndEdit(final Consumer<Rule> callback,
-      Iterator<Entry<ListType, String>> entryIterator) {
+      Iterator<Pair<ListType, String>> entryIterator) {
     FXMLLoader loader = new FXMLLoader(fxmlResource);
     Stage stage = setup(loader);
     RuleDialog controller = loader.getController();
     controller.setupForEditing(entryIterator);
 
     controller.addRuleBtn.setOnAction(event -> {
-      stage.close();
       callback.accept(controller.addRule());
+      stage.close();
     });
     stage.showAndWait();
   }
 
-  private void setupForEditing(Iterator<Entry<ListType, String>> entryIterator) {
+  private void setupForEditing(Iterator<Pair<ListType, String>> entryIterator) {
     if (entryIterator.hasNext()) {
       var entry = entryIterator.next();
       defaultCB.getSelectionModel().select(entry.getKey());
@@ -145,28 +146,29 @@ public class RuleDialog {
 
   @FXML
   private Rule addRule() {
-    //TODO
-    // Error if entry already in List -> equals method necessary in PieCategory.Entry
-    // Input validation
+    // Input validation and other checks should be done in the calling method.
     try {
-      Map<ListType, String> inputMap = new HashMap<>();
+      Set<Pair<ListType, String>> inputIdentifier = new HashSet<>();
       if (!defaultCB.getSelectionModel().isEmpty()) {
-        inputMap.put(defaultCB.getSelectionModel().getSelectedItem(), defaultTF.getText());
+        inputIdentifier
+            .add(new Pair<>(defaultCB.getSelectionModel().getSelectedItem(), defaultTF.getText()));
       }
       if (firstAndBtn.isSelected() && !firstAndCB.getSelectionModel().isEmpty()) {
-        inputMap.put(firstAndCB.getSelectionModel().getSelectedItem(), firstAndTF.getText());
+        inputIdentifier.add(
+            new Pair<>(firstAndCB.getSelectionModel().getSelectedItem(), firstAndTF.getText()));
         if (secondAndBtn.isSelected() && !secondAndCB.getSelectionModel().isEmpty()) {
-          inputMap.put(secondAndCB.getSelectionModel().getSelectedItem(), secondAndTF.getText());
+          inputIdentifier.add(
+              new Pair<>(secondAndCB.getSelectionModel().getSelectedItem(), secondAndTF.getText()));
         }
         firstAndBtn.setSelected(false);
         secondAndBtn.setSelected(false);
       }
 
-      if (inputMap.isEmpty()) {
+      if (inputIdentifier.isEmpty()) {
         AlertBox.showAlert("Fehlende Eingabe", "Kein Typ ausgewählt", "", AlertType.WARNING);
         return null;
       } else {
-        return Rule.RuleFactory.generate(inputMap, "");
+        return RuleFactory.generate(inputIdentifier, "");
       }
     } catch (ParseException e) {
       e.printStackTrace();
