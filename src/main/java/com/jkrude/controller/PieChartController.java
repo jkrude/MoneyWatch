@@ -82,18 +82,21 @@ public class PieChartController extends ParentController {
             AlertType.ERROR);
         // TODO
         return;
-      }
-      SourceChooseDialog.show(
-          camt -> {
-            if (camt != null) {
-              pureCAMT = camt;
-            } else {
-              AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz",
-                  "Möglich ist dies über Klicken + 'OK' oder Doppelklick", AlertType.ERROR);
-              //TODO
+      } else if (model.getCamtList().size() > 1) {
+        SourceChooseDialog.show(
+            camt -> {
+              if (camt != null) {
+                pureCAMT = camt;
+              } else {
+                AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz",
+                    "Möglich ist dies über Klicken + 'OK' oder Doppelklick", AlertType.ERROR);
+                //TODO
+              }
             }
-          }
-          , model.getCamtList());
+            , model.getCamtList());
+      } else {
+        pureCAMT = model.getCamtList().get(0);
+      }
     }
     ObservableList<CamtEntry> source = this.pureCAMT.getSource();
     ObservableList<PieCategory> categories = model.getProfile().getPieCategories();
@@ -107,6 +110,30 @@ public class PieChartController extends ParentController {
     setupPopUp(pieChart.getData());
     populatedChart = true;
     isInvalidated = false;
+  }
+
+  @FXML
+  private void changeDataSource() {
+    if (model.getCamtList().isEmpty()) {
+      AlertBox.showAlert("Kein Auswahl möglich", "Keine CSV-Datein geladen", "", AlertType.ERROR);
+    } else {
+      SourceChooseDialog.show(
+          camt -> {
+            if (camt != null) {
+              if (camt.equals(pureCAMT)) {
+                return;
+              }
+              pureCAMT = camt;
+              setupChart();
+            } else {
+              AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz",
+                  "Möglich ist dies über Klicken + 'OK' oder Doppelklick", AlertType.ERROR);
+            }
+          },
+          model.getCamtList()
+      );
+    }
+
   }
 
   private void fillListWithGenChartData(
