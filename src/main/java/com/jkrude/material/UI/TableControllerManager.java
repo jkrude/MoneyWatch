@@ -13,8 +13,8 @@ import javafx.stage.Stage;
 
 public class TableControllerManager {
 
-  public static final URL fxmlResource = TableControllerManager.class.getClassLoader()
-      .getResource("table.fxml");
+  public static final URL fxmlResource = TableControllerManager.class
+      .getResource("/PopUp/camtEntryAsTable.fxml");
 
   public static void showAsTablePopUp(final ObservableList<CamtEntry> chartData) {
     if (fxmlResource != null) {

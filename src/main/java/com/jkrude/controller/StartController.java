@@ -74,10 +74,10 @@ public class StartController extends ParentController {
   }
 
   public void goToPieChart(ActionEvent actionEvent) {
-    goTo("pieChartScene", actionEvent);
+    goTo(ParentController.pieChartScene, actionEvent);
   }
 
   public void goToMonthOverview(ActionEvent actionEvent) {
-    goTo("lineChartScene", actionEvent);
+    goTo(ParentController.lineChartScene, actionEvent);
   }
 }

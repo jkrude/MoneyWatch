@@ -259,7 +259,7 @@ public class PieChartController extends ParentController {
   }
 
   public void goToCategories(ActionEvent event) {
-    ParentController.goTo("categoryEditor", event);
+    ParentController.goTo(ParentController.categoryEditor, event);
   }
 
   /*

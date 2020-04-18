@@ -1,6 +1,7 @@
 package com.jkrude.material;
 
 import com.jkrude.controller.ParentController;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +16,7 @@ public class Model {
   private ScnCntrlPair currScenePair;
   private Profile profile;
 
-  private Map<String, ScnCntrlPair> loadedFxmlFiles;
+  private Map<URL, ScnCntrlPair> loadedFxmlFiles;
 
   public Model(List<Camt> camtList) {
     if (camtList == null) {
@@ -23,14 +24,14 @@ public class Model {
     }
     this.camtList = camtList;
     this.lastSceneStack = new Stack<>();
-    this.loadedFxmlFiles = new HashMap<>();
+    this.loadedFxmlFiles = new HashMap<URL, ScnCntrlPair>();
     this.profile = new Profile();
   }
 
   public Model() {
     this.camtList = new ArrayList<>();
     this.lastSceneStack = new Stack<>();
-    this.loadedFxmlFiles = new HashMap<>();
+    this.loadedFxmlFiles = new HashMap<URL, ScnCntrlPair>();
     this.profile = new Profile();
   }
 
@@ -50,11 +51,11 @@ public class Model {
     this.currScenePair = currScenePair;
   }
 
-  public Map<String, ScnCntrlPair> getLoadedFxmlFiles() {
+  public Map<URL, ScnCntrlPair> getLoadedFxmlFiles() {
     return loadedFxmlFiles;
   }
 
-  public void setLoadedFxmlFiles(Map<String, ScnCntrlPair> loadedFxmlFiles) {
+  public void setLoadedFxmlFiles(Map<URL, ScnCntrlPair> loadedFxmlFiles) {
     this.loadedFxmlFiles = loadedFxmlFiles;
   }
 

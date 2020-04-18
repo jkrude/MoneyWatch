@@ -30,8 +30,8 @@ public class SourceChooseDialog {
   private DialogPane dialogPane;
 
 
-  private static final URL fxmlResource = RuleDialog.class.getClassLoader()
-      .getResource("chooseDataDialog.fxml");
+  private static final URL fxmlResource = RuleDialog.class
+      .getResource("/PopUp/chooseDataDialog.fxml");
 
   @FXML
   private void initialize() {

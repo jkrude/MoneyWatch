@@ -5,7 +5,6 @@ import com.jkrude.material.Model;
 import com.jkrude.material.Model.ScnCntrlPair;
 import com.jkrude.material.PersistenceManager;
 import com.jkrude.material.Profile;
-import com.jkrude.test.TestData;
 import java.io.IOException;
 import java.net.URL;
 import javafx.event.ActionEvent;
@@ -19,6 +18,14 @@ public abstract class ParentController {
 
   static protected Model model = new Model();
   static private boolean wasInitialised = false;
+  protected static final URL startScene = ParentController.class
+      .getResource("/MainScene/start.fxml");
+  protected static final URL lineChartScene = ParentController.class
+      .getResource("/MainScene/lineChart.fxml");
+  protected static final URL pieChartScene = ParentController.class
+      .getResource("/MainScene/pieChart.fxml");
+  protected static final URL categoryEditor = ParentController.class
+      .getResource("/MainScene/categoryEditor.fxml");
 
   protected abstract void checkIntegrity();
 
@@ -29,32 +36,30 @@ public abstract class ParentController {
       // Get preset Categories form TestData
       loadConfig();
 
-      String[] fxmlFiles = {"startScene", "lineChartScene", "pieChartScene", "categoryEditor"};
-      for (String fxmlFile : fxmlFiles) {
-        URL fxmlURL;
+      URL[] initialScenes = {startScene, lineChartScene, pieChartScene, categoryEditor};
+      for (URL fxmlURL : initialScenes) {
         try {
           // Load Scene with FXMLLoader.
-          fxmlURL = ParentController.class.getClassLoader().getResource(fxmlFile + ".fxml");
           FXMLLoader fxmlLoader = new FXMLLoader(fxmlURL);
           Scene scene = new Scene(fxmlLoader.load());
           // Save the controller and scene.
           ParentController controller = fxmlLoader.getController();
-          model.getLoadedFxmlFiles().put(fxmlFile, new ScnCntrlPair(scene, controller));
+          model.getLoadedFxmlFiles().put(fxmlURL, new ScnCntrlPair(scene, controller));
 
         } catch (IOException e) {
           e.printStackTrace();
         }
       }
       // Set currScene to startScene.
-      model.setCurrScenePair(model.getLoadedFxmlFiles().get("startScene"));
+      model.setCurrScenePair(model.getLoadedFxmlFiles().get(startScene));
       primaryStage.setTitle("Money Watch");
-      primaryStage.setScene(model.getLoadedFxmlFiles().get("startScene").getScene());
+      primaryStage.setScene(model.getLoadedFxmlFiles().get(startScene).getScene());
       primaryStage.show();
       wasInitialised = true;
     }
   }
 
-  protected static void goTo(String pathToFxml, ActionEvent actionEvent) {
+  protected static void goTo(URL url, ActionEvent actionEvent) {
     // Get the stage for the actionEvent
     Stage stage = getStageForActionEvent(actionEvent);
     try {
@@ -62,7 +67,7 @@ public abstract class ParentController {
         throw new IllegalStateException();
       }
 
-      Model.ScnCntrlPair scnCntrlPair = model.getLoadedFxmlFiles().get(pathToFxml);
+      Model.ScnCntrlPair scnCntrlPair = model.getLoadedFxmlFiles().get(url);
       // Prepare scene.
       scnCntrlPair.getController().checkIntegrity();
       // Switch to scene.

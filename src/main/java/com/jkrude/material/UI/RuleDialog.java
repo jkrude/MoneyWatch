@@ -48,8 +48,8 @@ public class RuleDialog {
   @FXML
   private Button addRuleBtn;
 
-  public static final URL fxmlResource = RuleDialog.class.getClassLoader()
-      .getResource("ruleDialog.fxml");
+  public static final URL fxmlResource = RuleDialog.class
+      .getResource("/PopUp/ruleDialog.fxml");
 
   @FXML
   private void initialize() {
