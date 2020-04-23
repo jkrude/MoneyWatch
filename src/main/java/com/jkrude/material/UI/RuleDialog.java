@@ -5,7 +5,6 @@ import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.Rule;
 import com.jkrude.material.Rule.RuleFactory;
-import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.HashSet;
@@ -17,8 +16,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -70,28 +67,9 @@ public class RuleDialog {
     secondAndTF.visibleProperty().bind(secondAndBtn.selectedProperty());
   }
 
-  private static Stage setup(FXMLLoader loader) {
-    if (fxmlResource != null) {
-      Parent pane;
-      try {
-        pane = loader.load();
-        Stage stage = new Stage();
-        Scene scene = new Scene(pane);
-        stage.setScene(scene);
-        return stage;
-      } catch (IOException e) {
-        // TODO
-        e.printStackTrace();
-        throw new IllegalStateException(e);
-      }
-    } else {
-      throw new IllegalStateException("FXML file was null");
-    }
-  }
-
   public static void show(final Consumer<Rule> callback) {
     FXMLLoader loader = new FXMLLoader(fxmlResource);
-    Stage stage = setup(loader);
+    Stage stage = PopUp.setupStage(loader, fxmlResource);
     RuleDialog controller = loader.getController();
     controller.addRuleBtn.setOnAction(event -> {
       callback.accept(controller.addRule());
@@ -103,7 +81,7 @@ public class RuleDialog {
   public static void showAndEdit(final Consumer<Rule> callback,
       Iterator<Pair<ListType, String>> entryIterator) {
     FXMLLoader loader = new FXMLLoader(fxmlResource);
-    Stage stage = setup(loader);
+    Stage stage = PopUp.setupStage(loader, fxmlResource);
     RuleDialog controller = loader.getController();
     controller.setupForEditing(entryIterator);
 
@@ -138,10 +116,8 @@ public class RuleDialog {
   private static void addListenerForCB(ChoiceBox<ListType> observingChoiceBox,
       ChoiceBox<ListType> observedChoiceBox) {
     observedChoiceBox.getSelectionModel().selectedItemProperty().addListener(
-        (ObservableValue<? extends ListType> obsValue, ListType oldV, ListType newV) -> {
-          observingChoiceBox
-              .setItems(observedChoiceBox.getItems().filtered(type1 -> !type1.equals(newV)));
-        });
+        (ObservableValue<? extends ListType> obsValue, ListType oldV, ListType newV) -> observingChoiceBox
+            .setItems(observedChoiceBox.getItems().filtered(type1 -> !type1.equals(newV))));
   }
 
   @FXML

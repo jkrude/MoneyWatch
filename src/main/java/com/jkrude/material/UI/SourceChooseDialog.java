@@ -3,7 +3,6 @@ package com.jkrude.material.UI;
 import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.DateDataPoint;
 import com.jkrude.material.Utility;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -12,8 +11,6 @@ import java.util.function.Consumer;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.ListCell;
@@ -54,28 +51,10 @@ public class SourceChooseDialog {
     );
   }
 
-  private static Stage setupStage(FXMLLoader loader) {
-    if (fxmlResource != null) {
-      Parent pane;
-      try {
-        pane = loader.load();
-        Stage stage = new Stage();
-        Scene scene = new Scene(pane);
-        stage.setScene(scene);
-        return stage;
-      } catch (IOException e) {
-        // TODO
-        e.printStackTrace();
-        throw new IllegalStateException(e);
-      }
-    } else {
-      throw new IllegalStateException("FXML file was null");
-    }
-  }
 
   public static void show(final Consumer<Camt> callback, List<Camt> sources) {
     FXMLLoader loader = new FXMLLoader(fxmlResource);
-    Stage stage = setupStage(loader);
+    Stage stage = PopUp.setupStage(loader, fxmlResource);
     SourceChooseDialog controller = loader.getController();
     controller.listView.setItems(FXCollections.observableList(sources));
     controller.listView.getSelectionModel().selectFirst();

@@ -1,24 +1,25 @@
 package com.jkrude.material.UI;
 
-import com.jkrude.controller.ParentController;
 import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.Money;
 import com.jkrude.material.Utility;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
+import java.util.function.Consumer;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -27,26 +28,51 @@ public class CamtEntryTableController {
 
   public TableView<CamtEntry> table;
   // Columns
-  public TableColumn<CamtEntry, String> accountIban;
-  public TableColumn<CamtEntry, String> transferDate;
-  public TableColumn<CamtEntry, String> validationDate;
-  public TableColumn<CamtEntry, String> transferSpecification;
-  public TableColumn<CamtEntry, String> usage;
-  public TableColumn<CamtEntry, String> creditorId;
-  public TableColumn<CamtEntry, String> mandateReference;
-  public TableColumn<CamtEntry, String> customerReferenceRndToEnd;
-  public TableColumn<CamtEntry, String> collectionReference;
-  public TableColumn<CamtEntry, String> debitOriginalAmount;
-  public TableColumn<CamtEntry, String> backDebit;
-  public TableColumn<CamtEntry, String> otherParty;
-  public TableColumn<CamtEntry, String> iban;
-  public TableColumn<CamtEntry, String> bic;
-  public TableColumn<CamtEntry, Money> amount;
-  public TableColumn<CamtEntry, String> info;
+  @FXML
+  private TableColumn<CamtEntry, String> accountIban;
+  @FXML
+  private TableColumn<CamtEntry, String> transferDate;
+  @FXML
+  private TableColumn<CamtEntry, String> validationDate;
+  @FXML
+  private TableColumn<CamtEntry, String> transferSpecification;
+  @FXML
+  private TableColumn<CamtEntry, String> usage;
+  @FXML
+  private TableColumn<CamtEntry, String> creditorId;
+  @FXML
+  private TableColumn<CamtEntry, String> mandateReference;
+  @FXML
+  private TableColumn<CamtEntry, String> customerReferenceRndToEnd;
+  @FXML
+  private TableColumn<CamtEntry, String> collectionReference;
+  @FXML
+  private TableColumn<CamtEntry, String> debitOriginalAmount;
+  @FXML
+  private TableColumn<CamtEntry, String> backDebit;
+  @FXML
+  private TableColumn<CamtEntry, String> otherParty;
+  @FXML
+  private TableColumn<CamtEntry, String> iban;
+  @FXML
+  private TableColumn<CamtEntry, String> bic;
+  @FXML
+  private TableColumn<CamtEntry, Money> amount;
+  @FXML
+  private TableColumn<CamtEntry, String> info;
+
+  public Button closeBtn;
 
   private SimpleIntegerProperty activatedColumns = new SimpleIntegerProperty(4);
   private SimpleIntegerProperty columnWidth;
 
+
+  protected FXMLLoader loader;
+  protected Stage stage;
+
+  // Make Constructor private so it has to be build
+  public CamtEntryTableController() {
+  }
 
   @FXML
   private void initialize() {
@@ -163,13 +189,30 @@ public class CamtEntryTableController {
     // table.setContextMenu(contextMenu);
   }
 
-  public void setItems(List<CamtEntry> tableItems) {
-    table.getItems().addAll(tableItems);
+
+  public void showAndWait() {
+    if (stage.getScene() != null) {
+      stage.showAndWait();
+    } else {
+      throw new IllegalStateException("Stage was null");
+    }
   }
 
-  @FXML
-  private void close(ActionEvent event) {
-    Stage stage = ParentController.getStageForActionEvent(event);
-    stage.close();
+  public CamtEntryTableController setOnClickListener(EventHandler<MouseEvent> eventEventHandler) {
+    if (table != null) {
+      table.setOnMouseClicked(eventEventHandler);
+    } else {
+      throw new IllegalStateException("Table was null");
+    }
+    return this;
   }
+
+  public CamtEntryTableController setCloseCallback(Consumer<CamtEntryTableController> consumer) {
+    this.closeBtn.setOnAction(event -> {
+      consumer.accept(this);
+      this.stage.close();
+    });
+    return this;
+  }
+
 }
