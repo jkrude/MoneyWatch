@@ -3,26 +3,32 @@ package com.jkrude.material.UI;
 import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.Money;
+import com.jkrude.material.PieCategory;
 import com.jkrude.material.Utility;
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.event.EventHandler;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.Pair;
 
 public class CamtEntryTableController {
 
@@ -198,9 +204,38 @@ public class CamtEntryTableController {
     }
   }
 
-  public CamtEntryTableController setOnClickListener(EventHandler<MouseEvent> eventEventHandler) {
+  public CamtEntryTableController setContextMenu(ObservableList<PieCategory> categories) {
     if (table != null) {
-      table.setOnMouseClicked(eventEventHandler);
+      table.setRowFactory(
+          new Callback<TableView<CamtEntry>, TableRow<CamtEntry>>() {
+            @Override
+            public TableRow<CamtEntry> call(TableView<CamtEntry> camtEntryTableView) {
+              final TableRow<CamtEntry> row = new TableRow<>();
+              ContextMenu contextMenu = new ContextMenu();
+              Menu catChoices = new Menu("Als Regel Hinzufügen");
+              for (PieCategory category : categories) {
+                MenuItem menuItem = new MenuItem(category.getName().get());
+                menuItem.setOnAction(event -> {
+                  CamtEntry entry = row.getItem();
+                  Set<Pair<ListType, String>> pairs = new HashSet<>();
+                  pairs.add(new Pair<>(ListType.IBAN, entry.getDataPoint().getIban()));
+                  pairs.add(new Pair<>(ListType.OTHER_PARTY, entry.getDataPoint().getOtherParty()));
+
+                  RuleDialog.showAndEdit(
+                      category::addRule,
+                      pairs.iterator()
+                  );
+                });
+                catChoices.getItems().add(menuItem);
+              }
+              contextMenu.getItems().add(catChoices);
+              row.contextMenuProperty().bind(
+                  Bindings.when(Bindings.isNotNull(row.itemProperty())).then(contextMenu)
+                      .otherwise((ContextMenu) null));
+              return row;
+            }
+          }
+      );
     } else {
       throw new IllegalStateException("Table was null");
     }

@@ -57,6 +57,10 @@ public class PieCategory implements Observable {
             .forEach(invalidationListener -> invalidationListener.invalidated(PieCategory.this)));
   }
 
+  public void addRule(Rule rule) {
+    this.rules.add(rule);
+  }
+
   public StringProperty getName() {
     return name;
   }

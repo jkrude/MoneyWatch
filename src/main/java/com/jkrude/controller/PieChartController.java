@@ -250,15 +250,18 @@ public class PieChartController extends ParentController {
           mouseEvent -> {
             if (negPosTglBtn.isSelected()) {
               CamtEntryTablePopUpBuilder.build(posEntryLookup.get(data.getName()))
+                  .setContextMenu(model.getProfile().getPieCategories())
                   .showAndWait();
             } else {
               CamtEntryTablePopUpBuilder.build(negEntryLookup.get(data.getName()))
+                  .setContextMenu(model.getProfile().getPieCategories())
                   .showAndWait();
             }
           }
       );
     }
   }
+
 
   public void goToCategories(ActionEvent event) {
     ParentController.goTo(ParentController.categoryEditor, event);
