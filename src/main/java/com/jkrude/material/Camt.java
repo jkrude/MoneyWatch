@@ -5,9 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.TreeMap;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -15,6 +17,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.util.Pair;
 
 public class Camt {
 
@@ -443,6 +446,63 @@ public class Camt {
   }
 
   public static class CamtEntry {
+
+    public Set<Pair<ListType, String>> getSelectedFields(Set<ListType> listTypes) {
+      Set<Pair<ListType, String>> resultSet = new HashSet<>();
+      for (ListType listType : listTypes) {
+        switch (listType) {
+
+          case ACCOUNT_IBAN:
+            break;
+          case TRANSFER_DATE:
+            resultSet.add(new Pair<>(listType, Utility.dateFormatter.format(getDate())));
+            break;
+          case VALIDATION_DATE:
+            resultSet.add(new Pair<>(listType, getDataPoint().getValidationDate()));
+            break;
+          case TRANSFER_SPECIFICATION:
+            resultSet.add(new Pair<>(listType, getDataPoint().getTransferSpecification()));
+            break;
+          case USAGE:
+            resultSet.add(new Pair<>(listType, getDataPoint().getUsage()));
+            break;
+          case CREDITOR_ID:
+            resultSet.add(new Pair<>(listType, getDataPoint().getCreditorId()));
+            break;
+          case MANDATE_REFERENCE:
+            resultSet.add(new Pair<>(listType, getDataPoint().getMandateReference()));
+            break;
+          case CUSTOMER_REFERENCE_END_TO_END:
+            resultSet.add(new Pair<>(listType, getDataPoint().getCustomerReference()));
+            break;
+          case COLLECTION_REFERENCE:
+            resultSet.add(new Pair<>(listType, getDataPoint().getCollectionReference()));
+            break;
+          case DEBIT_ORIGINAL_AMOUNT:
+            resultSet.add(new Pair<>(listType, getDataPoint().getDebitOriginalAmount()));
+            break;
+          case BACK_DEBIT:
+            resultSet.add(new Pair<>(listType, getDataPoint().getBackDebit()));
+            break;
+          case OTHER_PARTY:
+            resultSet.add(new Pair<>(listType, getDataPoint().getOtherParty()));
+            break;
+          case IBAN:
+            resultSet.add(new Pair<>(listType, getDataPoint().getIban()));
+            break;
+          case BIC:
+            resultSet.add(new Pair<>(listType, getDataPoint().getBic()));
+            break;
+          case AMOUNT:
+            resultSet.add(new Pair<>(listType, getDataPoint().getAmount().toString()));
+            break;
+          case INFO:
+            resultSet.add(new Pair<>(listType, getDataPoint().getInfo()));
+            break;
+        }
+      }
+      return resultSet;
+    }
 
     private ObjectProperty<Date> date;
     private ObjectProperty<DateDataPoint> dataPoint;

@@ -7,6 +7,7 @@ import com.jkrude.material.PieCategory;
 import com.jkrude.material.Utility;
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
@@ -215,16 +216,19 @@ public class CamtEntryTableController {
               Menu catChoices = new Menu("Als Regel Hinzufügen");
               for (PieCategory category : categories) {
                 MenuItem menuItem = new MenuItem(category.getName().get());
+
                 menuItem.setOnAction(event -> {
                   CamtEntry entry = row.getItem();
                   Set<Pair<ListType, String>> pairs = new HashSet<>();
-                  pairs.add(new Pair<>(ListType.IBAN, entry.getDataPoint().getIban()));
-                  pairs.add(new Pair<>(ListType.OTHER_PARTY, entry.getDataPoint().getOtherParty()));
-
-                  RuleDialog.showAndEdit(
-                      category::addRule,
-                      pairs.iterator()
-                  );
+                  Optional<Set<ListType>> r = RuleDialog.chooseRelevantField(entry);
+                  if (r.isPresent()) {
+                    Set<ListType> selectedListTypes = r.get();
+                    pairs = entry.getSelectedFields(selectedListTypes);
+                    RuleDialog.showAndEdit(
+                        category::addRule,
+                        pairs.iterator()
+                    );
+                  }
                 });
                 catChoices.getItems().add(menuItem);
               }

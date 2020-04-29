@@ -2,6 +2,7 @@ package com.jkrude.material.UI;
 
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt;
+import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.Rule;
 import com.jkrude.material.Rule.RuleFactory;
@@ -9,6 +10,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javafx.beans.value.ObservableValue;
@@ -18,9 +20,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
@@ -119,6 +125,41 @@ public class RuleDialog {
         (ObservableValue<? extends ListType> obsValue, ListType oldV, ListType newV) -> observingChoiceBox
             .setItems(observedChoiceBox.getItems().filtered(type1 -> !type1.equals(newV))));
   }
+
+  public static Optional<Set<ListType>> chooseRelevantField(CamtEntry camtEntry) {
+    Dialog<Set<ListType>> dialog = new Dialog<>();
+    dialog.setWidth(200);
+    dialog.setWidth(600);
+    VBox vBox = new VBox();
+    vBox.setSpacing(16);
+    Set<ListType> results = new HashSet<>();
+    for (ListType l : Camt.ListType.values()) {
+      CheckBox c = new CheckBox(l.getTranslation());
+      c.selectedProperty().addListener(
+          ((observableValue, oldValue, newValue) -> {
+            if (newValue) { // if selected
+              results.add(l);
+            } else {
+              results.remove(l);
+            }
+          })
+      );
+      vBox.getChildren().add(c);
+    }
+    dialog.getDialogPane().setContent(vBox);
+    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.APPLY, ButtonType.CANCEL);
+    dialog.setResultConverter(
+        callback -> {
+          if (callback.getButtonData().isCancelButton()) {
+            return null;
+          } else {
+            return results;
+          }
+        }
+    );
+    return dialog.showAndWait();
+  }
+
 
   @FXML
   private Rule addRule() {
