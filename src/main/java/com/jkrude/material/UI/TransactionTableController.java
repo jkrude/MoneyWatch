@@ -31,7 +31,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Pair;
 
-public class CamtEntryTableController {
+public class TransactionTableController {
 
   public TableView<Transaction> table;
   // Columns
@@ -78,7 +78,7 @@ public class CamtEntryTableController {
   protected Stage stage;
 
   // Make Constructor private so it has to be build
-  public CamtEntryTableController() {
+  public TransactionTableController() {
   }
 
   @FXML
@@ -205,7 +205,7 @@ public class CamtEntryTableController {
     }
   }
 
-  public CamtEntryTableController setContextMenu(ObservableList<PieCategory> categories) {
+  public TransactionTableController setContextMenu(ObservableList<PieCategory> categories) {
     if (table != null) {
       table.setRowFactory(
           new Callback<TableView<Transaction>, TableRow<Transaction>>() {
@@ -246,7 +246,8 @@ public class CamtEntryTableController {
     return this;
   }
 
-  public CamtEntryTableController setCloseCallback(Consumer<CamtEntryTableController> consumer) {
+  public TransactionTableController setCloseCallback(
+      Consumer<TransactionTableController> consumer) {
     this.closeBtn.setOnAction(event -> {
       consumer.accept(this);
       this.stage.close();

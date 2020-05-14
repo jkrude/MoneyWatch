@@ -6,15 +6,15 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 
-public class CamtEntryTablePopUpBuilder {
+public class TransactionTablePopUpBuilder {
 
-  private static final URL fxmlResource = CamtEntryTablePopUpBuilder.class
+  private static final URL fxmlResource = TransactionTablePopUpBuilder.class
       .getResource("/PopUp/camtEntryAsTable.fxml");
 
-  public static CamtEntryTableController build(final ObservableList<Transaction> chartData) {
+  public static TransactionTableController build(final ObservableList<Transaction> chartData) {
     FXMLLoader loader = new FXMLLoader();
     Stage stage = PopUp.setupStage(loader, fxmlResource);
-    CamtEntryTableController controller = loader.getController();
+    TransactionTableController controller = loader.getController();
     controller.stage = stage;
     controller.loader = loader;
     controller.closeBtn.setOnAction(event -> controller.stage.close());

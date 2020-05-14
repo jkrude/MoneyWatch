@@ -6,8 +6,8 @@ import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
-import com.jkrude.material.UI.CamtEntryTablePopUpBuilder;
 import com.jkrude.material.UI.SourceChooseDialog;
+import com.jkrude.material.UI.TransactionTablePopUpBuilder;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -250,11 +250,11 @@ public class PieChartController extends ParentController {
       data.getNode().setOnMouseClicked(
           mouseEvent -> {
             if (negPosTglBtn.isSelected()) {
-              CamtEntryTablePopUpBuilder.build(posEntryLookup.get(data.getName()))
+              TransactionTablePopUpBuilder.build(posEntryLookup.get(data.getName()))
                   .setContextMenu(model.getProfile().getPieCategories())
                   .showAndWait();
             } else {
-              CamtEntryTablePopUpBuilder.build(negEntryLookup.get(data.getName()))
+              TransactionTablePopUpBuilder.build(negEntryLookup.get(data.getName()))
                   .setContextMenu(model.getProfile().getPieCategories())
                   .showAndWait();
             }

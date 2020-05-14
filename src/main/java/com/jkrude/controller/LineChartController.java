@@ -2,7 +2,7 @@ package com.jkrude.controller;
 
 import com.jkrude.material.Camt;
 import com.jkrude.material.Money;
-import com.jkrude.material.UI.CamtEntryTablePopUpBuilder;
+import com.jkrude.material.UI.TransactionTablePopUpBuilder;
 import com.jkrude.material.Utility;
 import java.util.Date;
 import java.util.HashMap;
@@ -134,7 +134,7 @@ public class LineChartController extends ParentController {
     data.getNode().setOnMouseClicked(
         event -> {
           if (event.getButton() == MouseButton.PRIMARY) {
-            CamtEntryTablePopUpBuilder.build(camt.getSource().filtered(
+            TransactionTablePopUpBuilder.build(camt.getSource().filtered(
                 camtTransaction -> camtTransaction.getDate()
                     .equals(dateLookupTable.get(data.getXValue()))))
                 .showAndWait();
