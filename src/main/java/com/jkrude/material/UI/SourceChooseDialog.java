@@ -1,7 +1,7 @@
 package com.jkrude.material.UI;
 
 import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.DateDataPoint;
+import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Utility;
 import java.net.URL;
 import java.util.Date;
@@ -39,7 +39,7 @@ public class SourceChooseDialog {
           protected void updateItem(Camt camt, boolean empty) {
             super.updateItem(camt, empty);
             if (camt != null && !empty) {
-              TreeMap<Date, List<DateDataPoint>> dateMap = camt.getSourceAsDateMap();
+              TreeMap<Date, List<Transaction>> dateMap = camt.getSourceAsDateMap();
               String firstDate = Utility.dateFormatter.format(dateMap.firstEntry().getKey());
               String lastDate = Utility.dateFormatter.format(dateMap.lastEntry().getKey());
               setText(firstDate + " - " + lastDate);

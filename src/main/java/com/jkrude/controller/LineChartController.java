@@ -1,7 +1,6 @@
 package com.jkrude.controller;
 
 import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.DateDataPoint;
 import com.jkrude.material.Money;
 import com.jkrude.material.UI.CamtEntryTablePopUpBuilder;
 import com.jkrude.material.Utility;
@@ -108,13 +107,13 @@ public class LineChartController extends ParentController {
   }
 
   private void genDataFromSource(XYChart.Series<Number, Number> series, Camt source) {
-    TreeMap<Date, List<DateDataPoint>> dateMap = source.getSourceAsDateMap();
+    TreeMap<Date, List<Camt.Transaction>> dateMap = source.getSourceAsDateMap();
     Set<Date> set = dateMap.keySet();
     Money currAmount = new Money(0);
 
     for (Date d : set) {
-      for (DateDataPoint dateDataPoint : dateMap.get(d)) {
-        currAmount.add(dateDataPoint.getAmount());
+      for (Camt.Transaction transaction : dateMap.get(d)) {
+        currAmount.add(transaction.getAmount());
       }
       Number dateAsNumber = d.toInstant().toEpochMilli();
       dateLookupTable.put(dateAsNumber, d);
@@ -136,7 +135,8 @@ public class LineChartController extends ParentController {
         event -> {
           if (event.getButton() == MouseButton.PRIMARY) {
             CamtEntryTablePopUpBuilder.build(camt.getSource().filtered(
-                camtEntry -> camtEntry.getDate().equals(dateLookupTable.get(data.getXValue()))))
+                camtTransaction -> camtTransaction.getDate()
+                    .equals(dateLookupTable.get(data.getXValue()))))
                 .showAndWait();
           }
         });

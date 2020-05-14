@@ -2,7 +2,7 @@ package com.jkrude.controller;
 
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.CamtEntry;
+import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
@@ -32,8 +32,8 @@ public class PieChartController extends ParentController {
   private boolean isInvalidated = false;
   // Marks if chart is up to date with model
   // Saves witch CamtEntries where found for a category
-  private Map<String, ObservableList<CamtEntry>> negEntryLookup;
-  private Map<String, ObservableList<CamtEntry>> posEntryLookup;
+  private Map<String, ObservableList<Transaction>> negEntryLookup;
+  private Map<String, ObservableList<Transaction>> posEntryLookup;
   // The default name for the slice for transactions without matching rule
   public static final String catNameUnmatchedTrans = "Undefiniert";
 
@@ -98,7 +98,7 @@ public class PieChartController extends ParentController {
         pureCAMT = model.getCamtList().get(0);
       }
     }
-    ObservableList<CamtEntry> source = this.pureCAMT.getSource();
+    ObservableList<Transaction> source = this.pureCAMT.getSource();
     ObservableList<PieCategory> categories = model.getProfile().getPieCategories();
 
     // Populate the chart with data
@@ -137,19 +137,19 @@ public class PieChartController extends ParentController {
   }
 
   private void fillListWithGenChartData(
-      ObservableList<CamtEntry> source,
+      ObservableList<Transaction> source,
       ObservableList<PieCategory> categories
   ) {
-    // Check for every rule for every category for every CamtEntry(transactions) if the predicate tests positive
-    // When a CamtEntry tests positive but the amount is positive it gets marked in the ignoredPositiveEntries
+    // Check for every rule for every category for every Transaction(transactions) if the predicate tests positive
+    // When a Transaction tests positive but the amount is positive it gets marked in the ignoredPositiveEntries
 
     // For every category add the amount for matching CamtEntries
     HashMap<StringProperty, Money> negEntriesForCategories = new HashMap<>();
     HashMap<StringProperty, Money> posEntriesForCategories = new HashMap<>();
 
     // Collect all entries with no matching rule
-    List<CamtEntry> negTransactionsWithoutRule = new ArrayList<>();
-    List<CamtEntry> posTransactionsWithoutRule = new ArrayList<>();
+    List<Transaction> negTransactionsWithoutRule = new ArrayList<>();
+    List<Transaction> posTransactionsWithoutRule = new ArrayList<>();
 
     negEntryLookup.clear();
     posEntryLookup.clear();
@@ -164,7 +164,7 @@ public class PieChartController extends ParentController {
       posEntryLookup.put(pieCategory.getName().get(), FXCollections.observableArrayList());
     });
 
-    for (final CamtEntry camtEntry : source) {
+    for (final Transaction camtTransaction : source) {
       // An entry can only belong to one category (one rule)
       boolean foundMatchingRule = false;
       for (final PieCategory category : categories) {
@@ -175,25 +175,26 @@ public class PieChartController extends ParentController {
           if (foundMatchingRule) {
             break;
           }
-          if (rule.getPredicate().test(camtEntry)) {
-            if (camtEntry.getDataPoint().getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
+          if (rule.getPredicate().test(camtTransaction)) {
+            if (camtTransaction.getAmount().getAmount().compareTo(BigDecimal.ZERO)
+                < 0) {
               negEntriesForCategories.get(category.getName())
-                  .add(camtEntry.getDataPoint().getAmount());
-              negEntryLookup.get(category.getName().get()).add(camtEntry);
+                  .add(camtTransaction.getAmount());
+              negEntryLookup.get(category.getName().get()).add(camtTransaction);
             } else {
               posEntriesForCategories.get(category.getName())
-                  .add(camtEntry.getDataPoint().getAmount());
-              posEntryLookup.get(category.getName().get()).add(camtEntry);
+                  .add(camtTransaction.getAmount());
+              posEntryLookup.get(category.getName().get()).add(camtTransaction);
             }
             foundMatchingRule = true;
           }
         }
       }
       if (!foundMatchingRule) {
-        if (camtEntry.getDataPoint().getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
-          negTransactionsWithoutRule.add(camtEntry);
+        if (camtTransaction.getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
+          negTransactionsWithoutRule.add(camtTransaction);
         } else {
-          posTransactionsWithoutRule.add(camtEntry);
+          posTransactionsWithoutRule.add(camtTransaction);
         }
       }
     }

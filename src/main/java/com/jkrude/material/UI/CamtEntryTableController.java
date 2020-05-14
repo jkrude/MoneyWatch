@@ -1,7 +1,7 @@
 package com.jkrude.material.UI;
 
-import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Camt.ListType;
+import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Utility;
@@ -33,40 +33,40 @@ import javafx.util.Pair;
 
 public class CamtEntryTableController {
 
-  public TableView<CamtEntry> table;
+  public TableView<Transaction> table;
   // Columns
   @FXML
-  private TableColumn<CamtEntry, String> accountIban;
+  private TableColumn<Transaction, String> accountIban;
   @FXML
-  private TableColumn<CamtEntry, String> transferDate;
+  private TableColumn<Transaction, String> transferDate;
   @FXML
-  private TableColumn<CamtEntry, String> validationDate;
+  private TableColumn<Transaction, String> validationDate;
   @FXML
-  private TableColumn<CamtEntry, String> transferSpecification;
+  private TableColumn<Transaction, String> transferSpecification;
   @FXML
-  private TableColumn<CamtEntry, String> usage;
+  private TableColumn<Transaction, String> usage;
   @FXML
-  private TableColumn<CamtEntry, String> creditorId;
+  private TableColumn<Transaction, String> creditorId;
   @FXML
-  private TableColumn<CamtEntry, String> mandateReference;
+  private TableColumn<Transaction, String> mandateReference;
   @FXML
-  private TableColumn<CamtEntry, String> customerReferenceRndToEnd;
+  private TableColumn<Transaction, String> customerReferenceRndToEnd;
   @FXML
-  private TableColumn<CamtEntry, String> collectionReference;
+  private TableColumn<Transaction, String> collectionReference;
   @FXML
-  private TableColumn<CamtEntry, String> debitOriginalAmount;
+  private TableColumn<Transaction, String> debitOriginalAmount;
   @FXML
-  private TableColumn<CamtEntry, String> backDebit;
+  private TableColumn<Transaction, String> backDebit;
   @FXML
-  private TableColumn<CamtEntry, String> otherParty;
+  private TableColumn<Transaction, String> otherParty;
   @FXML
-  private TableColumn<CamtEntry, String> iban;
+  private TableColumn<Transaction, String> iban;
   @FXML
-  private TableColumn<CamtEntry, String> bic;
+  private TableColumn<Transaction, String> bic;
   @FXML
-  private TableColumn<CamtEntry, Money> amount;
+  private TableColumn<Transaction, Money> amount;
   @FXML
-  private TableColumn<CamtEntry, String> info;
+  private TableColumn<Transaction, String> info;
 
   public Button closeBtn;
 
@@ -102,40 +102,40 @@ public class CamtEntryTableController {
     transferDate.setCellValueFactory(callback -> new SimpleStringProperty(
         Utility.dateFormatter.format(callback.getValue().getDate())));
     validationDate.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getValidationDate()));
+        callback.getValue().getValidationDate()));
     transferSpecification.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getTransferSpecification()));
+        callback.getValue().getTransferSpecification()));
     usage.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getUsage()));
+        callback.getValue().getUsage()));
     creditorId.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getCreditorId()));
+        callback.getValue().getCreditorId()));
     mandateReference.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getMandateReference()));
+        callback.getValue().getMandateReference()));
     customerReferenceRndToEnd.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getCustomerReference()));
+        callback.getValue().getCustomerReference()));
     collectionReference.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getCollectionReference()));
+        callback.getValue().getCollectionReference()));
     debitOriginalAmount.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getDebitOriginalAmount()));
+        callback.getValue().getDebitOriginalAmount()));
     backDebit.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getBackDebit()));
+        callback.getValue().getBackDebit()));
     otherParty.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getOtherParty()));
+        callback.getValue().getOtherParty()));
     iban.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getIban()));
+        callback.getValue().getIban()));
     bic.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getBic()));
+        callback.getValue().getBic()));
     amount.setCellValueFactory(callback -> new SimpleObjectProperty<Money>(
-        callback.getValue().getDataPoint().getAmount()));
+        callback.getValue().getAmount()));
     info.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDataPoint().getInfo()));
+        callback.getValue().getInfo()));
 
     amount.setCellFactory(
         new Callback<>() {
           @Override
-          public TableCell<CamtEntry, Money> call(
-              TableColumn<CamtEntry, Money> camtEntryMoneyTableColumn) {
-            return new TableCell<CamtEntry, Money>() {
+          public TableCell<Transaction, Money> call(
+              TableColumn<Transaction, Money> camtEntryMoneyTableColumn) {
+            return new TableCell<Transaction, Money>() {
               @Override
               protected void updateItem(Money money, boolean empty) {
                 super.updateItem(money, empty);
@@ -208,17 +208,17 @@ public class CamtEntryTableController {
   public CamtEntryTableController setContextMenu(ObservableList<PieCategory> categories) {
     if (table != null) {
       table.setRowFactory(
-          new Callback<TableView<CamtEntry>, TableRow<CamtEntry>>() {
+          new Callback<TableView<Transaction>, TableRow<Transaction>>() {
             @Override
-            public TableRow<CamtEntry> call(TableView<CamtEntry> camtEntryTableView) {
-              final TableRow<CamtEntry> row = new TableRow<>();
+            public TableRow<Transaction> call(TableView<Transaction> camtEntryTableView) {
+              final TableRow<Transaction> row = new TableRow<>();
               ContextMenu contextMenu = new ContextMenu();
               Menu catChoices = new Menu("Als Regel Hinzufügen");
               for (PieCategory category : categories) {
                 MenuItem menuItem = new MenuItem(category.getName().get());
 
                 menuItem.setOnAction(event -> {
-                  CamtEntry entry = row.getItem();
+                  Transaction entry = row.getItem();
                   Set<Pair<ListType, String>> pairs = new HashSet<>();
                   Optional<Set<ListType>> r = RuleDialog.chooseRelevantField(entry);
                   if (r.isPresent()) {

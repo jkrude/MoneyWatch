@@ -1,6 +1,6 @@
 package com.jkrude.material.UI;
 
-import com.jkrude.material.Camt.CamtEntry;
+import com.jkrude.material.Camt.Transaction;
 import java.net.URL;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +11,7 @@ public class CamtEntryTablePopUpBuilder {
   private static final URL fxmlResource = CamtEntryTablePopUpBuilder.class
       .getResource("/PopUp/camtEntryAsTable.fxml");
 
-  public static CamtEntryTableController build(final ObservableList<CamtEntry> chartData) {
+  public static CamtEntryTableController build(final ObservableList<Transaction> chartData) {
     FXMLLoader loader = new FXMLLoader();
     Stage stage = PopUp.setupStage(loader, fxmlResource);
     CamtEntryTableController controller = loader.getController();

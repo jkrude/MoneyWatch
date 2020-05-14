@@ -1,6 +1,5 @@
 package com.jkrude.material;
 
-import com.jkrude.material.Camt.CamtEntry;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;
@@ -125,9 +124,9 @@ public class Money implements Comparable<Money>{
     return new Money(a.currency, c);
   }
 
-  public static Money sum(List<Camt.CamtEntry> camtEntries){
+  public static Money sum(List<Camt.Transaction> camtEntries) {
     Money total = new Money();
-    camtEntries.forEach(camtEntry -> total.add(camtEntry.getDataPoint().getAmount()));
+    camtEntries.forEach(camtTransaction -> total.add(camtTransaction.getAmount()));
     return total;
   }
 

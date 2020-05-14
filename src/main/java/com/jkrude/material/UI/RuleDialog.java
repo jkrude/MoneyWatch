@@ -2,8 +2,8 @@ package com.jkrude.material.UI;
 
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Camt.ListType;
+import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Rule;
 import com.jkrude.material.Rule.RuleFactory;
 import java.net.URL;
@@ -126,7 +126,7 @@ public class RuleDialog {
             .setItems(observedChoiceBox.getItems().filtered(type1 -> !type1.equals(newV))));
   }
 
-  public static Optional<Set<ListType>> chooseRelevantField(CamtEntry camtEntry) {
+  public static Optional<Set<ListType>> chooseRelevantField(Transaction camtTransaction) {
     Dialog<Set<ListType>> dialog = new Dialog<>();
     dialog.setWidth(200);
     dialog.setWidth(600);

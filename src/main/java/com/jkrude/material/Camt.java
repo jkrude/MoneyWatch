@@ -44,29 +44,27 @@ public class Camt {
     ListType(String s) {
       this.translation = s;
     }
-    public String getTranslation(){
+
+    public String getTranslation() {
       return translation;
     }
 
     @Override
     public String toString() {
-     return translation;
+      return translation;
     }
 
     private static final Map<String, ListType> lookup = new HashMap<>();
 
     //Populate the lookup table on loading time
-    static
-    {
-      for(ListType env : ListType.values())
-      {
+    static {
+      for (ListType env : ListType.values()) {
         lookup.put(env.getTranslation(), env);
       }
     }
 
     //This method can be used for reverse lookup purpose
-    public static ListType get(String url)
-    {
+    public static ListType get(String url) {
       return lookup.get(url);
     }
 
@@ -76,7 +74,7 @@ public class Camt {
     return dateFormatter;
   }
 
-  private ListProperty<CamtEntry> source;
+  private ListProperty<Transaction> source;
 
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
 
@@ -85,7 +83,7 @@ public class Camt {
     source = new SimpleListProperty<>(FXCollections.observableArrayList());
   }
 
-  public Camt(ObservableList<CamtEntry> entries) {
+  public Camt(ObservableList<Transaction> entries) {
     source = new SimpleListProperty<>(entries);
   }
 
@@ -94,104 +92,19 @@ public class Camt {
     this.csvFileParser(sc);
   }
 
+
   /*
-  PieChart associated methods.
-
-  public ObservableList<PieChart.Data> getPieChartData(ObservableList<PieCategory> categories) {
-
-    ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
-    HashMap<StringProperty, Money> dataHashMap = new HashMap<>();
-
-    for (int i = 0; i < this.source.size(); ++i) {
-      boolean found = false;
-
-      for (PieCategory category : categories) {
-
-        for (PieCategory.Entry entry : category.getIdentifierList()) {
-          if (found) {
-            break;
-          }
-
-          switch (entry.getType()) {
-            case IBAN:
-              found = searchForCategory(dataHashMap, i, category, entry, iban);
-              break;
-            case ACCOUNT_IBAN:
-              found = searchForCategory(dataHashMap, i, category, entry, accountIban);
-              break;
-            case TRANSFER_DATE:
-              found = searchForCategory(dataHashMap, i, category, entry, transferDate);
-              break;
-            case VALIDATION_DATE:
-              found = searchForCategory(dataHashMap, i, category, entry, validationDate);
-              break;
-            case TRANSFER_SPECIFICATION:
-              found = searchForCategory(dataHashMap, i, category, entry, transferSpecification);
-              break;
-            case USAGE:
-              found = searchForCategory(dataHashMap, i, category, entry, usage);
-              break;
-            case CREDITOR_ID:
-              found = searchForCategory(dataHashMap, i, category, entry, creditorId);
-              break;
-            case MANDATE_REFERENCE:
-              found = searchForCategory(dataHashMap, i, category, entry, mandateReference);
-              break;
-            case CUSTOMER_REFERENCE_END_TO_END:
-              found = searchForCategory(dataHashMap, i, category, entry, customerReference);
-              break;
-            case COLLECTION_REFERENCE:
-              found = searchForCategory(dataHashMap, i, category, entry, collectionReference);
-              break;
-            case DEBIT_ORIGINAL_AMOUNT:
-              found = searchForCategory(dataHashMap, i, category, entry, debitOriginalAmount);
-              break;
-            case BACK_DEBIT:
-              found = searchForCategory(dataHashMap, i, category, entry, backDebit);
-              break;
-            case OTHER_PARTY:
-              found = searchForCategory(dataHashMap, i, category, entry, otherParty);
-              break;
-            case BIC:
-              found = searchForCategory(dataHashMap, i, category, entry, bic);
-              break;
-            case INFO:
-              found = searchForCategory(dataHashMap, i, category, entry, info);
-              break;
-          }
-        }
-      }
-    }
-    dataHashMap.forEach((StringProperty key, Money value) -> pieChartData
-        .add(new PieChart.Data(key.get(), value.getAmount().doubleValue())));
-    return pieChartData;
-  }
-
-  private <T> boolean searchForCategory(HashMap<StringProperty, Money> dataHashMap, int i,
-      PieCategory category, PieCategory.Entry entry, List<T> list) {
-
-    boolean found = false;
-    if (list.get(i).equals(entry.getPattern())) {
-      if (dataHashMap.containsKey(category.getName())) {
-        dataHashMap.get(category.getName()).add(amount.get(i));
+    Collect all transactions according to their date.
+   */
+  public TreeMap<Date, List<Transaction>> getSourceAsDateMap() {
+    TreeMap<Date, List<Transaction>> dateMap = new TreeMap<>();
+    for (Transaction camtTransaction : source) {
+      if (dateMap.containsKey(camtTransaction.getDate())) {
+        dateMap.get(camtTransaction.getDate()).add(camtTransaction);
       } else {
-        dataHashMap.put(category.getName(), amount.get(i));
-      }
-      found = true;
-    }
-    return found;
-  }
-*/
-
-  public TreeMap<Date, List<DateDataPoint>> getSourceAsDateMap() {
-    TreeMap<Date, List<DateDataPoint>> dateMap = new TreeMap<>();
-    for (CamtEntry camtEntry : source) {
-      if (dateMap.containsKey(camtEntry.getDate())) {
-        dateMap.get(camtEntry.getDate()).add(camtEntry.getDataPoint());
-      } else {
-        List<DateDataPoint> list = new ArrayList<>();
-        list.add(camtEntry.getDataPoint());
-        dateMap.put(camtEntry.getDate(), list);
+        List<Transaction> list = new ArrayList<>();
+        list.add(camtTransaction);
+        dateMap.put(camtTransaction.getDate(), list);
       }
     }
     return dateMap;
@@ -212,64 +125,60 @@ public class Camt {
       throw new ParseException("File is empty or could not be parsed", 0);
     }
 
-
-
     while (sc.hasNext()) {
       final Money currAmount;
       final Date currDate;
-      final DateDataPoint currDDP = new DateDataPoint();
+      final Transaction transaction = new Transaction();
       final String line = sc.next().replaceAll("\"", "");
       final String[] strings = line.split(";");
       if (strings.length != 17) {
         throw new ParseException("Line was not splittable into 17 parts with delimiter ';' ",
             source.size());
       }
-      currDDP.setContractAccount(strings[0]);
+      transaction.setContractAccount(strings[0]);
       try {
         currDate = dateFormatter.parse(strings[1]);
+        transaction.setDate(currDate);
       } catch (ParseException e) {
         e.printStackTrace();
         throw e;
       }
-      currDDP.setValidationDate(strings[2]);
-      currDDP.setTransferSpecification(strings[3]);
-      currDDP.setUsage(strings[4]);
-      currDDP.setCreditorId(strings[5]);
-      currDDP.setMandateReference(strings[6]);
-      currDDP.setCustomerReference(strings[7]);
-      currDDP.setCollectionReference(strings[8]);
-      currDDP.setDebitOriginalAmount(strings[9]);
-      currDDP.setBackDebit(strings[10]);
-      currDDP.setOtherParty(strings[11]);
-      currDDP.setIban(strings[12]);
-      currDDP.setBic(strings[13]);
+      transaction.setValidationDate(strings[2]);
+      transaction.setTransferSpecification(strings[3]);
+      transaction.setUsage(strings[4]);
+      transaction.setCreditorId(strings[5]);
+      transaction.setMandateReference(strings[6]);
+      transaction.setCustomerReference(strings[7]);
+      transaction.setCollectionReference(strings[8]);
+      transaction.setDebitOriginalAmount(strings[9]);
+      transaction.setBackDebit(strings[10]);
+      transaction.setOtherParty(strings[11]);
+      transaction.setIban(strings[12]);
+      transaction.setBic(strings[13]);
       currAmount = new Money(strings[14].replace(",", "."));
       if (strings[15].equals(Money.EURO.toString())) {
-        currDDP.setAmount(currAmount);
+        transaction.setAmount(currAmount);
       } else {
         throw new IllegalArgumentException(
             "Currently not supporting other Currency's than EURO:"
                 + "Problem at row: " + source.size() + 1 + ", found: " + line);
       }
-      currDDP.setInfo(strings[16]);
-      source.add(new CamtEntry(currDate, currDDP));
+      transaction.setInfo(strings[16]);
+      source.add(transaction);
     }
   }
 
-  public ObservableList<CamtEntry> getSource() {
+  public ObservableList<Transaction> getSource() {
     return source.get();
   }
 
-  public ListProperty<CamtEntry> sourceProperty() {
+  public ListProperty<Transaction> sourceProperty() {
     return source;
   }
 
-  /*
-  Class to hold the i. element from every list (except the date).
-  This is used for the date map.
-   */
-  public static class DateDataPoint {
+  public static class Transaction {
 
+    private ObjectProperty<Date> date;
     private String contractAccount;
     private String validationDate;
     private String transferSpecification;
@@ -286,10 +195,13 @@ public class Camt {
     private Money amount;
     private String info;
 
-    public DateDataPoint() {
+    public Transaction() {
+      this.date = new SimpleObjectProperty<>();
     }
 
-    public DateDataPoint(String contractAccount, String validationDate,
+    public Transaction(
+        Date date,
+        String contractAccount, String validationDate,
         String transferSpecification, String usage, String creditorId,
         String mandateReference, String customerReference, String collectionReference,
         String debitOriginalAmount, String backDebit, String otherParty, String iban,
@@ -309,11 +221,21 @@ public class Camt {
       this.bic = bic;
       this.amount = amount;
       this.info = info;
+      this.date = new SimpleObjectProperty<>(date);
     }
 
     /*
-        Getter.
-         */
+      Getter.
+    */
+
+    public Date getDate() {
+      return date.get();
+    }
+
+    public ObjectProperty<Date> dateProperty() {
+      return date;
+    }
+
     public String getContractAccount() {
       return contractAccount;
     }
@@ -381,8 +303,13 @@ public class Camt {
     }
 
     /*
-    Setter.
+      Setter.
      */
+
+    public void setDate(Date date) {
+      this.date.set(date);
+    }
+
     public void setContractAccount(String contractAccount) {
       this.contractAccount = contractAccount;
     }
@@ -443,9 +370,6 @@ public class Camt {
     public void setInfo(String info) {
       this.info = info;
     }
-  }
-
-  public static class CamtEntry {
 
     public Set<Pair<ListType, String>> getSelectedFields(Set<ListType> listTypes) {
       Set<Pair<ListType, String>> resultSet = new HashSet<>();
@@ -458,82 +382,50 @@ public class Camt {
             resultSet.add(new Pair<>(listType, Utility.dateFormatter.format(getDate())));
             break;
           case VALIDATION_DATE:
-            resultSet.add(new Pair<>(listType, getDataPoint().getValidationDate()));
+            resultSet.add(new Pair<>(listType, getValidationDate()));
             break;
           case TRANSFER_SPECIFICATION:
-            resultSet.add(new Pair<>(listType, getDataPoint().getTransferSpecification()));
+            resultSet.add(new Pair<>(listType, getTransferSpecification()));
             break;
           case USAGE:
-            resultSet.add(new Pair<>(listType, getDataPoint().getUsage()));
+            resultSet.add(new Pair<>(listType, getUsage()));
             break;
           case CREDITOR_ID:
-            resultSet.add(new Pair<>(listType, getDataPoint().getCreditorId()));
+            resultSet.add(new Pair<>(listType, getCreditorId()));
             break;
           case MANDATE_REFERENCE:
-            resultSet.add(new Pair<>(listType, getDataPoint().getMandateReference()));
+            resultSet.add(new Pair<>(listType, getMandateReference()));
             break;
           case CUSTOMER_REFERENCE_END_TO_END:
-            resultSet.add(new Pair<>(listType, getDataPoint().getCustomerReference()));
+            resultSet.add(new Pair<>(listType, getCustomerReference()));
             break;
           case COLLECTION_REFERENCE:
-            resultSet.add(new Pair<>(listType, getDataPoint().getCollectionReference()));
+            resultSet.add(new Pair<>(listType, getCollectionReference()));
             break;
           case DEBIT_ORIGINAL_AMOUNT:
-            resultSet.add(new Pair<>(listType, getDataPoint().getDebitOriginalAmount()));
+            resultSet.add(new Pair<>(listType, getDebitOriginalAmount()));
             break;
           case BACK_DEBIT:
-            resultSet.add(new Pair<>(listType, getDataPoint().getBackDebit()));
+            resultSet.add(new Pair<>(listType, getBackDebit()));
             break;
           case OTHER_PARTY:
-            resultSet.add(new Pair<>(listType, getDataPoint().getOtherParty()));
+            resultSet.add(new Pair<>(listType, getOtherParty()));
             break;
           case IBAN:
-            resultSet.add(new Pair<>(listType, getDataPoint().getIban()));
+            resultSet.add(new Pair<>(listType, getIban()));
             break;
           case BIC:
-            resultSet.add(new Pair<>(listType, getDataPoint().getBic()));
+            resultSet.add(new Pair<>(listType, getBic()));
             break;
           case AMOUNT:
-            resultSet.add(new Pair<>(listType, getDataPoint().getAmount().toString()));
+            resultSet.add(new Pair<>(listType, getAmount().toString()));
             break;
           case INFO:
-            resultSet.add(new Pair<>(listType, getDataPoint().getInfo()));
+            resultSet.add(new Pair<>(listType, getInfo()));
             break;
         }
       }
       return resultSet;
-    }
-
-    private ObjectProperty<Date> date;
-    private ObjectProperty<DateDataPoint> dataPoint;
-
-    public CamtEntry(Date date, DateDataPoint dataPoint) {
-      this.date = new SimpleObjectProperty<>(date);
-      this.dataPoint = new SimpleObjectProperty<>(dataPoint);
-    }
-
-    public Date getDate() {
-      return date.get();
-    }
-
-    public ObjectProperty<Date> dateProperty() {
-      return date;
-    }
-
-    public void setDate(Date date) {
-      this.date.set(date);
-    }
-
-    public DateDataPoint getDataPoint() {
-      return dataPoint.get();
-    }
-
-    public ObjectProperty<DateDataPoint> dataPointProperty() {
-      return dataPoint;
-    }
-
-    public void setDataPoint(DateDataPoint dataPoint) {
-      this.dataPoint.set(dataPoint);
     }
   }
 }

@@ -1,7 +1,7 @@
 package com.jkrude.material;
 
-import com.jkrude.material.Camt.CamtEntry;
 import com.jkrude.material.Camt.ListType;
+import com.jkrude.material.Camt.Transaction;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
@@ -17,7 +17,7 @@ import javafx.util.Pair;
 
 public class Rule {
 
-  private final Predicate<CamtEntry> predicate;
+  private final Predicate<Transaction> predicate;
   private final SetProperty<Pair<ListType, String>> identifierPairs;
   private StringProperty note;
 
@@ -40,14 +40,15 @@ public class Rule {
   }
 
   // Rules should only be constructed with the RuleFactory
-  private Rule(Predicate<CamtEntry> predicate, SetProperty<Pair<ListType, String>> identifierPairs,
+  private Rule(Predicate<Transaction> predicate,
+      SetProperty<Pair<ListType, String>> identifierPairs,
       StringProperty note) {
     this.predicate = predicate;
     this.identifierPairs = identifierPairs;
     this.note = note;
   }
 
-  public Predicate<CamtEntry> getPredicate() {
+  public Predicate<Transaction> getPredicate() {
     return predicate;
   }
 
@@ -99,69 +100,76 @@ public class Rule {
       if (container.isEmpty()) {
         throw new IllegalArgumentException("No Qualifier");
       }
-      Predicate<CamtEntry> concatPred = camtEntry -> true;
+      Predicate<Transaction> concatPred = camtTransaction -> true;
       for (Pair<ListType, String> pair : container) {
 
-        Predicate<CamtEntry> innerPredicate;
+        Predicate<Transaction> innerPredicate;
         switch (pair.getKey()) {
           case TRANSFER_DATE:
             Date date = Utility.dateFormatter.parse(pair.getValue());
-            innerPredicate = camtEntry -> camtEntry.getDate().equals(date);
+            innerPredicate = camtTransaction -> camtTransaction.getDate().equals(date);
             break;
           case VALIDATION_DATE:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getValidationDate()
+            innerPredicate = camtTransaction -> camtTransaction.getValidationDate()
                 .equals(pair.getValue());
             break;
           case TRANSFER_SPECIFICATION:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getTransferSpecification()
+            innerPredicate = camtTransaction -> camtTransaction
+                .getTransferSpecification()
                 .equals(pair.getValue());
             break;
           case USAGE:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getUsage().toLowerCase()
+            innerPredicate = camtTransaction -> camtTransaction.getUsage()
+                .toLowerCase()
                 .contains(pair.getValue().toLowerCase());
             break;
           case CREDITOR_ID:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getCreditorId()
+            innerPredicate = camtTransaction -> camtTransaction.getCreditorId()
                 .equals(pair.getValue());
             break;
           case MANDATE_REFERENCE:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getMandateReference()
+            innerPredicate = camtTransaction -> camtTransaction.getMandateReference()
                 .equals(pair.getValue());
             break;
           case CUSTOMER_REFERENCE_END_TO_END:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getCustomerReference()
+            innerPredicate = camtTransaction -> camtTransaction
+                .getCustomerReference()
                 .equals(pair.getValue());
             break;
           case COLLECTION_REFERENCE:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getCollectionReference()
+            innerPredicate = camtTransaction -> camtTransaction
+                .getCollectionReference()
                 .equals(pair.getValue());
             break;
           case DEBIT_ORIGINAL_AMOUNT:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getDebitOriginalAmount()
+            innerPredicate = camtTransaction -> camtTransaction
+                .getDebitOriginalAmount()
                 .equals(pair.getValue());
             break;
           case BACK_DEBIT:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getBackDebit()
+            innerPredicate = camtTransaction -> camtTransaction.getBackDebit()
                 .equals(pair.getValue());
             break;
           case OTHER_PARTY:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getOtherParty().toLowerCase()
+            innerPredicate = camtTransaction -> camtTransaction.getOtherParty()
+                .toLowerCase()
                 .contains(pair.getValue().toLowerCase());
             break;
           case IBAN:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getIban()
+            innerPredicate = camtTransaction -> camtTransaction.getIban()
                 .equals(pair.getValue());
             break;
           case BIC:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getBic()
+            innerPredicate = camtTransaction -> camtTransaction.getBic()
                 .equals(pair.getValue());
             break;
           case AMOUNT:
             Money amount = new Money(pair.getValue());
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getAmount().equals(amount);
+            innerPredicate = camtTransaction -> camtTransaction.getAmount()
+                .equals(amount);
             break;
           case INFO:
-            innerPredicate = camtEntry -> camtEntry.getDataPoint().getInfo()
+            innerPredicate = camtTransaction -> camtTransaction.getInfo()
                 .equals(pair.getValue());
             break;
           default:

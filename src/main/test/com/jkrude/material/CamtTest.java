@@ -1,10 +1,10 @@
+/*
 package com.jkrude.material;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.jkrude.material.Camt.CamtEntry;
-import com.jkrude.material.Camt.DateDataPoint;
+import com.jkrude.material.Camt.Transaction;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -50,7 +50,7 @@ public class CamtTest {
       Scanner sc = new Scanner(file, StandardCharsets.ISO_8859_1);
       try {
         camt = new Camt(sc);
-        List<CamtEntry> source = camt.getSource();
+        List<Transaction> source = camt.getSource();
         assertEquals(source.size(), 40);
         assertEquals(source.get(0).getDataPoint().getAmount().getAmount().longValue(), 800L);
         assertEquals(source.get(0).getDataPoint().getAmount(), new Money(-293.33));
@@ -62,4 +62,4 @@ public class CamtTest {
     }
   }
 
-}
+}*/
