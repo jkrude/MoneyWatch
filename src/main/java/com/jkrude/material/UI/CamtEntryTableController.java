@@ -102,7 +102,7 @@ public class CamtEntryTableController {
     transferDate.setCellValueFactory(callback -> new SimpleStringProperty(
         Utility.dateFormatter.format(callback.getValue().getDate())));
     validationDate.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getValidationDate()));
+        Utility.dateFormatter.format(callback.getValue().getValidationDate())));
     transferSpecification.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getTransferSpecification()));
     usage.setCellValueFactory(callback -> new SimpleStringProperty(

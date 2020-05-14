@@ -135,7 +135,7 @@ public class Camt {
         throw new ParseException("Line was not splittable into 17 parts with delimiter ';' ",
             source.size());
       }
-      transaction.setContractAccount(strings[0]);
+      transaction.setAccountIban(strings[0]);
       try {
         currDate = dateFormatter.parse(strings[1]);
         transaction.setDate(currDate);
@@ -143,7 +143,13 @@ public class Camt {
         e.printStackTrace();
         throw e;
       }
-      transaction.setValidationDate(strings[2]);
+      try {
+        Date validationDate = dateFormatter.parse(strings[2]);
+        transaction.setValidationDate(validationDate);
+      } catch (ParseException e) {
+        e.printStackTrace();
+        throw e;
+      }
       transaction.setTransferSpecification(strings[3]);
       transaction.setUsage(strings[4]);
       transaction.setCreditorId(strings[5]);
@@ -179,8 +185,8 @@ public class Camt {
   public static class Transaction {
 
     private ObjectProperty<Date> date;
-    private String contractAccount;
-    private String validationDate;
+    private String accountIban;
+    private Date validationDate;
     private String transferSpecification;
     private String usage;
     private String creditorId;
@@ -201,12 +207,12 @@ public class Camt {
 
     public Transaction(
         Date date,
-        String contractAccount, String validationDate,
+        String accountIban, Date validationDate,
         String transferSpecification, String usage, String creditorId,
         String mandateReference, String customerReference, String collectionReference,
         String debitOriginalAmount, String backDebit, String otherParty, String iban,
         String bic, Money amount, String info) {
-      this.contractAccount = contractAccount;
+      this.accountIban = accountIban;
       this.validationDate = validationDate;
       this.transferSpecification = transferSpecification;
       this.usage = usage;
@@ -236,11 +242,11 @@ public class Camt {
       return date;
     }
 
-    public String getContractAccount() {
-      return contractAccount;
+    public String getAccountIban() {
+      return accountIban;
     }
 
-    public String getValidationDate() {
+    public Date getValidationDate() {
       return validationDate;
     }
 
@@ -310,11 +316,11 @@ public class Camt {
       this.date.set(date);
     }
 
-    public void setContractAccount(String contractAccount) {
-      this.contractAccount = contractAccount;
+    public void setAccountIban(String accountIban) {
+      this.accountIban = accountIban;
     }
 
-    public void setValidationDate(String validationDate) {
+    public void setValidationDate(Date validationDate) {
       this.validationDate = validationDate;
     }
 
@@ -382,7 +388,7 @@ public class Camt {
             resultSet.add(new Pair<>(listType, Utility.dateFormatter.format(getDate())));
             break;
           case VALIDATION_DATE:
-            resultSet.add(new Pair<>(listType, getValidationDate()));
+            resultSet.add(new Pair<>(listType, Utility.dateFormatter.format(getValidationDate())));
             break;
           case TRANSFER_SPECIFICATION:
             resultSet.add(new Pair<>(listType, getTransferSpecification()));

@@ -110,8 +110,8 @@ public class Rule {
             innerPredicate = camtTransaction -> camtTransaction.getDate().equals(date);
             break;
           case VALIDATION_DATE:
-            innerPredicate = camtTransaction -> camtTransaction.getValidationDate()
-                .equals(pair.getValue());
+            Date valDate = Utility.dateFormatter.parse(pair.getValue());
+            innerPredicate = camtTransaction -> camtTransaction.getValidationDate().equals(valDate);
             break;
           case TRANSFER_SPECIFICATION:
             innerPredicate = camtTransaction -> camtTransaction

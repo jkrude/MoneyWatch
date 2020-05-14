@@ -17,7 +17,7 @@ public class TestData {
       entries.add(new Camt.Transaction(
           simpleDateFormat.parse("26.09.19"),
           "DE04100500006013719070",
-          "01.10.19",
+          simpleDateFormat.parse("01.10.19"),
           "GUTSCHR. UEBERW. DAUERAUFTR",
           "Monatlicher Unterhalt ab November 2018 ",
           "", "", "", "", "", "",
@@ -29,7 +29,7 @@ public class TestData {
       entries.add(new Camt.Transaction(
           simpleDateFormat.parse("25.09.19"),
           "DE04100500006013719070",
-          "30.09.19",
+          simpleDateFormat.parse("30.09.19"),
           "KARTENZAHLUNG",
           "2019-09-27T10:36 Debitk.1 2022-12 ",
           "", "", "", "", "", "",
@@ -42,7 +42,7 @@ public class TestData {
           new Camt.Transaction(
               simpleDateFormat.parse("25.09.19"),
               "DE04100500006013719070",
-              "30.09.19",
+              simpleDateFormat.parse("30.09.19"),
               "FOLGELASTSCHRIFT",
               "PP.7515.PP . BVG, Ihr Einkauf bei BVG ",
               "LU96ZZZ0000000000000000058",
@@ -56,7 +56,7 @@ public class TestData {
       entries.add(new Camt.Transaction(
           simpleDateFormat.parse("24.09.19"),
           "DE04100500006013719070",
-          "30.09.19",
+          simpleDateFormat.parse("30.09.19"),
           "FOLGELASTSCHRIFT",
           "PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS ",
           "LU96ZZZ0000000000000000058",
@@ -70,7 +70,7 @@ public class TestData {
       entries.add(new Camt.Transaction(
           simpleDateFormat.parse("23.09.19"),
           "DE04100500006013719070",
-          "26.09.19",
+          simpleDateFormat.parse("26.09.19"),
           "LOHN  GEHALT",
           "Verdienstabrechnung 09.19/1 ",
           "", "", "", "", "", "",
