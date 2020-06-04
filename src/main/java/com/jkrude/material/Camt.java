@@ -70,15 +70,14 @@ public class Camt {
 
   }
 
-  public SimpleDateFormat getDateFormatter() {
-    return dateFormatter;
-  }
-
   private ListProperty<Transaction> source;
 
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
 
 
+  /*
+   * Constructor
+   */
   public Camt() {
     source = new SimpleListProperty<>(FXCollections.observableArrayList());
   }
@@ -92,9 +91,8 @@ public class Camt {
     this.csvFileParser(sc);
   }
 
-
   /*
-    Collect all transactions according to their date.
+   * Collect all transactions according to their date.
    */
   public TreeMap<Date, List<Transaction>> getSourceAsDateMap() {
     TreeMap<Date, List<Transaction>> dateMap = new TreeMap<>();
@@ -111,7 +109,7 @@ public class Camt {
   }
 
   /*
-  Construct a Camt-Obj. from a CSV-File
+   * Construct a Camt-Obj. from a CSV-File
    */
   public void csvFileParser(Scanner sc) throws ParseException, IllegalArgumentException {
     if (sc == null || source == null) {
@@ -174,12 +172,12 @@ public class Camt {
     }
   }
 
-  public ObservableList<Transaction> getSource() {
-    return source.get();
+  public SimpleDateFormat getDateFormatter() {
+    return dateFormatter;
   }
 
-  public ListProperty<Transaction> sourceProperty() {
-    return source;
+  public ObservableList<Transaction> getSource() {
+    return source.get();
   }
 
   public static class Transaction {
@@ -231,8 +229,8 @@ public class Camt {
     }
 
     /*
-      Getter.
-    */
+     * Getter.
+     */
 
     public Date getDate() {
       return date.get();
@@ -298,18 +296,12 @@ public class Camt {
       return amount;
     }
 
-    //TODO
-    // Hack for LineChartController.setupSeries: amountColumn.setCellValueFactory(new PropertyValueFactory<>("amountAsDouble"));
-    public Double getAmountAsDouble() {
-      return amount.getAmount().doubleValue();
-    }
-
     public String getInfo() {
       return info;
     }
 
     /*
-      Setter.
+     * Setter.
      */
 
     public void setDate(Date date) {
