@@ -105,6 +105,10 @@ public class Rule {
 
         Predicate<Transaction> innerPredicate;
         switch (pair.getKey()) {
+          case ACCOUNT_IBAN:
+            innerPredicate = camtTransaction -> camtTransaction.getAccountIban()
+                .equals(pair.getValue());
+            break;
           case TRANSFER_DATE:
             Date date = Utility.dateFormatter.parse(pair.getValue());
             innerPredicate = camtTransaction -> camtTransaction.getDate().equals(date);
@@ -173,7 +177,8 @@ public class Rule {
                 .equals(pair.getValue());
             break;
           default:
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(
+                "Unkown qualifier for rule creation: " + pair.getKey());
         }
         concatPred = concatPred.and(innerPredicate);
       }

@@ -375,6 +375,7 @@ public class Camt {
         switch (listType) {
 
           case ACCOUNT_IBAN:
+            resultSet.add(new Pair<>(listType, getAccountIban()));
             break;
           case TRANSFER_DATE:
             resultSet.add(new Pair<>(listType, Utility.dateFormatter.format(getDate())));
