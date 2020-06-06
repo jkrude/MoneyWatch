@@ -125,10 +125,8 @@ public class PieChartController extends ParentController {
               }
               pureCAMT = camt;
               setupChart();
-            } else {
-              AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz",
-                  "Möglich ist dies über Klicken + 'OK' oder Doppelklick", AlertType.ERROR);
             }
+            // else: user clicked cancel or x
           },
           model.getCamtList()
       );
