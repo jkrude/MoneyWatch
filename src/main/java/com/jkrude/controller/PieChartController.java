@@ -77,11 +77,7 @@ public class PieChartController extends ParentController {
     pieChart.getData().clear();
     if (this.pureCAMT == null) {
       if (model.getCamtList() == null || model.getCamtList().isEmpty()) {
-        AlertBox.showAlert("Daten benötigt", "Keine CSV Dateien geladen",
-            "Wähle im Hauptmenü: Open File",
-            AlertType.ERROR);
-        // TODO
-        return;
+        throw new IllegalStateException("PieChart was called but no data is available");
       } else if (model.getCamtList().size() > 1) {
         SourceChooseDialog.show(
             camt -> {

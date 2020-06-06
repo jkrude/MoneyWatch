@@ -74,7 +74,13 @@ public class StartController extends ParentController {
   }
 
   public void goToPieChart(ActionEvent actionEvent) {
-    goTo(ParentController.pieChartScene, actionEvent);
+    if (model.getCamtList() == null || model.getCamtList().isEmpty()) {
+      AlertBox.showAlert("Daten benötigt!", "Noch keine CSV Dateien geladen.",
+          "Wähle im Hauptmenü: Open File",
+          AlertType.ERROR);
+    } else {
+      goTo(ParentController.pieChartScene, actionEvent);
+    }
   }
 
   public void goToMonthOverview(ActionEvent actionEvent) {
