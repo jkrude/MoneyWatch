@@ -6,7 +6,7 @@ import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Utility;
 import java.math.BigDecimal;
-import java.util.HashSet;
+import java.net.URL;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -31,7 +31,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Pair;
 
-public class TransactionTableController {
+public class TransactionTableDialog {
 
   public TableView<Transaction> table;
   // Columns
@@ -73,12 +73,10 @@ public class TransactionTableController {
   private SimpleIntegerProperty activatedColumns = new SimpleIntegerProperty(4);
   private SimpleIntegerProperty columnWidth;
 
+  private Consumer<TransactionTableDialog> consumer;
 
-  protected FXMLLoader loader;
-  protected Stage stage;
-
-  // Make Constructor private so it has to be build
-  public TransactionTableController() {
+  // Constructor needs to be public (FXML) but should NOT be used
+  public TransactionTableDialog() {
   }
 
   @FXML
@@ -196,18 +194,45 @@ public class TransactionTableController {
     // table.setContextMenu(contextMenu);
   }
 
-
-  public void showAndWait() {
-    if (stage.getScene() != null) {
-      stage.showAndWait();
-    } else {
-      throw new IllegalStateException("Stage was null");
-    }
+  private Consumer<TransactionTableDialog> getConsumer() {
+    return consumer;
   }
 
-  public TransactionTableController setContextMenu(ObservableList<PieCategory> categories) {
-    if (table != null) {
-      table.setRowFactory(
+  private void setConsumer(
+      Consumer<TransactionTableDialog> consumer) {
+    this.consumer = consumer;
+  }
+
+
+  public static class Builder {
+
+    private TransactionTableDialog ttd;
+    private Stage stage;
+    ObservableList<Transaction> tableData;
+
+    private static final URL fxmlResource = TransactionTableDialog.class
+        .getResource("/PopUp/camtEntryAsTable.fxml");
+
+    private Builder() {
+    }
+
+    public static Builder init(final ObservableList<Transaction> tableData) {
+      Builder b = new Builder();
+      FXMLLoader loader = new FXMLLoader();
+      b.stage = PopUp.setupStage(loader, fxmlResource);
+      b.ttd = loader.getController();
+      b.ttd.table.setItems(tableData);
+      b.ttd.closeBtn.setOnAction(event -> b.stage.close());
+      return b;
+    }
+
+    public Builder setCloseCallback(Consumer<TransactionTableDialog> consumer) {
+      ttd.setConsumer(consumer);
+      return this;
+    }
+
+    public Builder setContextMenu(ObservableList<PieCategory> categories) {
+      ttd.table.setRowFactory(
           new Callback<TableView<Transaction>, TableRow<Transaction>>() {
             @Override
             public TableRow<Transaction> call(TableView<Transaction> camtEntryTableView) {
@@ -219,7 +244,7 @@ public class TransactionTableController {
 
                 menuItem.setOnAction(event -> {
                   Transaction entry = row.getItem();
-                  Set<Pair<ListType, String>> pairs = new HashSet<>();
+                  Set<Pair<ListType, String>> pairs;
                   Optional<Set<ListType>> r = RuleDialog.chooseRelevantField(entry);
                   if (r.isPresent()) {
                     Set<ListType> selectedListTypes = r.get();
@@ -240,19 +265,16 @@ public class TransactionTableController {
             }
           }
       );
-    } else {
-      throw new IllegalStateException("Table was null");
+      return this;
     }
-    return this;
-  }
 
-  public TransactionTableController setCloseCallback(
-      Consumer<TransactionTableController> consumer) {
-    this.closeBtn.setOnAction(event -> {
-      consumer.accept(this);
-      this.stage.close();
-    });
-    return this;
+    public void showAndWait() {
+      stage.showAndWait();
+      if (ttd.consumer != null) {
+        ttd.consumer.accept(ttd);
+      }
+    }
+
   }
 
 }

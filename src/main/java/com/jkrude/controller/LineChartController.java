@@ -1,8 +1,9 @@
 package com.jkrude.controller;
 
 import com.jkrude.material.Camt;
+import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Money;
-import com.jkrude.material.UI.TransactionTablePopUpBuilder;
+import com.jkrude.material.UI.TransactionTableDialog;
 import com.jkrude.material.Utility;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
@@ -134,10 +136,10 @@ public class LineChartController extends ParentController {
     data.getNode().setOnMouseClicked(
         event -> {
           if (event.getButton() == MouseButton.PRIMARY) {
-            TransactionTablePopUpBuilder.build(camt.getSource().filtered(
+            ObservableList<Transaction> tableData = camt.getSource().filtered(
                 camtTransaction -> camtTransaction.getDate()
-                    .equals(dateLookupTable.get(data.getXValue()))))
-                .showAndWait();
+                    .equals(dateLookupTable.get(data.getXValue())));
+            TransactionTableDialog.Builder.init(tableData).showAndWait();
           }
         });
   }

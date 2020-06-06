@@ -7,7 +7,7 @@ import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
 import com.jkrude.material.UI.SourceChooseDialog;
-import com.jkrude.material.UI.TransactionTablePopUpBuilder;
+import com.jkrude.material.UI.TransactionTableDialog;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -249,20 +249,19 @@ public class PieChartController extends ParentController {
     for (final PieChart.Data data : chartData) {
       data.getNode().setOnMouseClicked(
           mouseEvent -> {
+            ObservableList<Transaction> tableData;
             if (negPosTglBtn.isSelected()) {
-              TransactionTablePopUpBuilder.build(posEntryLookup.get(data.getName()))
-                  .setContextMenu(model.getProfile().getPieCategories())
-                  .showAndWait();
+              tableData = posEntryLookup.get(data.getName());
             } else {
-              TransactionTablePopUpBuilder.build(negEntryLookup.get(data.getName()))
-                  .setContextMenu(model.getProfile().getPieCategories())
-                  .showAndWait();
+              tableData = negEntryLookup.get(data.getName());
             }
+            TransactionTableDialog.Builder.init(tableData)
+                .setContextMenu(model.getProfile().getPieCategories())
+                .showAndWait();
           }
       );
     }
   }
-
 
   public void goToCategories(ActionEvent event) {
     ParentController.goTo(ParentController.categoryEditor, event);
