@@ -1,7 +1,9 @@
 package com.jkrude.controller;
 
+import com.jkrude.main.Main;
 import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.Transaction;
+import com.jkrude.material.Model;
 import com.jkrude.material.Money;
 import com.jkrude.material.UI.TransactionTableDialog;
 import com.jkrude.material.Utility;
@@ -26,7 +28,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
 
-public class LineChartController extends ParentController {
+public class LineChartController extends Controller {
 
   @FXML
   private LineChart<Number, Number> lineChart;
@@ -43,7 +45,7 @@ public class LineChartController extends ParentController {
   }
 
   @Override
-  protected void checkIntegrity() {
+  public void prepare() {
     if (!chartIsPopulated) {
       setupChart();
       if (!chartIsPopulated) {
@@ -55,7 +57,7 @@ public class LineChartController extends ParentController {
   // Fetch datasource -> setup series & setupAxis & setupTooltip usw.
   @FXML
   public void initialize() {
-    backButton.setOnAction(ParentController::goBack);
+    backButton.setOnAction(e -> Main.goBack());
   }
 
   private void setupChart() {
@@ -63,7 +65,7 @@ public class LineChartController extends ParentController {
       throw new IllegalStateException("dateLookupTable was not initialized");
     }
     // TMP Select data-source
-    Camt camt = model.getCamtList().get(0);
+    Camt camt = Model.getInstance().getCamtList().get(0);
     if (camt == null) {
       chartIsPopulated = false;
       return;

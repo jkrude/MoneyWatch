@@ -1,8 +1,11 @@
 package com.jkrude.controller;
 
+import com.jkrude.main.Main;
+import com.jkrude.main.Main.UsableScene;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.Transaction;
+import com.jkrude.material.Model;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
@@ -27,11 +30,11 @@ import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
 import javafx.util.Pair;
 
-public class PieChartController extends ParentController {
+public class PieChartController extends Controller {
 
   private boolean populatedChart = false;
   private boolean isInvalidated = false;
-  // Marks if chart is up to date with model
+  // Marks if chart is up to date with Model.getInstance()
   // Saves witch CamtEntries where found for a category
   private Map<String, ObservableList<Transaction>> negEntryLookup;
   private Map<String, ObservableList<Transaction>> posEntryLookup;
@@ -52,7 +55,7 @@ public class PieChartController extends ParentController {
   Camt pureCAMT;
 
   @Override
-  protected void checkIntegrity() {
+  public void prepare() {
     if (isInvalidated || !populatedChart) {
       setupChart();
     }
@@ -66,20 +69,21 @@ public class PieChartController extends ParentController {
     posChartData = FXCollections.observableArrayList();
     pureCAMT = null;
 
-    backBtn.setOnAction(ParentController::goBack);
+    backBtn.setOnAction(e -> Main.goBack());
     negPosTglBtn.selectedProperty().addListener(
         (observableValue, oldV, newV) -> {
           changeChartData(newV);
         });
-    model.getProfile().addListener(change -> isInvalidated = true);
+    Model.getInstance().getProfile().addListener(change -> isInvalidated = true);
   }
 
   private void setupChart() {
     pieChart.getData().clear();
     if (this.pureCAMT == null) {
-      if (model.getCamtList() == null || model.getCamtList().isEmpty()) {
+      if (Model.getInstance().getCamtList() == null || Model.getInstance().getCamtList()
+          .isEmpty()) {
         throw new IllegalStateException("PieChart was called but no data is available");
-      } else if (model.getCamtList().size() > 1) {
+      } else if (Model.getInstance().getCamtList().size() > 1) {
         SourceChooseDialog.show(
             camt -> {
               if (camt != null) {
@@ -90,13 +94,13 @@ public class PieChartController extends ParentController {
                 //TODO
               }
             }
-            , model.getCamtList());
+            , Model.getInstance().getCamtList());
       } else {
-        pureCAMT = model.getCamtList().get(0);
+        pureCAMT = Model.getInstance().getCamtList().get(0);
       }
     }
     ObservableList<Transaction> source = this.pureCAMT.getSource();
-    ObservableList<PieCategory> categories = model.getProfile().getPieCategories();
+    ObservableList<PieCategory> categories = Model.getInstance().getProfile().getPieCategories();
 
     // Populate the chart with data
     List<Pair<List<Rule>, Transaction>> multipleMatches = matchDataToRules(
@@ -114,7 +118,7 @@ public class PieChartController extends ParentController {
 
   @FXML
   private void changeDataSource() {
-    if (model.getCamtList().isEmpty()) {
+    if (Model.getInstance().getCamtList().isEmpty()) {
       AlertBox.showAlert("Kein Auswahl möglich", "Keine CSV-Datein geladen", "", AlertType.ERROR);
     } else {
       SourceChooseDialog.show(
@@ -128,7 +132,7 @@ public class PieChartController extends ParentController {
             }
             // else: user clicked cancel or x
           },
-          model.getCamtList()
+          Model.getInstance().getCamtList()
       );
     }
 
@@ -268,7 +272,7 @@ public class PieChartController extends ParentController {
               tableData = negEntryLookup.get(data.getName());
             }
             TransactionTableDialog.Builder.init(tableData)
-                .setContextMenu(model.getProfile().getPieCategories())
+                .setContextMenu(Model.getInstance().getProfile().getPieCategories())
                 .showAndWait();
           }
       );
@@ -276,7 +280,7 @@ public class PieChartController extends ParentController {
   }
 
   public void goToCategories(ActionEvent event) {
-    ParentController.goTo(ParentController.categoryEditor, event);
+    Main.goTo(UsableScene.CATEGORY_EDITOR);
   }
 
   /*

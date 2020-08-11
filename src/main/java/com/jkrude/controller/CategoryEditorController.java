@@ -1,7 +1,9 @@
 package com.jkrude.controller;
 
 
+import com.jkrude.main.Main;
 import com.jkrude.material.AlertBox;
+import com.jkrude.material.Model;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
 import com.jkrude.material.UI.RuleDialog;
@@ -22,7 +24,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 
 
-public class CategoryEditorController extends ParentController {
+public class CategoryEditorController extends Controller {
 
   public ListView<Rule> ruleLV;
 
@@ -40,17 +42,17 @@ public class CategoryEditorController extends ParentController {
   private TextField categoryNameInputField;
 
   @Override
-  protected void checkIntegrity() {
+  public void prepare() {
   }
 
   @FXML
   public void initialize() {
 
-    backButton.setOnAction(ParentController::goBack);
+    backButton.setOnAction(e -> Main.goBack());
 
     // Setup data-source
     categoryLV.itemsProperty()
-        .bindBidirectional(ParentController.model.getProfile().getCategoriesProperty());
+        .bindBidirectional(Model.getInstance().getProfile().getCategoriesProperty());
     // Set placeholder
     categoryLV.setPlaceholder(new Label("No categories configured."));
     ruleLV.setPlaceholder(new Label("No category selected yet or category is empty"));
@@ -115,7 +117,7 @@ public class CategoryEditorController extends ParentController {
     // Check if the input is empty
     String inText = categoryNameInputField.getText();
     if (inText.isBlank()) {
-          showAlertForEmptyInput();
+      showAlertForEmptyInput();
       return;
     }
     PieCategory category = new PieCategory(categoryNameInputField.getText());

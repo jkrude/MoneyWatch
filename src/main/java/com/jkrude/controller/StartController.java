@@ -1,7 +1,10 @@
 package com.jkrude.controller;
 
+import com.jkrude.main.Main;
+import com.jkrude.main.Main.UsableScene;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt;
+import com.jkrude.material.Model;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,8 +16,9 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 
-public class StartController extends ParentController {
+public class StartController extends Controller {
 
   public Button goToPieChartBtn;
   public Button goToMonthOverviewBtn;
@@ -28,7 +32,7 @@ public class StartController extends ParentController {
 
   // No checks to be done
   @Override
-  protected void checkIntegrity() {
+  public void prepare() {
   }
 
   private File fileBrowser() {
@@ -39,7 +43,7 @@ public class StartController extends ParentController {
     fileChooser.setInitialDirectory(new File(
         "/home/jakob/Documents/Coding/IntelliJ-Projekte/MoneyWatch/src/main/resources/"));
     return fileChooser
-        .showOpenDialog(ParentController.model.getCurrScenePair().getScene().getWindow());
+        .showOpenDialog(new Stage());
   }
 
   public void loadFile() {
@@ -65,7 +69,7 @@ public class StartController extends ParentController {
         AlertBox.showAlert("Error", null, e.getMessage(), AlertType.ERROR);
         return;
       }
-      model.getCamtList().add(camt);
+      Model.getInstance().getCamtList().add(camt);
       sc.close();
 
     } catch (IOException e) {
@@ -74,16 +78,16 @@ public class StartController extends ParentController {
   }
 
   public void goToPieChart(ActionEvent actionEvent) {
-    if (model.getCamtList() == null || model.getCamtList().isEmpty()) {
+    if (Model.getInstance().getCamtList() == null || Model.getInstance().getCamtList().isEmpty()) {
       AlertBox.showAlert("Daten benötigt!", "Noch keine CSV Dateien geladen.",
           "Wähle im Hauptmenü: Open File",
           AlertType.ERROR);
     } else {
-      goTo(ParentController.pieChartScene, actionEvent);
+      Main.goTo(UsableScene.PIECHART);
     }
   }
 
   public void goToMonthOverview(ActionEvent actionEvent) {
-    goTo(ParentController.lineChartScene, actionEvent);
+    Main.goTo(UsableScene.TIMELINE);
   }
 }
