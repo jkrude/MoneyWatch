@@ -232,6 +232,10 @@ public class Camt {
      * Getter.
      */
 
+    public boolean isPositive() {
+      return getMoneyAmount().isPositive();
+    }
+
     public Date getDate() {
       return date.get();
     }
@@ -292,7 +296,7 @@ public class Camt {
       return bic;
     }
 
-    public Money getAmount() {
+    public Money getMoneyAmount() {
       return amount;
     }
 
@@ -417,7 +421,7 @@ public class Camt {
             resultSet.add(new Pair<>(listType, getBic()));
             break;
           case AMOUNT:
-            resultSet.add(new Pair<>(listType, getAmount().toString()));
+            resultSet.add(new Pair<>(listType, getMoneyAmount().toString()));
             break;
           case INFO:
             resultSet.add(new Pair<>(listType, getInfo()));

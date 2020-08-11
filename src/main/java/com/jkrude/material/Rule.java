@@ -169,7 +169,7 @@ public class Rule {
             break;
           case AMOUNT:
             Money amount = new Money(pair.getValue());
-            innerPredicate = camtTransaction -> camtTransaction.getAmount()
+            innerPredicate = camtTransaction -> camtTransaction.getMoneyAmount()
                 .equals(amount);
             break;
           case INFO:

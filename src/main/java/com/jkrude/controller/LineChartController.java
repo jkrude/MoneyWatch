@@ -117,11 +117,11 @@ public class LineChartController extends Controller {
 
     for (Date d : set) {
       for (Camt.Transaction transaction : dateMap.get(d)) {
-        currAmount.add(transaction.getAmount());
+        currAmount.add(transaction.getMoneyAmount());
       }
       Number dateAsNumber = d.toInstant().toEpochMilli();
       dateLookupTable.put(dateAsNumber, d);
-      series.getData().add(new Data<>(dateAsNumber, currAmount.getAmount()));
+      series.getData().add(new Data<>(dateAsNumber, currAmount.getRawAmount()));
     }
   }
 

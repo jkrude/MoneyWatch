@@ -5,7 +5,6 @@ import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Utility;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.util.Optional;
 import java.util.Set;
@@ -124,7 +123,7 @@ public class TransactionTableDialog {
     bic.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getBic()));
     amount.setCellValueFactory(callback -> new SimpleObjectProperty<Money>(
-        callback.getValue().getAmount()));
+        callback.getValue().getMoneyAmount()));
     info.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getInfo()));
 
@@ -139,10 +138,10 @@ public class TransactionTableDialog {
                 super.updateItem(money, empty);
                 if (!empty) {
                   setText(money.toString());
-                  if (money.getAmount().compareTo(BigDecimal.ZERO) < 0) {
-                    setTextFill(Color.RED);
-                  } else {
+                  if (money.isPositive()) {
                     setTextFill(Color.GREEN);
+                  } else {
+                    setTextFill(Color.RED);
                   }
                 } else {
                   setText(null);

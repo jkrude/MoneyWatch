@@ -11,12 +11,12 @@ import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
 import com.jkrude.material.UI.SourceChooseDialog;
 import com.jkrude.material.UI.TransactionTableDialog;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
-import javafx.beans.property.StringProperty;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -28,7 +28,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
-import javafx.util.Pair;
 
 public class PieChartController extends Controller {
 
@@ -39,7 +38,7 @@ public class PieChartController extends Controller {
   private Map<String, ObservableList<Transaction>> negEntryLookup;
   private Map<String, ObservableList<Transaction>> posEntryLookup;
   // The default name for the slice for transactions without matching rule
-  public static final String catNameUnmatchedTrans = "Undefiniert";
+  public static final String UNMATCHED_TRANSACTIONS = "Undefiniert";
 
   private ObservableList<PieChart.Data> posChartData;
   private ObservableList<PieChart.Data> negChartData;
@@ -52,7 +51,7 @@ public class PieChartController extends Controller {
   @FXML
   private ToggleButton negPosTglBtn;
 
-  Camt pureCAMT;
+  Camt camtData;
 
   @Override
   public void prepare() {
@@ -67,53 +66,64 @@ public class PieChartController extends Controller {
     posEntryLookup = new HashMap<>();
     negChartData = FXCollections.observableArrayList();
     posChartData = FXCollections.observableArrayList();
-    pureCAMT = null;
+    camtData = null;
 
     backBtn.setOnAction(e -> Main.goBack());
     negPosTglBtn.selectedProperty().addListener(
-        (observableValue, oldV, newV) -> {
-          changeChartData(newV);
-        });
-    Model.getInstance().getProfile().addListener(change -> isInvalidated = true);
+        (observableValue, oldV, newV) -> changeChartData(newV)); // Use pos or neg dataSet
+    Model.getInstance().getProfile()
+        .addListener(change -> isInvalidated = true); // Needs to be live updated
   }
 
   private void setupChart() {
     pieChart.getData().clear();
-    if (this.pureCAMT == null) {
-      if (Model.getInstance().getCamtList() == null || Model.getInstance().getCamtList()
-          .isEmpty()) {
+    if (camtData == null) {
+      if (Model.getInstance().getCamtList() == null
+          || Model.getInstance().getCamtList().isEmpty()) {
+
         throw new IllegalStateException("PieChart was called but no data is available");
       } else if (Model.getInstance().getCamtList().size() > 1) {
-        SourceChooseDialog.show(
-            camt -> {
-              if (camt != null) {
-                pureCAMT = camt;
-              } else {
-                AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz",
-                    "Möglich ist dies über Klicken + 'OK' oder Doppelklick", AlertType.ERROR);
-                //TODO
-              }
-            }
-            , Model.getInstance().getCamtList());
+        showError();
       } else {
-        pureCAMT = Model.getInstance().getCamtList().get(0);
+        camtData = Model.getInstance().getCamtList().get(0);
       }
     }
-    ObservableList<Transaction> source = this.pureCAMT.getSource();
+
+    ObservableList<Transaction> source = camtData.getSource();
     ObservableList<PieCategory> categories = Model.getInstance().getProfile().getPieCategories();
 
     // Populate the chart with data
-    List<Pair<List<Rule>, Transaction>> multipleMatches = matchDataToRules(
+    Map<Transaction, Set<Rule>> multipleMatches = new HashMap<>();
+    matchDataToRules(
         source,
-        categories);
-    //TODO Show transaction and matched Rules
-    AlertBox.showAlert("Hinweis", "Mehrere passende Regeln",
-        "Für einige Überweisungen haben mehrere Regeln gepasst", AlertType.WARNING);
+        categories,
+        multipleMatches);
+    if (!multipleMatches.isEmpty()) {
+      //TODO Show transaction and matched Rules
+      AlertBox.showAlert("Hinweis", "Mehrere passende Regeln",
+          "Für einige Überweisungen haben mehrere Regeln gepasst. Nur die erste wurde angewendet.",
+          AlertType.WARNING);
+    }
+    // Default: Display all negative transactions.
     pieChart.getData().addAll(negChartData);
     setupToolTip(pieChart.getData());
     setupPopUp(pieChart.getData());
     populatedChart = true;
     isInvalidated = false;
+  }
+
+  private void showError() {
+    SourceChooseDialog.show(
+        camt -> {
+          if (camt != null) {
+            camtData = camt;
+          } else {
+            AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz",
+                "Möglich ist dies über Klicken + 'OK' oder Doppelklick", AlertType.ERROR);
+            //TODO
+          }
+        }
+        , Model.getInstance().getCamtList());
   }
 
   @FXML
@@ -124,10 +134,10 @@ public class PieChartController extends Controller {
       SourceChooseDialog.show(
           camt -> {
             if (camt != null) {
-              if (camt.equals(pureCAMT)) {
+              if (camt.equals(camtData)) {
                 return;
               }
-              pureCAMT = camt;
+              camtData = camt;
               setupChart();
             }
             // else: user clicked cancel or x
@@ -138,37 +148,53 @@ public class PieChartController extends Controller {
 
   }
 
-  private List<Pair<List<Rule>, Transaction>> matchDataToRules(
+  private void matchDataToRules(
       ObservableList<Transaction> source,
-      ObservableList<PieCategory> categories
+      ObservableList<PieCategory> categories,
+      Map<Transaction, Set<Rule>> multipleMatches
   ) {
     // Check for every rule for every category for every Transaction(transactions) if the predicate tests positive
-    // When a Transaction tests positive but the amount is positive it gets marked in the ignoredPositiveEntries
-
-    // For every category add the amount for matching CamtEntries
-    HashMap<StringProperty, Money> negEntriesForCategories = new HashMap<>();
-    HashMap<StringProperty, Money> posEntriesForCategories = new HashMap<>();
-
-    // Collect all entries with no matching rule
-    List<Transaction> negTransactionsWithoutRule = new ArrayList<>();
-    List<Transaction> posTransactionsWithoutRule = new ArrayList<>();
-
-    List<Pair<List<Rule>, Transaction>> multipleMatchingRules = new ArrayList<>();
+    // When a transaction tests positive but the amount is positive it gets marked in the ignoredPositiveEntries
 
     negEntryLookup.clear();
     posEntryLookup.clear();
     negChartData.clear();
     posChartData.clear();
 
-    // Setup maps with lists for simpler traversing
-    categories.forEach(pieCategory -> {
-      negEntriesForCategories.put(pieCategory.getName(), new Money(0));
-      negEntryLookup.put(pieCategory.getName().get(), FXCollections.observableArrayList());
-      posEntriesForCategories.put(pieCategory.getName(), new Money(0));
-      posEntryLookup.put(pieCategory.getName().get(), FXCollections.observableArrayList());
-    });
+    Map<String, Set<Transaction>> matchedTransactions = new HashMap<>();
+    // Fill map with all categories and empty sets.
+    categories
+        .forEach(category -> matchedTransactions.put(category.getName().get(), new HashSet<>()));
+    matchedTransactions.put(UNMATCHED_TRANSACTIONS, new HashSet<>());
+    for (final Transaction transaction : source) {
+      Set<Rule> matchedRules = new HashSet<>();
 
-    for (final Transaction camtTransaction : source) {
+      for (final PieCategory category : categories) {
+
+        for (final Rule rule : category.getRulesRO()) {
+          if (rule.getPredicate().test(transaction)) {
+            if (matchedRules.isEmpty()) {
+              matchedTransactions.get(category.getName().get()).add(transaction);
+            }
+            matchedRules.add(rule);
+          }
+        }
+
+      }
+
+      multipleMatches.put(transaction, matchedRules);
+      if (matchedRules.isEmpty()) {
+        matchedTransactions.get(UNMATCHED_TRANSACTIONS).add(transaction);
+      }
+    }
+
+    populateWithPredicate(matchedTransactions, posEntryLookup, posChartData,
+        Transaction::isPositive);
+    populateWithPredicate(matchedTransactions, negEntryLookup, negChartData,
+        Predicate.not(Transaction::isPositive));
+    // Colors are only displayed for positive values
+    negChartData.forEach(data -> data.setPieValue(Math.abs(data.getPieValue())));
+    /*for (final Transaction camtTransaction : source) {
       // An entry can only belong to one category (one rule)
       // If multiple rules apply the transaction will all the rules will be flagged
       Rule firstMatchedRule = null;
@@ -187,14 +213,14 @@ public class PieChartController extends Controller {
               }
               // else add it to category (in positive or negative chart)
             } else {
-              if (camtTransaction.getAmount().getAmount().compareTo(BigDecimal.ZERO)
+              if (camtTransaction.getMoneyAmount().getRawAmount().compareTo(BigDecimal.ZERO)
                   < 0) {
                 negEntriesForCategories.get(category.getName())
-                    .add(camtTransaction.getAmount());
+                    .add(camtTransaction.getMoneyAmount());
                 negEntryLookup.get(category.getName().get()).add(camtTransaction);
               } else {
                 posEntriesForCategories.get(category.getName())
-                    .add(camtTransaction.getAmount());
+                    .add(camtTransaction.getMoneyAmount());
                 posEntryLookup.get(category.getName().get()).add(camtTransaction);
               }
             }
@@ -205,7 +231,7 @@ public class PieChartController extends Controller {
       }
       // All categories have been checked -> If no rule applied add it to unspecified slice
       if (matchingRulesCounter == 0) {
-        if (camtTransaction.getAmount().getAmount().compareTo(BigDecimal.ZERO) < 0) {
+        if (camtTransaction.getMoneyAmount().getRawAmount().compareTo(BigDecimal.ZERO) < 0) {
           negTransactionsWithoutRule.add(camtTransaction);
         } else {
           posTransactionsWithoutRule.add(camtTransaction);
@@ -216,27 +242,48 @@ public class PieChartController extends Controller {
     // Colors are only displayed for positive values
     negEntriesForCategories.forEach(
         (key, value) -> negChartData
-            .add(new Data(key.get(), Math.abs(value.getAmount().doubleValue()))));
+            .add(new Data(key.get(), Math.abs(value.getRawAmount().doubleValue()))));
     // Handle all the transactions where no rule matched
     negEntryLookup
-        .put(catNameUnmatchedTrans,
+        .put(UnmatchedTransactions,
             FXCollections.observableArrayList(negTransactionsWithoutRule));
     negChartData.add(
-        new Data(catNameUnmatchedTrans,
-            Money.sum(negTransactionsWithoutRule).getAmount().doubleValue()));
+        new Data(UnmatchedTransactions,
+            Money.sum(negTransactionsWithoutRule).getRawAmount().doubleValue()));
     // Do the same for the chart with positive values
     posEntriesForCategories.forEach(
         (key, value) -> posChartData
-            .add(new Data(key.get(), value.getAmount().doubleValue())));
+            .add(new Data(key.get(), value.getRawAmount().doubleValue())));
     posEntryLookup
-        .put(catNameUnmatchedTrans,
+        .put(UnmatchedTransactions,
             FXCollections.observableArrayList(posTransactionsWithoutRule));
     posChartData.add(
-        new Data(catNameUnmatchedTrans,
-            Money.sum(posTransactionsWithoutRule).getAmount().doubleValue()));
-    return multipleMatchingRules;
+        new Data(UnmatchedTransactions,
+            Money.sum(posTransactionsWithoutRule).getRawAmount().doubleValue()));
+    return multipleMatchingRules;*/
   }
 
+  private void populateWithPredicate(
+      Map<String, Set<Transaction>> matchedTransactions,
+      Map<String, ObservableList<Transaction>> lookupTable,
+      ObservableList<PieChart.Data> chartData,
+      Predicate<Transaction> predicate) {
+
+    matchedTransactions.forEach(((category, transactions) ->
+        lookupTable.put(category,
+            transactions.stream()
+                .filter(predicate)
+                .collect(Collectors.toCollection(FXCollections::observableArrayList))
+        )));
+
+    lookupTable.forEach(
+        (category, transactions) -> chartData
+            .add(new Data(
+                category,
+                Money.sum(transactions).getRawAmount().doubleValue())));
+  }
+
+  // show only transactions with neg/pos amount.
   private void changeChartData(boolean newValue) {
     pieChart.getData().clear();
     if (newValue) {
@@ -265,12 +312,11 @@ public class PieChartController extends Controller {
     for (final PieChart.Data data : chartData) {
       data.getNode().setOnMouseClicked(
           mouseEvent -> {
-            ObservableList<Transaction> tableData;
-            if (negPosTglBtn.isSelected()) {
-              tableData = posEntryLookup.get(data.getName());
-            } else {
-              tableData = negEntryLookup.get(data.getName());
-            }
+            ObservableList<Transaction> tableData =
+                negPosTglBtn.isSelected() ?
+                    posEntryLookup.get(data.getName()) :
+                    negEntryLookup.get(data.getName());
+
             TransactionTableDialog.Builder.init(tableData)
                 .setContextMenu(Model.getInstance().getProfile().getPieCategories())
                 .showAndWait();

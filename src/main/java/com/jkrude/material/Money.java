@@ -91,7 +91,7 @@ public class Money implements Comparable<Money>{
   @Override
   public int compareTo(Money o) {
     if(this.currency.equals(o.currency)){
-      return this.getAmount().compareTo(o.getAmount());
+      return this.getRawAmount().compareTo(o.getRawAmount());
     }else{
       throw new IllegalArgumentException("Cant compare values of different currency");
     }
@@ -126,7 +126,7 @@ public class Money implements Comparable<Money>{
 
   public static Money sum(List<Camt.Transaction> camtEntries) {
     Money total = new Money();
-    camtEntries.forEach(camtTransaction -> total.add(camtTransaction.getAmount()));
+    camtEntries.forEach(camtTransaction -> total.add(camtTransaction.getMoneyAmount()));
     return total;
   }
 
@@ -145,10 +145,14 @@ public class Money implements Comparable<Money>{
     ;
   }
 
+  public boolean isPositive() {
+    return getRawAmount().compareTo(BigDecimal.ZERO) >= 0;
+  }
+
   /*
    * Getter and setter.
    */
-  public BigDecimal getAmount() {
+  public BigDecimal getRawAmount() {
     return amount;
   }
 
