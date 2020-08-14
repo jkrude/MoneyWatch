@@ -10,7 +10,7 @@ import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
 import com.jkrude.material.UI.SourceChooseDialog;
-import com.jkrude.material.UI.TransactionTableDialog;
+import com.jkrude.material.UI.TransactionTablePopUp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -106,8 +106,8 @@ public class PieChartController extends Controller {
     }
     // Default: Display all negative transactions.
     pieChart.getData().addAll(negChartData);
-    setupToolTip(pieChart.getData());
-    setupPopUp(pieChart.getData());
+    addToolTipForData(pieChart.getData());
+    addTableViewPopUpForData(pieChart.getData());
     populatedChart = true;
     isInvalidated = false;
   }
@@ -283,20 +283,19 @@ public class PieChartController extends Controller {
                 Money.sum(transactions).getRawAmount().doubleValue())));
   }
 
-  // show only transactions with neg/pos amount.
-  private void changeChartData(boolean newValue) {
+  private void changeChartData(boolean showPositiveData) {
     pieChart.getData().clear();
-    if (newValue) {
+    if (showPositiveData) {
       pieChart.getData().addAll(posChartData);
     } else {
       pieChart.getData().addAll(negChartData);
     }
-    setupToolTip(pieChart.getData());
-    setupPopUp(pieChart.getData());
+    addToolTipForData(pieChart.getData());
+    addTableViewPopUpForData(pieChart.getData());
 
   }
 
-  private void setupToolTip(final ObservableList<PieChart.Data> chartData) {
+  private void addToolTipForData(final ObservableList<PieChart.Data> chartData) {
     // Display the amount for the data-point
     for (final PieChart.Data data : chartData) {
       String displayingText = String.valueOf(data.getPieValue()) + '€';
@@ -306,23 +305,23 @@ public class PieChartController extends Controller {
     }
   }
 
-  private void setupPopUp(final ObservableList<PieChart.Data> chartData) {
+  private void addTableViewPopUpForData(final ObservableList<PieChart.Data> chartData) {
     // PopUp for every data-point to display transactions for this day
     // Uses the prebuild table fxml
     for (final PieChart.Data data : chartData) {
-      data.getNode().setOnMouseClicked(
-          mouseEvent -> {
-            ObservableList<Transaction> tableData =
-                negPosTglBtn.isSelected() ?
-                    posEntryLookup.get(data.getName()) :
-                    negEntryLookup.get(data.getName());
-
-            TransactionTableDialog.Builder.init(tableData)
-                .setContextMenu(Model.getInstance().getProfile().getPieCategories())
-                .showAndWait();
-          }
-      );
+      data.getNode().setOnMouseClicked(mouseEvent -> openTablePopUp(data));
     }
+  }
+
+  private void openTablePopUp(PieChart.Data data) {
+    ObservableList<Transaction> tableData =
+        negPosTglBtn.isSelected() ?
+            posEntryLookup.get(data.getName()) :
+            negEntryLookup.get(data.getName());
+
+    TransactionTablePopUp.Builder.init(tableData)
+        .setContextMenu(Model.getInstance().getProfile().getPieCategories())
+        .showAndWait();
   }
 
   public void goToCategories(ActionEvent event) {

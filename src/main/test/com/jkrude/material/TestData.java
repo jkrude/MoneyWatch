@@ -1,9 +1,11 @@
 package com.jkrude.material;
 
+import com.jkrude.material.Camt.ListType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.util.Pair;
 
 public class TestData {
 
@@ -94,46 +96,38 @@ public class TestData {
 
   public static Profile getProfile() {
     Profile profile = new Profile();
-    /*
+
     PieCategory categoryEating = new PieCategory("Essen");
-    ListProperty<Predicate<Transaction>> pieEntries = new SimpleListProperty<>(
-        FXCollections.observableList(new ArrayList<>()));
 
-    pieEntries.add(
-        camtTransaction -> camtTransaction.getDataPoint().getOtherParty()
-            .equals("NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE"));
-    pieEntries.add(
-        camtTransaction -> camtTransaction.getDataPoint().getOtherParty()
-            .equals("DANKE, IHR LIDL//Dresden/DE"));
+    try {
+      categoryEating.addRule(Rule.RuleFactory.generate(new Pair<>(
+          ListType.OTHER_PARTY, "NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE"), "Netto"));
+      categoryEating.addRule(Rule.RuleFactory.generate(new Pair<>(
+          ListType.OTHER_PARTY, "DANKE, IHR LIDL//Dresden/DE"), "LIDL"));
 
-    categoryEating.getIdentifierList().addAll(pieEntries);
-    profile.addCategory(categoryEating);
+      profile.addCategory(categoryEating);
 
-    PieCategory categoryLiving = new PieCategory("Leben");
-    ListProperty<Predicate<Transaction>> setLiving = new SimpleListProperty<>(
-        FXCollections.observableList(new ArrayList<>()));
-    setLiving.add(
-        camtTransaction -> camtTransaction.getDataPoint().getIban().equals("DE56800400000850447400"));
-    setLiving.add(
-        camtTransaction -> camtTransaction.getDataPoint().getIban().equals("DE15200411550651304800"));
+      PieCategory categoryLiving = new PieCategory("Leben");
 
-    categoryLiving.getIdentifierList().addAll(setLiving);
-    profile.addCategory(categoryLiving);
+      categoryLiving.addRule(Rule.RuleFactory.generate(new Pair<>(
+          ListType.IBAN, "DE56800400000850447400"), "Max"));
+      categoryLiving.addRule(Rule.RuleFactory.generate(new Pair<>(
+          ListType.IBAN, "DE15200411550651304800"), "Marvin"));
 
-    PieCategory categoryTravel = new PieCategory("Reise");
-    ListProperty<Predicate<Transaction>> setTravel = new SimpleListProperty<>(
-        FXCollections.observableList(new ArrayList<>()));
-    setTravel.add(
-        camtTransaction -> camtTransaction.getDataPoint().getUsage()
-            .equals("PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS "));
-    categoryTravel.getIdentifierList().addAll(setTravel);
-    profile.addCategory(categoryTravel);
+      profile.addCategory(categoryLiving);
 
+      PieCategory categoryTravel = new PieCategory("Reise");
+
+      categoryTravel.addRule(Rule.RuleFactory.generate(new Pair<>(
+          ListType.USAGE, "PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS "
+      ), "Flixbus"));
+      profile.addCategory(categoryTravel);
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
     PieCategory categoryEmpty = new PieCategory("Empty");
     profile.addCategory(categoryEmpty);
-*/
+
     return profile;
-
-
   }
 }

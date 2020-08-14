@@ -54,7 +54,7 @@ public class SourceChooseDialog {
 
   public static void show(final Consumer<Camt> callback, List<Camt> sources) {
     FXMLLoader loader = new FXMLLoader(fxmlResource);
-    Stage stage = PopUp.setupStage(loader, fxmlResource);
+    Stage stage = StageSetter.setupStage(loader, fxmlResource);
     SourceChooseDialog controller = loader.getController();
     controller.listView.setItems(FXCollections.observableList(sources));
     controller.listView.getSelectionModel().selectFirst();

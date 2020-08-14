@@ -5,7 +5,7 @@ import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Model;
 import com.jkrude.material.Money;
-import com.jkrude.material.UI.TransactionTableDialog;
+import com.jkrude.material.UI.TransactionTablePopUp;
 import com.jkrude.material.Utility;
 import java.util.Date;
 import java.util.HashMap;
@@ -141,7 +141,7 @@ public class LineChartController extends Controller {
             ObservableList<Transaction> tableData = camt.getSource().filtered(
                 camtTransaction -> camtTransaction.getDate()
                     .equals(dateLookupTable.get(data.getXValue())));
-            TransactionTableDialog.Builder.init(tableData).showAndWait();
+            TransactionTablePopUp.Builder.init(tableData).showAndWait();
           }
         });
   }

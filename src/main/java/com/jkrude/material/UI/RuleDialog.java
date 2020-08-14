@@ -75,7 +75,7 @@ public class RuleDialog {
 
   public static void show(final Consumer<Rule> callback) {
     FXMLLoader loader = new FXMLLoader(fxmlResource);
-    Stage stage = PopUp.setupStage(loader, fxmlResource);
+    Stage stage = StageSetter.setupStage(loader, fxmlResource);
     RuleDialog controller = loader.getController();
     controller.addRuleBtn.setOnAction(event -> {
       callback.accept(controller.addRule());
@@ -87,7 +87,7 @@ public class RuleDialog {
   public static void showAndEdit(final Consumer<Rule> callback,
       Iterator<Pair<ListType, String>> entryIterator) {
     FXMLLoader loader = new FXMLLoader(fxmlResource);
-    Stage stage = PopUp.setupStage(loader, fxmlResource);
+    Stage stage = StageSetter.setupStage(loader, fxmlResource);
     RuleDialog controller = loader.getController();
     controller.setupForEditing(entryIterator);
 

@@ -8,7 +8,6 @@ import com.jkrude.material.Utility;
 import java.net.URL;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -17,7 +16,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -30,7 +28,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Pair;
 
-public class TransactionTableDialog {
+public class TransactionTablePopUp {
 
   public TableView<Transaction> table;
   // Columns
@@ -69,33 +67,21 @@ public class TransactionTableDialog {
 
   public Button closeBtn;
 
-  private SimpleIntegerProperty activatedColumns = new SimpleIntegerProperty(4);
+  private SimpleIntegerProperty activatedColumns = new SimpleIntegerProperty(5);
   private SimpleIntegerProperty columnWidth;
 
-  private Consumer<TransactionTableDialog> consumer;
-
   // Constructor needs to be public (FXML) but should NOT be used
-  public TransactionTableDialog() {
+  public TransactionTablePopUp() {
   }
 
   @FXML
   private void initialize() {
+    // Use all available space evenly across the columns
     columnWidth = new SimpleIntegerProperty();
     columnWidth.bind(table.widthProperty().divide(activatedColumns));
-    accountIban.setVisible(false);
-    accountIban.setVisible(false);
-    validationDate.setVisible(false);
-    transferSpecification.setVisible(false);
-    creditorId.setVisible(false);
-    mandateReference.setVisible(false);
-    customerReferenceRndToEnd.setVisible(false);
-    collectionReference.setVisible(false);
-    debitOriginalAmount.setVisible(false);
-    backDebit.setVisible(false);
-    bic.setVisible(false);
-    info.setVisible(false);
+    table.getColumns().forEach(
+        transactionTableColumn -> transactionTableColumn.prefWidthProperty().bind(columnWidth));
 
-    accountIban.prefWidthProperty().bind(columnWidth);
     transferDate.setCellValueFactory(callback -> new SimpleStringProperty(
         Utility.dateFormatter.format(callback.getValue().getDate())));
     validationDate.setCellValueFactory(callback -> new SimpleStringProperty(
@@ -122,94 +108,53 @@ public class TransactionTableDialog {
         callback.getValue().getIban()));
     bic.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getBic()));
-    amount.setCellValueFactory(callback -> new SimpleObjectProperty<Money>(
+    amount.setCellValueFactory(callback -> new SimpleObjectProperty<>(
         callback.getValue().getMoneyAmount()));
     info.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getInfo()));
 
-    amount.setCellFactory(
-        new Callback<>() {
-          @Override
-          public TableCell<Transaction, Money> call(
-              TableColumn<Transaction, Money> camtEntryMoneyTableColumn) {
-            return new TableCell<Transaction, Money>() {
-              @Override
-              protected void updateItem(Money money, boolean empty) {
-                super.updateItem(money, empty);
-                if (!empty) {
-                  setText(money.toString());
-                  if (money.isPositive()) {
-                    setTextFill(Color.GREEN);
-                  } else {
-                    setTextFill(Color.RED);
-                  }
-                } else {
-                  setText(null);
-                }
-              }
-            };
-          }
-        });
+    amount.setCellFactory(getColoredCellFactory());
 
-    ContextMenu contextMenu = new ContextMenu();
+    /*ContextMenu contextMenu = new ContextMenu();
 
     ComboBox<ListType> possibleColumns = new ComboBox<>();
-    /*possibleColumns.setCellFactory(new Callback<ListView<ListType>, ListCell<ListType>>() {
-      @Override
-      public ListCell<ListType> call(ListView<ListType> listTypeListView) {
-        return new ListCell<>() {
-          @Override
-          protected void updateItem(ListType item, boolean empty) {
-            super.updateItem(item, empty);
-            if(item != null && !empty){
-              RadioButton radioButton = new RadioButton();;
-              radioButton.setText(item.toString());
-              setGraphic(radioButton);
-              radioButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
-                @Override
-                public void changed(ObservableValue<? extends Boolean> observableValue,
-                    Boolean aBoolean, Boolean t1) {
-
-                }
-              }
-              (ObservableValue<? extends Boolean> observableValue, Boolean oldV, Boolean newV) -> {
-                if(newV){
-                  observableValue.getValue().
-                }
-              }
-              );
-            }else{
-              setGraphic(null);
-            }
-          }
-        };
-      }
-    }*/
     possibleColumns.getItems().addAll(ListType.values());
     MenuItem choiceItem = new MenuItem("Aktivierte Spalten");
     choiceItem.setGraphic(possibleColumns);
     contextMenu.getItems().add(choiceItem);
     //FIXME
-    // table.setContextMenu(contextMenu);
+    table.setContextMenu(contextMenu);*/
   }
 
-  private Consumer<TransactionTableDialog> getConsumer() {
-    return consumer;
-  }
-
-  private void setConsumer(
-      Consumer<TransactionTableDialog> consumer) {
-    this.consumer = consumer;
+  private Callback<TableColumn<Transaction, Money>, TableCell<Transaction, Money>> getColoredCellFactory() {
+    // Set the color of the text depending on amount > 0 ?
+    return new Callback<>() {
+      @Override
+      public TableCell<Transaction, Money> call(
+          TableColumn<Transaction, Money> camtEntryMoneyTableColumn) {
+        return new TableCell<>() {
+          @Override
+          protected void updateItem(Money money, boolean empty) {
+            super.updateItem(money, empty);
+            if (!empty) {
+              setText(money.toString());
+              setTextFill(money.isPositive() ? Color.GREEN : Color.RED);
+            } else {
+              setText(null);
+            }
+          }
+        };
+      }
+    };
   }
 
 
   public static class Builder {
 
-    private TransactionTableDialog ttd;
+    private TransactionTablePopUp ttp;
     private Stage stage;
-    ObservableList<Transaction> tableData;
 
-    private static final URL fxmlResource = TransactionTableDialog.class
+    private static final URL fxmlResource = TransactionTablePopUp.class
         .getResource("/PopUp/camtEntryAsTable.fxml");
 
     private Builder() {
@@ -218,20 +163,14 @@ public class TransactionTableDialog {
     public static Builder init(final ObservableList<Transaction> tableData) {
       Builder b = new Builder();
       FXMLLoader loader = new FXMLLoader();
-      b.stage = PopUp.setupStage(loader, fxmlResource);
-      b.ttd = loader.getController();
-      b.ttd.table.setItems(tableData);
-      b.ttd.closeBtn.setOnAction(event -> b.stage.close());
+      b.stage = StageSetter.setupStage(loader, fxmlResource);
+      b.ttp = loader.getController();
+      b.ttp.table.setItems(tableData);
+      b.ttp.closeBtn.setOnAction(event -> b.stage.close());
       return b;
     }
-
-    public Builder setCloseCallback(Consumer<TransactionTableDialog> consumer) {
-      ttd.setConsumer(consumer);
-      return this;
-    }
-
     public Builder setContextMenu(ObservableList<PieCategory> categories) {
-      ttd.table.setRowFactory(
+      ttp.table.setRowFactory(
           new Callback<TableView<Transaction>, TableRow<Transaction>>() {
             @Override
             public TableRow<Transaction> call(TableView<Transaction> camtEntryTableView) {
@@ -269,9 +208,6 @@ public class TransactionTableDialog {
 
     public void showAndWait() {
       stage.showAndWait();
-      if (ttd.consumer != null) {
-        ttd.consumer.accept(ttd);
-      }
     }
 
   }
