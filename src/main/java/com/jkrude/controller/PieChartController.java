@@ -9,11 +9,12 @@ import com.jkrude.material.Model;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
-import com.jkrude.material.UI.SourceChooseDialog;
+import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -83,7 +84,7 @@ public class PieChartController extends Controller {
 
         throw new IllegalStateException("PieChart was called but no data is available");
       } else if (Model.getInstance().getCamtList().size() > 1) {
-        showError();
+        forceSourceChoiceDialog();
       } else {
         camtData = Model.getInstance().getCamtList().get(0);
       }
@@ -112,38 +113,28 @@ public class PieChartController extends Controller {
     isInvalidated = false;
   }
 
-  private void showError() {
-    SourceChooseDialog.show(
-        camt -> {
-          if (camt != null) {
-            camtData = camt;
-          } else {
-            AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz",
-                "Möglich ist dies über Klicken + 'OK' oder Doppelklick", AlertType.ERROR);
-            //TODO
-          }
-        }
-        , Model.getInstance().getCamtList());
+  private void forceSourceChoiceDialog() {
+    Optional<Camt> result = SourceChoiceDialog.showAndWait(Model.getInstance().getCamtList());
+    result.ifPresentOrElse(camt -> camtData = camt, this::returnAfterChoiceDialogError);
   }
+
+  private void returnAfterChoiceDialogError() {
+    AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz", "",
+        AlertType.ERROR);
+    forceSourceChoiceDialog();
+  }
+
 
   @FXML
   private void changeDataSource() {
     if (Model.getInstance().getCamtList().isEmpty()) {
       AlertBox.showAlert("Kein Auswahl möglich", "Keine CSV-Datein geladen", "", AlertType.ERROR);
     } else {
-      SourceChooseDialog.show(
-          camt -> {
-            if (camt != null) {
-              if (camt.equals(camtData)) {
-                return;
-              }
-              camtData = camt;
-              setupChart();
-            }
-            // else: user clicked cancel or x
-          },
-          Model.getInstance().getCamtList()
-      );
+      Optional<Camt> result = SourceChoiceDialog.showAndWait(Model.getInstance().getCamtList());
+      if (result.isPresent() && !result.get().equals(camtData)) {
+        camtData = result.get();
+        setupChart();
+      }
     }
 
   }
