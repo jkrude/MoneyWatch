@@ -88,6 +88,12 @@ public class StartController extends Controller {
   }
 
   public void goToMonthOverview(ActionEvent actionEvent) {
-    Main.goTo(UsableScene.TIMELINE);
+    if (Model.getInstance().getCamtList() == null || Model.getInstance().getCamtList().isEmpty()) {
+      AlertBox.showAlert("Daten benötigt!", "Noch keine CSV Dateien geladen.",
+          "Wähle im Hauptmenü: Open File",
+          AlertType.ERROR);
+    } else {
+      Main.goTo(UsableScene.TIMELINE);
+    }
   }
 }

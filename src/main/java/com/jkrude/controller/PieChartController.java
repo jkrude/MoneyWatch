@@ -38,7 +38,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
 
-public class PieChartController extends Controller {
+public class PieChartController extends DataDependingControlller {
 
   private boolean populatedChart = false;
   private boolean isInvalidated = false;
@@ -61,7 +61,6 @@ public class PieChartController extends Controller {
   @FXML
   private ToggleButton negPosTglBtn;
 
-  Camt camtData;
 
   @Override
   public void prepare() {
@@ -99,17 +98,7 @@ public class PieChartController extends Controller {
 
   private void setupChart() {
     pieChart.getData().clear();
-    if (camtData == null) {
-      if (Model.getInstance().getCamtList() == null
-          || Model.getInstance().getCamtList().isEmpty()) {
-
-        throw new IllegalStateException("PieChart was called but no data is available");
-      } else if (Model.getInstance().getCamtList().size() > 1) {
-        forceSourceChoiceDialog();
-      } else {
-        camtData = Model.getInstance().getCamtList().get(0);
-      }
-    }
+    fetchDataWithDialogs();
 
     ObservableList<Transaction> source = camtData.getSource();
     ObservableList<PieCategory> categories = Model.getInstance().getProfile().getPieCategories();
@@ -128,22 +117,10 @@ public class PieChartController extends Controller {
     isInvalidated = false;
   }
 
-  private void forceSourceChoiceDialog() {
-    Optional<Camt> result = SourceChoiceDialog.showAndWait(Model.getInstance().getCamtList());
-    result.ifPresentOrElse(camt -> camtData = camt, this::returnAfterChoiceDialogError);
-  }
-
-  private void returnAfterChoiceDialogError() {
-    AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz", "",
-        AlertType.ERROR);
-    forceSourceChoiceDialog();
-  }
-
-
   @FXML
   private void changeDataSource() {
     if (Model.getInstance().getCamtList().isEmpty()) {
-      AlertBox.showAlert("Kein Auswahl möglich", "Keine CSV-Datein geladen", "", AlertType.ERROR);
+      AlertBox.showAlert("Keine Auswahl möglich", "Keine CSV-Datein geladen", "", AlertType.ERROR);
     } else {
       Optional<Camt> result = SourceChoiceDialog.showAndWait(Model.getInstance().getCamtList());
       if (result.isPresent() && !result.get().equals(camtData)) {

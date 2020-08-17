@@ -3,7 +3,6 @@ package com.jkrude.controller;
 import com.jkrude.main.Main;
 import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.Transaction;
-import com.jkrude.material.Model;
 import com.jkrude.material.Money;
 import com.jkrude.material.UI.TransactionTablePopUp;
 import com.jkrude.material.Utility;
@@ -11,8 +10,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -28,7 +28,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
 
-public class LineChartController extends Controller {
+public class LineChartController extends DataDependingControlller {
 
   @FXML
   private LineChart<Number, Number> lineChart;
@@ -38,11 +38,6 @@ public class LineChartController extends Controller {
   private boolean chartIsPopulated = false;
   // Saves the Date to its converted( to Instant to long ) version
   private Map<Number, Date> dateLookupTable;
-
-
-  public LineChartController() {
-    dateLookupTable = new HashMap<>();
-  }
 
   @Override
   public void prepare() {
@@ -54,9 +49,9 @@ public class LineChartController extends Controller {
     }
   }
 
-  // Fetch datasource -> setup series & setupAxis & setupTooltip usw.
   @FXML
   public void initialize() {
+    dateLookupTable = new HashMap<>();
     backButton.setOnAction(e -> Main.goBack());
   }
 
@@ -64,31 +59,26 @@ public class LineChartController extends Controller {
     if (dateLookupTable == null) {
       throw new IllegalStateException("dateLookupTable was not initialized");
     }
-    // TMP Select data-source
-    Camt camt = Model.getInstance().getCamtList().get(0);
-    if (camt == null) {
-      chartIsPopulated = false;
-      return;
-    }
+    fetchDataWithDialogs();
 
     XYChart.Series<Number, Number> series = new Series<>();
-    setupSeries(series, camt);
+    setupSeries(series, camtData);
 
     NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
-    setupAxis(xAxis, series, camt);
+    setupAxis(xAxis, series);
 
     for (Data<Number, Number> d : series.getData()) {
       // Add Tooltip for every data-point
       setToolTip(d);
 
-      setClickListener(d, camt);
+      setClickListener(d, camtData);
 
       setContextMenu(d.getNode());
     }
     chartIsPopulated = true;
   }
 
-  private void setupAxis(NumberAxis xAxis, XYChart.Series<Number, Number> series, Camt camt) {
+  private void setupAxis(NumberAxis xAxis, XYChart.Series<Number, Number> series) {
     xAxis.setAutoRanging(false);
     xAxis.setLowerBound(
         series.getData().get(0).getXValue()
@@ -110,17 +100,15 @@ public class LineChartController extends Controller {
     lineChart.getData().add(series);
   }
 
-  private void genDataFromSource(XYChart.Series<Number, Number> series, Camt source) {
-    TreeMap<Date, List<Camt.Transaction>> dateMap = source.getSourceAsDateMap();
-    Set<Date> set = dateMap.keySet();
+  private void genDataFromSource(XYChart.Series<Number, Number> series, Camt camt) {
+
+    TreeMap<Date, List<Transaction>> dateMap = camt.getSourceAsDateMap();
     Money currAmount = new Money(0);
 
-    for (Date d : set) {
-      for (Camt.Transaction transaction : dateMap.get(d)) {
-        currAmount.add(transaction.getMoneyAmount());
-      }
-      Number dateAsNumber = d.toInstant().toEpochMilli();
-      dateLookupTable.put(dateAsNumber, d);
+    for (Date date : dateMap.keySet()) {
+      currAmount.add(Money.sum(dateMap.get(date)));
+      Number dateAsNumber = date.toInstant().toEpochMilli();
+      dateLookupTable.put(dateAsNumber, date);
       series.getData().add(new Data<>(dateAsNumber, currAmount.getRawAmount()));
     }
   }
@@ -138,12 +126,15 @@ public class LineChartController extends Controller {
     data.getNode().setOnMouseClicked(
         event -> {
           if (event.getButton() == MouseButton.PRIMARY) {
-            ObservableList<Transaction> tableData = camt.getSource().filtered(
-                camtTransaction -> camtTransaction.getDate()
-                    .equals(dateLookupTable.get(data.getXValue())));
-            TransactionTablePopUp.Builder.init(tableData).showAndWait();
+            TransactionTablePopUp.Builder.init(getTableData(data, camt)).showAndWait();
           }
         });
+  }
+
+  private ObservableList<Transaction> getTableData(XYChart.Data<Number, Number> data, Camt camt) {
+    return camt.getSource().stream()
+        .filter(t -> t.getDate().equals(dateLookupTable.get(data.getXValue())))
+        .collect(Collectors.toCollection(FXCollections::observableArrayList));
   }
 
   private void setContextMenu(Node node) {
