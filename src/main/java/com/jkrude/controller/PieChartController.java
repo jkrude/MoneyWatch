@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -40,6 +42,7 @@ public class PieChartController extends Controller {
 
   private boolean populatedChart = false;
   private boolean isInvalidated = false;
+  private BooleanProperty isHandlingVisibleScene;
   // Marks if chart is up to date with Model.getInstance()
   // Saves witch CamtEntries where found for a category
   private Map<String, ObservableList<Transaction>> negEntryLookup;
@@ -65,6 +68,8 @@ public class PieChartController extends Controller {
     if (isInvalidated || !populatedChart) {
       setupChart();
     }
+    //TODO: Contract: if prepare is called the scene is shown
+    isHandlingVisibleScene.setValue(true);
   }
 
   @FXML
@@ -75,12 +80,21 @@ public class PieChartController extends Controller {
     posChartData = FXCollections.observableArrayList();
     multipleMatches = FXCollections.observableHashMap();
     camtData = null;
+    isHandlingVisibleScene = new SimpleBooleanProperty(false);
 
-    backBtn.setOnAction(e -> Main.goBack());
+    backBtn.setOnAction(this::goBack);
     negPosTglBtn.selectedProperty().addListener(
         (observableValue, oldV, newV) -> changeChartData(newV)); // Use pos or neg dataSet
     Model.getInstance().getProfile()
-        .addListener(change -> isInvalidated = true); // Needs to be live updated
+        .addListener(change -> refreshOrInvalidate()); // Needs to be live updated
+  }
+
+  private void refreshOrInvalidate() {
+    if (isHandlingVisibleScene.get()) {
+      setupChart();
+    } else {
+      isInvalidated = true;
+    }
   }
 
   private void setupChart() {
@@ -186,73 +200,6 @@ public class PieChartController extends Controller {
         Predicate.not(Transaction::isPositive));
     // Colors are only displayed for positive values
     negChartData.forEach(data -> data.setPieValue(Math.abs(data.getPieValue())));
-    /*for (final Transaction camtTransaction : source) {
-      // An entry can only belong to one category (one rule)
-      // If multiple rules apply the transaction will all the rules will be flagged
-      Rule firstMatchedRule = null;
-      int matchingRulesCounter = 0;
-
-      for (final PieCategory category : categories) {
-        for (final Rule rule : category.getRulesRO()) { //RO = ReadOnly
-          if (rule.getPredicate().test(camtTransaction)) {
-            // If rule applies to data: check if another rule did so too
-            if (matchingRulesCounter > 0) {
-              if (matchingRulesCounter == 1) {
-                multipleMatchingRules
-                    .add(new Pair<>(List.of(rule, firstMatchedRule), camtTransaction));
-              } else {
-                multipleMatchingRules.get(multipleMatchingRules.size() - 1).getKey().add(rule);
-              }
-              // else add it to category (in positive or negative chart)
-            } else {
-              if (camtTransaction.getMoneyAmount().getRawAmount().compareTo(BigDecimal.ZERO)
-                  < 0) {
-                negEntriesForCategories.get(category.getName())
-                    .add(camtTransaction.getMoneyAmount());
-                negEntryLookup.get(category.getName().get()).add(camtTransaction);
-              } else {
-                posEntriesForCategories.get(category.getName())
-                    .add(camtTransaction.getMoneyAmount());
-                posEntryLookup.get(category.getName().get()).add(camtTransaction);
-              }
-            }
-            firstMatchedRule = rule;
-            matchingRulesCounter++;
-          }
-        }
-      }
-      // All categories have been checked -> If no rule applied add it to unspecified slice
-      if (matchingRulesCounter == 0) {
-        if (camtTransaction.getMoneyAmount().getRawAmount().compareTo(BigDecimal.ZERO) < 0) {
-          negTransactionsWithoutRule.add(camtTransaction);
-        } else {
-          posTransactionsWithoutRule.add(camtTransaction);
-        }
-      }
-    }
-
-    // Colors are only displayed for positive values
-    negEntriesForCategories.forEach(
-        (key, value) -> negChartData
-            .add(new Data(key.get(), Math.abs(value.getRawAmount().doubleValue()))));
-    // Handle all the transactions where no rule matched
-    negEntryLookup
-        .put(UnmatchedTransactions,
-            FXCollections.observableArrayList(negTransactionsWithoutRule));
-    negChartData.add(
-        new Data(UnmatchedTransactions,
-            Money.sum(negTransactionsWithoutRule).getRawAmount().doubleValue()));
-    // Do the same for the chart with positive values
-    posEntriesForCategories.forEach(
-        (key, value) -> posChartData
-            .add(new Data(key.get(), value.getRawAmount().doubleValue())));
-    posEntryLookup
-        .put(UnmatchedTransactions,
-            FXCollections.observableArrayList(posTransactionsWithoutRule));
-    posChartData.add(
-        new Data(UnmatchedTransactions,
-            Money.sum(posTransactionsWithoutRule).getRawAmount().doubleValue()));
-    return multipleMatchingRules;*/
   }
 
   private void populateWithPredicate(
@@ -341,6 +288,16 @@ public class PieChartController extends Controller {
 
   public void goToCategories(ActionEvent event) {
     Main.goTo(UsableScene.CATEGORY_EDITOR);
+    isHandlingVisibleScene.setValue(false);
+  }
+
+  public void goBack(ActionEvent event) {
+    goBack();
+  }
+
+  public void goBack() {
+    isHandlingVisibleScene.setValue(false);
+    Main.goBack();
   }
 
   /*
