@@ -9,6 +9,7 @@ import com.jkrude.material.Model;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
+import com.jkrude.material.UI.RuleDialog;
 import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
 import java.util.HashMap;
@@ -20,12 +21,17 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
@@ -43,7 +49,7 @@ public class PieChartController extends Controller {
 
   private ObservableList<PieChart.Data> posChartData;
   private ObservableList<PieChart.Data> negChartData;
-
+  private ObservableMap<Transaction, Set<Rule>> multipleMatches;
 
   @FXML
   private PieChart pieChart;
@@ -67,6 +73,7 @@ public class PieChartController extends Controller {
     posEntryLookup = new HashMap<>();
     negChartData = FXCollections.observableArrayList();
     posChartData = FXCollections.observableArrayList();
+    multipleMatches = FXCollections.observableHashMap();
     camtData = null;
 
     backBtn.setOnAction(e -> Main.goBack());
@@ -94,17 +101,11 @@ public class PieChartController extends Controller {
     ObservableList<PieCategory> categories = Model.getInstance().getProfile().getPieCategories();
 
     // Populate the chart with data
-    Map<Transaction, Set<Rule>> multipleMatches = new HashMap<>();
+    multipleMatches = FXCollections.observableHashMap();
     matchDataToRules(
         source,
         categories,
         multipleMatches);
-    if (!multipleMatches.isEmpty()) {
-      //TODO Show transaction and matched Rules
-      AlertBox.showAlert("Hinweis", "Mehrere passende Regeln",
-          "Für einige Überweisungen haben mehrere Regeln gepasst. Nur die erste wurde angewendet.",
-          AlertType.WARNING);
-    }
     // Default: Display all negative transactions.
     pieChart.getData().addAll(negChartData);
     addToolTipForData(pieChart.getData());
@@ -311,8 +312,31 @@ public class PieChartController extends Controller {
             negEntryLookup.get(data.getName());
 
     TransactionTablePopUp.Builder.init(tableData)
-        .setContextMenu(Model.getInstance().getProfile().getPieCategories())
+        .setContextMenu(this::contextMenuGenerator)
         .showAndWait();
+  }
+
+  private ContextMenu contextMenuGenerator(TableRow<Transaction> row) {
+    // IMPORTANT: The transaction will only be evaluated when the contextmenu is shown.
+    // Otherwise (if the Transaction would be given at row creation) it would be null.
+    ContextMenu contextMenu = new ContextMenu();
+    Menu categoryChoices = new Menu("Als Regel hinzufügen");
+    for (PieCategory category : Model.getInstance().getProfile().getPieCategories()) {
+      MenuItem menuItem = new MenuItem(category.getName().get());
+      menuItem.setOnAction(event -> openRuleDialogAndSave(row.getItem(), category));
+      categoryChoices.getItems().add(menuItem);
+    }
+    contextMenu.getItems().add(categoryChoices);
+    return contextMenu;
+  }
+
+  private void openRuleDialogAndSave(Transaction t, PieCategory category) {
+    var idPairs = t
+        .getSelectedFields(Set.of(Camt.ListType.values()));
+    idPairs = idPairs.stream().filter(pair -> !pair.getValue().isBlank())
+        .collect(Collectors.toSet());
+    Optional<Rule> optRule = new RuleDialog().editRuleShowAndWait(idPairs);
+    optRule.ifPresent(category::addRule);
   }
 
   public void goToCategories(ActionEvent event) {

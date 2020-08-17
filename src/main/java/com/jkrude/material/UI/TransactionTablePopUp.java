@@ -1,13 +1,9 @@
 package com.jkrude.material.UI;
 
-import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Money;
-import com.jkrude.material.PieCategory;
 import com.jkrude.material.Utility;
 import java.net.URL;
-import java.util.Optional;
-import java.util.Set;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -17,8 +13,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -26,7 +20,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import javafx.util.Pair;
 
 public class TransactionTablePopUp {
 
@@ -82,6 +75,8 @@ public class TransactionTablePopUp {
     table.getColumns().forEach(
         transactionTableColumn -> transactionTableColumn.prefWidthProperty().bind(columnWidth));
 
+    accountIban.setCellValueFactory(callback -> new SimpleStringProperty(
+        callback.getValue().getAccountIban()));
     transferDate.setCellValueFactory(callback -> new SimpleStringProperty(
         Utility.dateFormatter.format(callback.getValue().getDate())));
     validationDate.setCellValueFactory(callback -> new SimpleStringProperty(
@@ -169,33 +164,14 @@ public class TransactionTablePopUp {
       b.ttp.closeBtn.setOnAction(event -> b.stage.close());
       return b;
     }
-    public Builder setContextMenu(ObservableList<PieCategory> categories) {
-      ttp.table.setRowFactory(
-          new Callback<TableView<Transaction>, TableRow<Transaction>>() {
-            @Override
-            public TableRow<Transaction> call(TableView<Transaction> camtEntryTableView) {
-              final TableRow<Transaction> row = new TableRow<>();
-              ContextMenu contextMenu = new ContextMenu();
-              Menu catChoices = new Menu("Als Regel Hinzufügen");
-              for (PieCategory category : categories) {
-                MenuItem menuItem = new MenuItem(category.getName().get());
 
-                menuItem.setOnAction(event -> {
-                  Transaction entry = row.getItem();
-                  Set<Pair<ListType, String>> pairs;
-                  Optional<Set<ListType>> r = RuleDialog.chooseRelevantField(entry);
-                  if (r.isPresent()) {
-                    Set<ListType> selectedListTypes = r.get();
-                    pairs = entry.getSelectedFields(selectedListTypes);
-                    RuleDialog.showAndEdit(
-                        category::addRule,
-                        pairs.iterator()
-                    );
-                  }
-                });
-                catChoices.getItems().add(menuItem);
-              }
-              contextMenu.getItems().add(catChoices);
+    public Builder setContextMenu(Callback<TableRow<Transaction>, ContextMenu> menuGenerator) {
+      ttp.table.setRowFactory(
+          new Callback<>() {
+            @Override
+            public TableRow<Transaction> call(TableView<Transaction> transactionTableView) {
+              final TableRow<Transaction> row = new TableRow<>();
+              ContextMenu contextMenu = menuGenerator.call(row);
               row.contextMenuProperty().bind(
                   Bindings.when(Bindings.isNotNull(row.itemProperty())).then(contextMenu)
                       .otherwise((ContextMenu) null));

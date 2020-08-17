@@ -101,15 +101,14 @@ public class CategoryEditorController extends Controller {
 
   @FXML
   private void newRuleDialog() {
-    RuleDialog.show(rule -> {
-      if (rule != null) {
-        if (ruleLV.getItems().contains(rule)) {
-          showAlertForExistingRule();
-          return;
-        }
-        ruleLV.getItems().add(rule);
+    Optional<Rule> result = new RuleDialog().showAndWait();
+    if (result.isPresent()) {
+      if (ruleLV.getItems().contains(result.get())) {
+        showAlertForExistingRule();
+      } else {
+        ruleLV.getItems().add(result.get());
       }
-    });
+    }
   }
 
   @FXML
@@ -166,18 +165,15 @@ public class CategoryEditorController extends Controller {
   }
 
   private void editRuleDialog(ListCell<Rule> cell) {
-    RuleDialog.showAndEdit(callbackRule -> {
-          if (callbackRule != null && cell.getItem() != callbackRule) {
-            if (ruleLV.getItems().contains(callbackRule)) {
-              showAlertForExistingRule();
-              return;
-            }
-            ruleLV.getItems().remove(cell.getItem());
-            ruleLV.getItems().add(callbackRule);
-          }
-          //TODO ELSE
-        },
-        cell.getItem().getIdentifierPairs().iterator());
+    Optional<Rule> optRule = new RuleDialog().editRuleShowAndWait(cell.getItem());
+    if (optRule.isPresent() && !optRule.get().equals(cell.getItem())) {
+      Rule rule = optRule.get();
+      if (ruleLV.getItems().contains(rule)) {
+        showAlertForExistingRule();
+      }
+      ruleLV.getItems().remove(cell.getItem());
+      ruleLV.getItems().add(rule);
+    }
   }
 
   private void showAlertForExistingRule() {

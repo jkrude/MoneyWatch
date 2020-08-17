@@ -3,197 +3,197 @@ package com.jkrude.material.UI;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Camt;
 import com.jkrude.material.Camt.ListType;
-import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Rule;
-import com.jkrude.material.Rule.RuleFactory;
-import java.net.URL;
 import java.text.ParseException;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
-import javafx.beans.value.ObservableValue;
+import java.util.stream.Collectors;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+import javafx.scene.layout.HBox;
 import javafx.util.Pair;
 
 public class RuleDialog {
 
-  @FXML
-  private ChoiceBox<Camt.ListType> defaultCB;
-  @FXML
-  private ChoiceBox<ListType> firstAndCB;
-  @FXML
-  private TextField defaultTF;
-  @FXML
-  private ToggleButton firstAndBtn;
-  @FXML
-  private TextField firstAndTF;
-  @FXML
-  private ChoiceBox<ListType> secondAndCB;
-  @FXML
-  private ToggleButton secondAndBtn;
-  @FXML
-  private TextField secondAndTF;
-  @FXML
-  private Button addRuleBtn;
+  private Rule generatedRule;
+  private final ObservableList<ListType> typeChoiceList = FXCollections
+      .observableArrayList(Camt.ListType.values());
+  Dialog<Rule> internalDialog;
+  ListView<CustomHBox> listView;
 
-  public static final URL fxmlResource = RuleDialog.class
-      .getResource("/PopUp/ruleDialog.fxml");
-
-  @FXML
-  private void initialize() {
-    ObservableList<ListType> typeChoiceList = FXCollections
-        .observableArrayList(Camt.ListType.values());
-    defaultCB.setItems(typeChoiceList);
-
-    // The n+1th entries will be activated if the n-th and was pressed
-    // Therefore the n+1th are bound to th n-th toggle-button
-    firstAndCB.setItems(typeChoiceList);
-    addListenerForCB(firstAndCB, defaultCB);
-    firstAndCB.visibleProperty().bind(firstAndBtn.selectedProperty());
-    firstAndTF.visibleProperty().bind(firstAndBtn.selectedProperty());
-
-    secondAndBtn.visibleProperty().bind(firstAndBtn.selectedProperty());
-    addListenerForCB(secondAndCB, firstAndCB);
-    secondAndCB.visibleProperty().bind(secondAndBtn.selectedProperty());
-    secondAndTF.visibleProperty().bind(secondAndBtn.selectedProperty());
-  }
-
-  public static void show(final Consumer<Rule> callback) {
-    FXMLLoader loader = new FXMLLoader(fxmlResource);
-    Stage stage = StageSetter.setupStage(loader, fxmlResource);
-    RuleDialog controller = loader.getController();
-    controller.addRuleBtn.setOnAction(event -> {
-      callback.accept(controller.addRule());
-      stage.close();
+  public RuleDialog() {
+    internalDialog = new Dialog<>();
+    internalDialog.setTitle("Regel-Editor");
+    internalDialog.setHeaderText(null);
+    listView = new ListView<>();
+    listView.prefWidthProperty().bind(internalDialog.getDialogPane().widthProperty());
+    internalDialog.getDialogPane().setContent(listView);
+    internalDialog.setResizable(true);
+    internalDialog.setWidth(600);
+    internalDialog.getDialogPane().maxWidth(800);
+    internalDialog.setHeight(400);
+    internalDialog.getDialogPane().getButtonTypes().addAll(ButtonType.APPLY, ButtonType.CANCEL);
+    // Validate input.
+    Button btnApply = (Button) internalDialog.getDialogPane().lookupButton(ButtonType.APPLY);
+    btnApply.addEventFilter(ActionEvent.ACTION, event -> {
+      if (!validateAndGenerate(listView)) {
+        event.consume();
+      }
     });
-    stage.showAndWait();
-  }
 
-  public static void showAndEdit(final Consumer<Rule> callback,
-      Iterator<Pair<ListType, String>> entryIterator) {
-    FXMLLoader loader = new FXMLLoader(fxmlResource);
-    Stage stage = StageSetter.setupStage(loader, fxmlResource);
-    RuleDialog controller = loader.getController();
-    controller.setupForEditing(entryIterator);
-
-    controller.addRuleBtn.setOnAction(event -> {
-      callback.accept(controller.addRule());
-      stage.close();
-    });
-    stage.showAndWait();
-  }
-
-  private void setupForEditing(Iterator<Pair<ListType, String>> entryIterator) {
-    if (entryIterator.hasNext()) {
-      var entry = entryIterator.next();
-      defaultCB.getSelectionModel().select(entry.getKey());
-      defaultTF.setText(entry.getValue());
-    }
-    if (entryIterator.hasNext()) {
-      firstAndBtn.setSelected(true);
-      var entry = entryIterator.next();
-      firstAndCB.getSelectionModel().select(entry.getKey());
-      firstAndTF.setText(entry.getValue());
-    }
-    if (entryIterator.hasNext()) {
-      secondAndBtn.setSelected(true);
-      var entry = entryIterator.next();
-      secondAndCB.getSelectionModel().select(entry.getKey());
-      secondAndTF.setText(entry.getValue());
-    }
-    addRuleBtn.setText("Bestätigen");
-  }
-
-  private static void addListenerForCB(ChoiceBox<ListType> observingChoiceBox,
-      ChoiceBox<ListType> observedChoiceBox) {
-    observedChoiceBox.getSelectionModel().selectedItemProperty().addListener(
-        (ObservableValue<? extends ListType> obsValue, ListType oldV, ListType newV) -> observingChoiceBox
-            .setItems(observedChoiceBox.getItems().filtered(type1 -> !type1.equals(newV))));
-  }
-
-  public static Optional<Set<ListType>> chooseRelevantField(Transaction camtTransaction) {
-    Dialog<Set<ListType>> dialog = new Dialog<>();
-    dialog.setWidth(200);
-    dialog.setWidth(600);
-    VBox vBox = new VBox();
-    vBox.setSpacing(16);
-    Set<ListType> results = new HashSet<>();
-    for (ListType l : Camt.ListType.values()) {
-      CheckBox c = new CheckBox(l.getTranslation());
-      c.selectedProperty().addListener(
-          ((observableValue, oldValue, newValue) -> {
-            if (newValue) { // if selected
-              results.add(l);
-            } else {
-              results.remove(l);
-            }
-          })
-      );
-      vBox.getChildren().add(c);
-    }
-    dialog.getDialogPane().setContent(vBox);
-    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.APPLY, ButtonType.CANCEL);
-    dialog.setResultConverter(
-        callback -> {
-          if (callback.getButtonData().isCancelButton()) {
-            return null;
-          } else {
-            return results;
-          }
-        }
-    );
-    return dialog.showAndWait();
-  }
-
-
-  @FXML
-  private Rule addRule() {
-    // Input validation and other checks should be done in the calling method.
-    try {
-      Set<Pair<ListType, String>> inputIdentifier = new HashSet<>();
-      if (!defaultCB.getSelectionModel().isEmpty()) {
-        inputIdentifier
-            .add(new Pair<>(defaultCB.getSelectionModel().getSelectedItem(), defaultTF.getText()));
+    internalDialog.setResultConverter(buttonType -> {
+      if (buttonType == ButtonType.APPLY) {
+        return generatedRule;
       }
-      if (firstAndBtn.isSelected() && !firstAndCB.getSelectionModel().isEmpty()) {
-        inputIdentifier.add(
-            new Pair<>(firstAndCB.getSelectionModel().getSelectedItem(), firstAndTF.getText()));
-        if (secondAndBtn.isSelected() && !secondAndCB.getSelectionModel().isEmpty()) {
-          inputIdentifier.add(
-              new Pair<>(secondAndCB.getSelectionModel().getSelectedItem(), secondAndTF.getText()));
-        }
-        firstAndBtn.setSelected(false);
-        secondAndBtn.setSelected(false);
-      }
-
-      if (inputIdentifier.isEmpty()) {
-        AlertBox.showAlert("Fehlende Eingabe", "Kein Typ ausgewählt", "", AlertType.WARNING);
-        return null;
-      } else {
-        return RuleFactory.generate(inputIdentifier, "");
-      }
-    } catch (ParseException e) {
-      e.printStackTrace();
-      AlertBox.showAlert("Fehlerhafte Eingabe", "Das Datum war nicht im Format mm.dd.yy",
-          "Eingabe: " + defaultTF
-              .getText(),
-          AlertType.ERROR);
       return null;
+    });
+
+  }
+
+  public Optional<Rule> editRuleShowAndWait(Set<Pair<ListType, String>> idPairs) {
+    fillListFromRule(idPairs);
+    return internalDialog.showAndWait();
+  }
+
+  public Optional<Rule> editRuleShowAndWait(Rule rule) {
+    return editRuleShowAndWait(rule.getIdentifierPairs());
+  }
+
+  public Optional<Rule> showAndWait() {
+    fillList(listView);
+    return internalDialog.showAndWait();
+  }
+
+  private void fillList(ListView<CustomHBox> listView) {
+    for (ListType type : typeChoiceList) {
+      listView.getItems().add(new CustomHBox(type));
+    }
+  }
+
+  private void fillListFromRule(Set<Pair<ListType, String>> idPairs) {
+    Map<ListType, CustomHBox> map = new HashMap<>();
+    idPairs.forEach(
+        pair -> map.put(pair.getKey(), new CustomHBox(pair.getKey(), pair.getValue()))
+    );
+
+    for (ListType type : typeChoiceList) {
+      listView.getItems().add(map.getOrDefault(type, new CustomHBox(type)));
+    }
+  }
+
+  private boolean validateAndGenerate(ListView<CustomHBox> listView) {
+    Set<Pair<ListType, String>> generatingSet =
+        listView.getItems().stream()
+            .filter(box -> !box.checkBox.isDisabled())
+            .filter(box -> box.checkBox.isSelected())
+            .map(box -> new Pair<>(box.type, box.textField.getText()))
+            .collect(Collectors.toSet());
+    if (generatingSet.isEmpty()) {
+      AlertBox.showAlert(
+          "Keine Eingabe!",
+          "Mindestens ein Feld muss ausgewählt und aktiv sein.",
+          "Um den Dialog zu schließen klicken Sie <Cancel>.",
+          AlertType.WARNING
+      );
+      return false;
+    }
+    try {
+      // TODO: Add note
+      generatedRule = Rule.RuleFactory.generate(generatingSet, "");
+      return true;
+    } catch (ParseException e) {
+      AlertBox
+          .showAlert(
+              "Fehlerhafte eingabe!",
+              "Eine Eingabe hat nicht dem Format entsprochen",
+              "",
+              AlertType.WARNING);
+      return false;
+    } catch (NumberFormatException e) {
+      AlertBox.showAlert(
+          "Fehlerhafte Eingabe!",
+          "Der Geldbetrag hat nicht dem Format XX.XX oder einer Ganzzahl entsprochen",
+          "",
+          AlertType.WARNING);
+      return false;
+    }
+  }
+
+  private static class CustomHBox extends HBox {
+
+    public CheckBox checkBox;
+    public ListType type;
+    public Label typeLabel;
+    public TextField textField;
+
+    private CustomHBox() {
+    }
+
+    public CustomHBox(ListType type) {
+      super(10); // Spacing
+      this.type = type;
+      checkBox = new CheckBox();
+      typeLabel = new Label(type.getTranslation());
+      textField = new TextField();
+      textField.setPromptText(getTextHint(type));
+      checkBox.disableProperty().bind(Bindings
+          .createBooleanBinding(() -> textField.getText().trim().isEmpty(),
+              textField.textProperty()));
+      getChildren().addAll(checkBox, typeLabel, textField);
+    }
+
+    public CustomHBox(ListType key, String value) {
+      this(key);
+      textField.setText(value);
+      checkBox.setSelected(true);
+    }
+
+    private String getTextHint(ListType type) {
+      switch (type) {
+        case ACCOUNT_IBAN:
+        case IBAN:
+          return "DE12345678901234567890";
+        case TRANSFER_DATE:
+        case VALIDATION_DATE:
+          return "01.01.1980";
+        case TRANSFER_SPECIFICATION:
+          return "Kartenzahlung";
+        case USAGE:
+          return "Spesen";
+        case CREDITOR_ID:
+          return "DE31ZZZ00000563123";
+        case MANDATE_REFERENCE:
+          return "5LFJ224TP5YA0";
+        case CUSTOMER_REFERENCE_END_TO_END:
+          return "1234567890123 PP.7515.PP PAYPAL";
+        case COLLECTION_REFERENCE:
+          return "1234567890-12345678901234";
+        case DEBIT_ORIGINAL_AMOUNT:
+          return "10.50€";
+        case BACK_DEBIT:
+          return "";
+        case OTHER_PARTY:
+          return "Max Mustermann";
+        case BIC:
+          return "BELADEBEXXX";
+        case AMOUNT:
+          return "10,01€";
+        case INFO:
+          return "Umsatz gebucht";
+      }
+      throw new IllegalArgumentException();
     }
   }
 
