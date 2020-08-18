@@ -1,6 +1,6 @@
 package com.jkrude.material;
 
-import com.jkrude.material.Camt.ListType;
+import com.jkrude.material.TransactionContainer.TransactionField;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javafx.collections.FXCollections;
@@ -12,11 +12,11 @@ public class TestData {
   public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yy");
 
 
-  public static Camt getCamtWithTestData() {
+  public static TransactionContainer getCamtWithTestData() {
 
-    ObservableList<Camt.Transaction> entries = FXCollections.observableArrayList();
+    ObservableList<TransactionContainer.Transaction> entries = FXCollections.observableArrayList();
     try {
-      entries.add(new Camt.Transaction(
+      entries.add(new TransactionContainer.Transaction(
           simpleDateFormat.parse("26.09.19"),
           "DE04100500006013719070",
           simpleDateFormat.parse("01.10.19"),
@@ -28,7 +28,7 @@ public class TestData {
           "BELADEBEXXX",
           new Money(800.00),
           "Umsatz gebucht"));
-      entries.add(new Camt.Transaction(
+      entries.add(new TransactionContainer.Transaction(
           simpleDateFormat.parse("25.09.19"),
           "DE04100500006013719070",
           simpleDateFormat.parse("30.09.19"),
@@ -41,7 +41,7 @@ public class TestData {
           new Money(-3.25),
           "Umsatz gebucht"));
       entries.add(
-          new Camt.Transaction(
+          new TransactionContainer.Transaction(
               simpleDateFormat.parse("25.09.19"),
               "DE04100500006013719070",
               simpleDateFormat.parse("30.09.19"),
@@ -55,7 +55,7 @@ public class TestData {
               "DEUTDEFFXXX",
               new Money(-2.80),
               "Umsatz gebucht"));
-      entries.add(new Camt.Transaction(
+      entries.add(new TransactionContainer.Transaction(
           simpleDateFormat.parse("24.09.19"),
           "DE04100500006013719070",
           simpleDateFormat.parse("30.09.19"),
@@ -69,7 +69,7 @@ public class TestData {
           "DEUTDEFFXXX",
           new Money(-8.14),
           "Umsatz gebucht"));
-      entries.add(new Camt.Transaction(
+      entries.add(new TransactionContainer.Transaction(
           simpleDateFormat.parse("23.09.19"),
           "DE04100500006013719070",
           simpleDateFormat.parse("26.09.19"),
@@ -90,7 +90,7 @@ public class TestData {
     26.09 - 0.11
      */
 
-    return new Camt(entries);
+    return new TransactionContainer(entries);
   }
 
 
@@ -101,25 +101,25 @@ public class TestData {
 
     try {
       categoryEating.addRule(Rule.RuleFactory.generate(new Pair<>(
-          ListType.OTHER_PARTY, "NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE"), "Netto"));
+          TransactionField.OTHER_PARTY, "NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE"), "Netto"));
       categoryEating.addRule(Rule.RuleFactory.generate(new Pair<>(
-          ListType.OTHER_PARTY, "DANKE, IHR LIDL//Dresden/DE"), "LIDL"));
+          TransactionField.OTHER_PARTY, "DANKE, IHR LIDL//Dresden/DE"), "LIDL"));
 
       profile.addCategory(categoryEating);
 
       PieCategory categoryLiving = new PieCategory("Leben");
 
       categoryLiving.addRule(Rule.RuleFactory.generate(new Pair<>(
-          ListType.IBAN, "DE56800400000850447400"), "Max"));
+          TransactionField.IBAN, "DE56800400000850447400"), "Max"));
       categoryLiving.addRule(Rule.RuleFactory.generate(new Pair<>(
-          ListType.IBAN, "DE15200411550651304800"), "Marvin"));
+          TransactionField.IBAN, "DE15200411550651304800"), "Marvin"));
 
       profile.addCategory(categoryLiving);
 
       PieCategory categoryTravel = new PieCategory("Reise");
 
       categoryTravel.addRule(Rule.RuleFactory.generate(new Pair<>(
-          ListType.USAGE, "PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS "
+          TransactionField.USAGE, "PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS "
       ), "Flixbus"));
       profile.addCategory(categoryTravel);
     } catch (ParseException e) {

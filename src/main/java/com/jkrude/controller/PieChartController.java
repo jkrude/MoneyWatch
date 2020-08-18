@@ -3,12 +3,13 @@ package com.jkrude.controller;
 import com.jkrude.main.Main;
 import com.jkrude.main.Main.UsableScene;
 import com.jkrude.material.AlertBox;
-import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Model;
 import com.jkrude.material.Money;
 import com.jkrude.material.PieCategory;
 import com.jkrude.material.Rule;
+import com.jkrude.material.TransactionContainer;
+import com.jkrude.material.TransactionContainer.Transaction;
+import com.jkrude.material.TransactionContainer.TransactionField;
 import com.jkrude.material.UI.RuleDialog;
 import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
@@ -37,6 +38,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 public class PieChartController extends DataDependingControlller {
 
@@ -78,7 +80,7 @@ public class PieChartController extends DataDependingControlller {
     negChartData = FXCollections.observableArrayList();
     posChartData = FXCollections.observableArrayList();
     multipleMatches = FXCollections.observableHashMap();
-    camtData = null;
+    transactions = null;
     isHandlingVisibleScene = new SimpleBooleanProperty(false);
 
     backBtn.setOnAction(this::goBack);
@@ -100,7 +102,7 @@ public class PieChartController extends DataDependingControlller {
     pieChart.getData().clear();
     fetchDataWithDialogs();
 
-    ObservableList<Transaction> source = camtData.getSource();
+    ObservableList<Transaction> source = transactions.getSource();
     ObservableList<PieCategory> categories = Model.getInstance().getProfile().getPieCategories();
 
     // Populate the chart with data
@@ -119,12 +121,13 @@ public class PieChartController extends DataDependingControlller {
 
   @FXML
   private void changeDataSource() {
-    if (Model.getInstance().getCamtList().isEmpty()) {
+    if (Model.getInstance().getTransactionContainerList().isEmpty()) {
       AlertBox.showAlert("Keine Auswahl möglich", "Keine CSV-Datein geladen", "", AlertType.ERROR);
     } else {
-      Optional<Camt> result = SourceChoiceDialog.showAndWait(Model.getInstance().getCamtList());
-      if (result.isPresent() && !result.get().equals(camtData)) {
-        camtData = result.get();
+      Optional<TransactionContainer> result = SourceChoiceDialog
+          .showAndWait(Model.getInstance().getTransactionContainerList());
+      if (result.isPresent() && !result.get().equals(transactions)) {
+        transactions = result.get();
         setupChart();
       }
     }
@@ -255,11 +258,10 @@ public class PieChartController extends DataDependingControlller {
   }
 
   private void openRuleDialogAndSave(Transaction t, PieCategory category) {
-    var idPairs = t
-        .getSelectedFields(Set.of(Camt.ListType.values()));
-    idPairs = idPairs.stream().filter(pair -> !pair.getValue().isBlank())
+    Set<Pair<TransactionField, String>> filteredIdPairs = t.getAsPairSet().stream()
+        .filter(pair -> !pair.getValue().isBlank())
         .collect(Collectors.toSet());
-    Optional<Rule> optRule = new RuleDialog().editRuleShowAndWait(idPairs);
+    Optional<Rule> optRule = new RuleDialog().editRuleShowAndWait(filteredIdPairs);
     optRule.ifPresent(category::addRule);
   }
 

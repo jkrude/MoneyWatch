@@ -1,7 +1,7 @@
 package com.jkrude.material.UI;
 
-import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Money;
+import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.Utility;
 import java.net.URL;
 import javafx.beans.binding.Bindings;
@@ -126,7 +126,7 @@ public class TransactionTablePopUp {
     return new Callback<>() {
       @Override
       public TableCell<Transaction, Money> call(
-          TableColumn<Transaction, Money> camtEntryMoneyTableColumn) {
+          TableColumn<Transaction, Money> moneyTableColumn) {
         return new TableCell<>() {
           @Override
           protected void updateItem(Money money, boolean empty) {

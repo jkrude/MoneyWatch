@@ -14,25 +14,25 @@ public class Model {
     return instance;
   }
 
-  private List<Camt> camtList;
+  private List<TransactionContainer> transactionContainerList;
   private Profile profile;
 
 
-  private Model(List<Camt> camtList) {
-    if (camtList == null) {
+  private Model(List<TransactionContainer> transactionContainerList) {
+    if (transactionContainerList == null) {
       throw new NullPointerException();
     }
-    this.camtList = camtList;
+    this.transactionContainerList = transactionContainerList;
     this.profile = new Profile();
   }
 
   private Model() {
-    this.camtList = new ArrayList<>();
+    this.transactionContainerList = new ArrayList<>();
     this.profile = new Profile();
   }
 
-  public List<Camt> getCamtList() {
-    return camtList;
+  public List<TransactionContainer> getTransactionContainerList() {
+    return transactionContainerList;
   }
 
   public Profile getProfile() {

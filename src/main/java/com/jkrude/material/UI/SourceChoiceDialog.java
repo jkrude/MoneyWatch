@@ -1,7 +1,7 @@
 package com.jkrude.material.UI;
 
-import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.Transaction;
+import com.jkrude.material.TransactionContainer;
+import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.Utility;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,11 +19,11 @@ public class SourceChoiceDialog {
   }
 
 
-  public static Optional<Camt> showAndWait(List<Camt> choices) {
+  public static Optional<TransactionContainer> showAndWait(List<TransactionContainer> choices) {
 
     // It is not possible to cleanly edit the comboBox cellFactory from the dialog
-    Map<String, Camt> converterMap = new HashMap<>();
-    for (Camt choice : choices) {
+    Map<String, TransactionContainer> converterMap = new HashMap<>();
+    for (TransactionContainer choice : choices) {
       TreeMap<Date, List<Transaction>> asDateMap = choice.getSourceAsDateMap();
       String firstDate = Utility.dateFormatter.format(asDateMap.firstEntry().getKey());
       String lastDate = Utility.dateFormatter.format(asDateMap.lastEntry().getKey());
@@ -32,8 +32,8 @@ public class SourceChoiceDialog {
     }
 
     Set<String> keySet = converterMap.keySet();
-    ChoiceDialog<String> camtChoiceDialog = new ChoiceDialog<>(keySet.iterator().next(), keySet);
-    Optional<String> result = camtChoiceDialog.showAndWait();
+    ChoiceDialog<String> sourceChoiceDialog = new ChoiceDialog<>(keySet.iterator().next(), keySet);
+    Optional<String> result = sourceChoiceDialog.showAndWait();
     return result.map(converterMap::get);
   }
 

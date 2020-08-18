@@ -1,9 +1,9 @@
 package com.jkrude.controller;
 
 import com.jkrude.main.Main;
-import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.Transaction;
 import com.jkrude.material.Money;
+import com.jkrude.material.TransactionContainer;
+import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.UI.TransactionTablePopUp;
 import com.jkrude.material.Utility;
 import java.util.Date;
@@ -62,7 +62,7 @@ public class LineChartController extends DataDependingControlller {
     fetchDataWithDialogs();
 
     XYChart.Series<Number, Number> series = new Series<>();
-    setupSeries(series, camtData);
+    setupSeries(series, transactions);
 
     NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
     setupAxis(xAxis, series);
@@ -71,7 +71,7 @@ public class LineChartController extends DataDependingControlller {
       // Add Tooltip for every data-point
       setToolTip(d);
 
-      setClickListener(d, camtData);
+      setClickListener(d, transactions);
 
       setContextMenu(d.getNode());
     }
@@ -91,18 +91,20 @@ public class LineChartController extends DataDependingControlller {
     xAxis.setTickLabelFormatter(Utility.convertFromInstant());
   }
 
-  private void setupSeries(XYChart.Series<Number, Number> series, Camt camt) {
+  private void setupSeries(XYChart.Series<Number, Number> series,
+      TransactionContainer transactionContainer) {
     series.setName("Verlaufsansicht");
-    genDataFromSource(series, camt);
+    genDataFromSource(series, transactionContainer);
     if (series.getData().isEmpty()) {
       throw new IllegalStateException("No data to show in LineChart");
     }
     lineChart.getData().add(series);
   }
 
-  private void genDataFromSource(XYChart.Series<Number, Number> series, Camt camt) {
+  private void genDataFromSource(XYChart.Series<Number, Number> series,
+      TransactionContainer transactionContainer) {
 
-    TreeMap<Date, List<Transaction>> dateMap = camt.getSourceAsDateMap();
+    TreeMap<Date, List<Transaction>> dateMap = transactionContainer.getSourceAsDateMap();
     Money currAmount = new Money(0);
 
     for (Date date : dateMap.keySet()) {
@@ -121,18 +123,21 @@ public class LineChartController extends DataDependingControlller {
     Tooltip.install(data.getNode(), tlp);
   }
 
-  private void setClickListener(XYChart.Data<Number, Number> data, Camt camt) {
+  private void setClickListener(XYChart.Data<Number, Number> data,
+      TransactionContainer transactionContainer) {
     // Add click Listener for every day
     data.getNode().setOnMouseClicked(
         event -> {
           if (event.getButton() == MouseButton.PRIMARY) {
-            TransactionTablePopUp.Builder.init(getTableData(data, camt)).showAndWait();
+            TransactionTablePopUp.Builder.init(getTableData(data, transactionContainer))
+                .showAndWait();
           }
         });
   }
 
-  private ObservableList<Transaction> getTableData(XYChart.Data<Number, Number> data, Camt camt) {
-    return camt.getSource().stream()
+  private ObservableList<Transaction> getTableData(XYChart.Data<Number, Number> data,
+      TransactionContainer transactionContainer) {
+    return transactionContainer.getSource().stream()
         .filter(t -> t.getDate().equals(dateLookupTable.get(data.getXValue())))
         .collect(Collectors.toCollection(FXCollections::observableArrayList));
   }

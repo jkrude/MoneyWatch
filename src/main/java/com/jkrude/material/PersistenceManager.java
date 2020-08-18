@@ -1,6 +1,6 @@
 package com.jkrude.material;
 
-import com.jkrude.material.Camt.ListType;
+import com.jkrude.material.TransactionContainer.TransactionField;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class PersistenceManager {
         jCat.put("name", cat.getName().getValue());
         JSONArray jIds = new JSONArray();
         for (Rule rule : cat.getRulesRO()) {
-          for (Pair<ListType, String> entry : rule.getIdentifierPairs()) {
+          for (Pair<TransactionField, String> entry : rule.getIdentifierPairs()) {
             JSONObject jRule = new JSONObject();
             jRule.put("key", entry.getKey().toString());
             jRule.put("value", entry.getValue());
@@ -68,9 +68,9 @@ public class PersistenceManager {
         JSONArray jIds = (JSONArray) jCat.get("ids");
         for (JSONObject jRule : (Iterable<JSONObject>) jIds) {
           String key = (String) jRule.get("key");
-          ListType listType = ListType.get(key);
+          TransactionField transactionField = TransactionField.get(key);
           String string = (String) jRule.get("value");
-          Rule rule = Rule.RuleFactory.generate(new Pair<>(listType,string),"");
+          Rule rule = Rule.RuleFactory.generate(new Pair<>(transactionField, string), "");
           identifierList.add(rule);
         }
         PieCategory pieCategory = new PieCategory(nameProp,identifierList);

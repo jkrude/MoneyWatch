@@ -1,33 +1,34 @@
 package com.jkrude.controller;
 
 import com.jkrude.material.AlertBox;
-import com.jkrude.material.Camt;
 import com.jkrude.material.Model;
+import com.jkrude.material.TransactionContainer;
 import com.jkrude.material.UI.SourceChoiceDialog;
 import java.util.Optional;
 import javafx.scene.control.Alert.AlertType;
 
 public abstract class DataDependingControlller extends Controller {
 
-  protected Camt camtData;
+  protected TransactionContainer transactions;
 
   protected void fetchDataWithDialogs() {
-    if (camtData == null) {
-      if (Model.getInstance().getCamtList() == null
-          || Model.getInstance().getCamtList().isEmpty()) {
+    if (transactions == null) {
+      if (Model.getInstance().getTransactionContainerList() == null
+          || Model.getInstance().getTransactionContainerList().isEmpty()) {
 
         throw new IllegalStateException("Controller was called but no data is available");
-      } else if (Model.getInstance().getCamtList().size() > 1) {
+      } else if (Model.getInstance().getTransactionContainerList().size() > 1) {
         forceSourceChoiceDialog();
       } else {
-        camtData = Model.getInstance().getCamtList().get(0);
+        transactions = Model.getInstance().getTransactionContainerList().get(0);
       }
     }
   }
 
   protected void forceSourceChoiceDialog() {
-    Optional<Camt> result = SourceChoiceDialog.showAndWait(Model.getInstance().getCamtList());
-    result.ifPresentOrElse(camt -> camtData = camt, this::returnAfterChoiceDialogError);
+    Optional<TransactionContainer> result = SourceChoiceDialog
+        .showAndWait(Model.getInstance().getTransactionContainerList());
+    result.ifPresentOrElse(resTrans -> transactions = resTrans, this::returnAfterChoiceDialogError);
   }
 
   protected void returnAfterChoiceDialogError() {

@@ -3,8 +3,8 @@ package com.jkrude.controller;
 import com.jkrude.main.Main;
 import com.jkrude.main.Main.UsableScene;
 import com.jkrude.material.AlertBox;
-import com.jkrude.material.Camt;
 import com.jkrude.material.Model;
+import com.jkrude.material.TransactionContainer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -56,11 +56,11 @@ public class StartController extends Controller {
           .showAlert("Error", "Fehler beim Import.",
               "Datei konnte nicht geöffnet werden.", AlertType.ERROR);
     }
-    Camt camt;
+    TransactionContainer transactionContainer;
     try {
       Scanner sc = new Scanner(file, StandardCharsets.ISO_8859_1);
       try {
-        camt = new Camt(sc);
+        transactionContainer = new TransactionContainer(sc);
       } catch (IllegalArgumentException e) {
         AlertBox.showAlert("Error", null, e.getMessage(), AlertType.ERROR);
         sc.close();
@@ -69,7 +69,7 @@ public class StartController extends Controller {
         AlertBox.showAlert("Error", null, e.getMessage(), AlertType.ERROR);
         return;
       }
-      Model.getInstance().getCamtList().add(camt);
+      Model.getInstance().getTransactionContainerList().add(transactionContainer);
       sc.close();
 
     } catch (IOException e) {
@@ -78,7 +78,8 @@ public class StartController extends Controller {
   }
 
   public void goToPieChart(ActionEvent actionEvent) {
-    if (Model.getInstance().getCamtList() == null || Model.getInstance().getCamtList().isEmpty()) {
+    if (Model.getInstance().getTransactionContainerList() == null || Model.getInstance()
+        .getTransactionContainerList().isEmpty()) {
       AlertBox.showAlert("Daten benötigt!", "Noch keine CSV Dateien geladen.",
           "Wähle im Hauptmenü: Open File",
           AlertType.ERROR);
@@ -88,7 +89,8 @@ public class StartController extends Controller {
   }
 
   public void goToMonthOverview(ActionEvent actionEvent) {
-    if (Model.getInstance().getCamtList() == null || Model.getInstance().getCamtList().isEmpty()) {
+    if (Model.getInstance().getTransactionContainerList() == null || Model.getInstance()
+        .getTransactionContainerList().isEmpty()) {
       AlertBox.showAlert("Daten benötigt!", "Noch keine CSV Dateien geladen.",
           "Wähle im Hauptmenü: Open File",
           AlertType.ERROR);

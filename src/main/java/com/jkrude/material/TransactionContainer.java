@@ -2,7 +2,6 @@ package com.jkrude.material;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,9 +18,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
 
-public class Camt {
+public class TransactionContainer {
 
-  public enum ListType {
+  public enum TransactionField {
     ACCOUNT_IBAN("Auftragskonto"),
     TRANSFER_DATE("Buchungstag"),
     VALIDATION_DATE("Valutadatum"),
@@ -41,7 +40,7 @@ public class Camt {
 
     private String translation;
 
-    ListType(String s) {
+    TransactionField(String s) {
       this.translation = s;
     }
 
@@ -54,17 +53,17 @@ public class Camt {
       return translation;
     }
 
-    private static final Map<String, ListType> lookup = new HashMap<>();
+    private static final Map<String, TransactionField> lookup = new HashMap<>();
 
     //Populate the lookup table on loading time
     static {
-      for (ListType env : ListType.values()) {
+      for (TransactionField env : TransactionField.values()) {
         lookup.put(env.getTranslation(), env);
       }
     }
 
     //This method can be used for reverse lookup purpose
-    public static ListType get(String url) {
+    public static TransactionField get(String url) {
       return lookup.get(url);
     }
 
@@ -78,15 +77,15 @@ public class Camt {
   /*
    * Constructor
    */
-  public Camt() {
+  public TransactionContainer() {
     source = new SimpleListProperty<>(FXCollections.observableArrayList());
   }
 
-  public Camt(ObservableList<Transaction> entries) {
+  public TransactionContainer(ObservableList<Transaction> entries) {
     source = new SimpleListProperty<>(entries);
   }
 
-  public Camt(Scanner sc) throws ParseException, IllegalArgumentException {
+  public TransactionContainer(Scanner sc) throws ParseException, IllegalArgumentException {
     this();
     this.csvFileParser(sc);
   }
@@ -96,13 +95,11 @@ public class Camt {
    */
   public TreeMap<Date, List<Transaction>> getSourceAsDateMap() {
     TreeMap<Date, List<Transaction>> dateMap = new TreeMap<>();
-    for (Transaction camtTransaction : source) {
-      if (dateMap.containsKey(camtTransaction.getDate())) {
-        dateMap.get(camtTransaction.getDate()).add(camtTransaction);
+    for (Transaction transaction : source) {
+      if (dateMap.containsKey(transaction.getDate())) {
+        dateMap.get(transaction.getDate()).add(transaction);
       } else {
-        List<Transaction> list = new ArrayList<>();
-        list.add(camtTransaction);
-        dateMap.put(camtTransaction.getDate(), list);
+        dateMap.put(transaction.getDate(), List.of(transaction));
       }
     }
     return dateMap;
@@ -353,8 +350,7 @@ public class Camt {
     }
 
     public void setOtherParty(String otherParty) {
-      this.otherParty
-          = otherParty;
+      this.otherParty = otherParty;
     }
 
     public void setIban(String iban) {
@@ -373,58 +369,64 @@ public class Camt {
       this.info = info;
     }
 
-    public Set<Pair<ListType, String>> getSelectedFields(Set<ListType> listTypes) {
-      Set<Pair<ListType, String>> resultSet = new HashSet<>();
-      for (ListType listType : listTypes) {
-        switch (listType) {
+    public Set<Pair<TransactionField, String>> getAsPairSet() {
+      return getSelectedFields(Set.of(TransactionField.values()));
+    }
+
+    public Set<Pair<TransactionField, String>> getSelectedFields(
+        Set<TransactionField> selectedFields) {
+      Set<Pair<TransactionField, String>> resultSet = new HashSet<>();
+      for (TransactionField transactionField : selectedFields) {
+        switch (transactionField) {
 
           case ACCOUNT_IBAN:
-            resultSet.add(new Pair<>(listType, getAccountIban()));
+            resultSet.add(new Pair<>(transactionField, getAccountIban()));
             break;
           case TRANSFER_DATE:
-            resultSet.add(new Pair<>(listType, Utility.dateFormatter.format(getDate())));
+            resultSet.add(new Pair<>(transactionField, Utility.dateFormatter.format(getDate())));
             break;
           case VALIDATION_DATE:
-            resultSet.add(new Pair<>(listType, Utility.dateFormatter.format(getValidationDate())));
+            resultSet.add(
+                new Pair<>(transactionField, Utility.dateFormatter.format(getValidationDate())));
             break;
           case TRANSFER_SPECIFICATION:
-            resultSet.add(new Pair<>(listType, getTransferSpecification()));
+            resultSet.add(new Pair<>(transactionField, getTransferSpecification()));
             break;
           case USAGE:
-            resultSet.add(new Pair<>(listType, getUsage()));
+            resultSet.add(new Pair<>(transactionField, getUsage()));
             break;
           case CREDITOR_ID:
-            resultSet.add(new Pair<>(listType, getCreditorId()));
+            resultSet.add(new Pair<>(transactionField, getCreditorId()));
             break;
           case MANDATE_REFERENCE:
-            resultSet.add(new Pair<>(listType, getMandateReference()));
+            resultSet.add(new Pair<>(transactionField, getMandateReference()));
             break;
           case CUSTOMER_REFERENCE_END_TO_END:
-            resultSet.add(new Pair<>(listType, getCustomerReference()));
+            resultSet.add(new Pair<>(transactionField, getCustomerReference()));
             break;
           case COLLECTION_REFERENCE:
-            resultSet.add(new Pair<>(listType, getCollectionReference()));
+            resultSet.add(new Pair<>(transactionField, getCollectionReference()));
             break;
           case DEBIT_ORIGINAL_AMOUNT:
-            resultSet.add(new Pair<>(listType, getDebitOriginalAmount()));
+            resultSet.add(new Pair<>(transactionField, getDebitOriginalAmount()));
             break;
           case BACK_DEBIT:
-            resultSet.add(new Pair<>(listType, getBackDebit()));
+            resultSet.add(new Pair<>(transactionField, getBackDebit()));
             break;
           case OTHER_PARTY:
-            resultSet.add(new Pair<>(listType, getOtherParty()));
+            resultSet.add(new Pair<>(transactionField, getOtherParty()));
             break;
           case IBAN:
-            resultSet.add(new Pair<>(listType, getIban()));
+            resultSet.add(new Pair<>(transactionField, getIban()));
             break;
           case BIC:
-            resultSet.add(new Pair<>(listType, getBic()));
+            resultSet.add(new Pair<>(transactionField, getBic()));
             break;
           case AMOUNT:
-            resultSet.add(new Pair<>(listType, getMoneyAmount().toString()));
+            resultSet.add(new Pair<>(transactionField, getMoneyAmount().toString()));
             break;
           case INFO:
-            resultSet.add(new Pair<>(listType, getInfo()));
+            resultSet.add(new Pair<>(transactionField, getInfo()));
             break;
         }
       }

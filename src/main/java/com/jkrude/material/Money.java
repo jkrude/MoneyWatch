@@ -124,9 +124,9 @@ public class Money implements Comparable<Money>{
     return new Money(a.currency, c);
   }
 
-  public static Money sum(List<Camt.Transaction> camtEntries) {
+  public static Money sum(List<TransactionContainer.Transaction> transactions) {
     Money total = new Money();
-    camtEntries.forEach(camtTransaction -> total.add(camtTransaction.getMoneyAmount()));
+    transactions.forEach(transaction -> total.add(transaction.getMoneyAmount()));
     return total;
   }
 

@@ -1,9 +1,8 @@
 package com.jkrude.material.UI;
 
 import com.jkrude.material.AlertBox;
-import com.jkrude.material.Camt;
-import com.jkrude.material.Camt.ListType;
 import com.jkrude.material.Rule;
+import com.jkrude.material.TransactionContainer.TransactionField;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +27,8 @@ import javafx.util.Pair;
 public class RuleDialog {
 
   private Rule generatedRule;
-  private final ObservableList<ListType> typeChoiceList = FXCollections
-      .observableArrayList(Camt.ListType.values());
+  private final ObservableList<TransactionField> typeChoiceList = FXCollections
+      .observableArrayList(TransactionField.values());
   Dialog<Rule> internalDialog;
   ListView<CustomHBox> listView;
 
@@ -62,7 +61,7 @@ public class RuleDialog {
 
   }
 
-  public Optional<Rule> editRuleShowAndWait(Set<Pair<ListType, String>> idPairs) {
+  public Optional<Rule> editRuleShowAndWait(Set<Pair<TransactionField, String>> idPairs) {
     fillListFromRule(idPairs);
     return internalDialog.showAndWait();
   }
@@ -77,24 +76,24 @@ public class RuleDialog {
   }
 
   private void fillList(ListView<CustomHBox> listView) {
-    for (ListType type : typeChoiceList) {
+    for (TransactionField type : typeChoiceList) {
       listView.getItems().add(new CustomHBox(type));
     }
   }
 
-  private void fillListFromRule(Set<Pair<ListType, String>> idPairs) {
-    Map<ListType, CustomHBox> map = new HashMap<>();
+  private void fillListFromRule(Set<Pair<TransactionField, String>> idPairs) {
+    Map<TransactionField, CustomHBox> map = new HashMap<>();
     idPairs.forEach(
         pair -> map.put(pair.getKey(), new CustomHBox(pair.getKey(), pair.getValue()))
     );
 
-    for (ListType type : typeChoiceList) {
+    for (TransactionField type : typeChoiceList) {
       listView.getItems().add(map.getOrDefault(type, new CustomHBox(type)));
     }
   }
 
   private boolean validateAndGenerate(ListView<CustomHBox> listView) {
-    Set<Pair<ListType, String>> generatingSet =
+    Set<Pair<TransactionField, String>> generatingSet =
         listView.getItems().stream()
             .filter(box -> !box.checkBox.isDisabled())
             .filter(box -> box.checkBox.isSelected())
@@ -134,14 +133,14 @@ public class RuleDialog {
   private static class CustomHBox extends HBox {
 
     public CheckBox checkBox;
-    public ListType type;
+    public TransactionField type;
     public Label typeLabel;
     public TextField textField;
 
     private CustomHBox() {
     }
 
-    public CustomHBox(ListType type) {
+    public CustomHBox(TransactionField type) {
       super(10); // Spacing
       this.type = type;
       checkBox = new CheckBox();
@@ -154,13 +153,13 @@ public class RuleDialog {
       getChildren().addAll(checkBox, typeLabel, textField);
     }
 
-    public CustomHBox(ListType key, String value) {
+    public CustomHBox(TransactionField key, String value) {
       this(key);
       textField.setText(value);
       checkBox.setSelected(true);
     }
 
-    private String getTextHint(ListType type) {
+    private String getTextHint(TransactionField type) {
       switch (type) {
         case ACCOUNT_IBAN:
         case IBAN:

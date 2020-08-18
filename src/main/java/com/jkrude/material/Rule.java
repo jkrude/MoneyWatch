@@ -1,7 +1,7 @@
 package com.jkrude.material;
 
-import com.jkrude.material.Camt.ListType;
-import com.jkrude.material.Camt.Transaction;
+import com.jkrude.material.TransactionContainer.Transaction;
+import com.jkrude.material.TransactionContainer.TransactionField;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
@@ -18,7 +18,7 @@ import javafx.util.Pair;
 public class Rule {
 
   private final Predicate<Transaction> predicate;
-  private final SetProperty<Pair<ListType, String>> identifierPairs;
+  private final SetProperty<Pair<TransactionField, String>> identifierPairs;
   private StringProperty note;
 
   @Override
@@ -41,7 +41,7 @@ public class Rule {
 
   // Rules should only be constructed with the RuleFactory
   private Rule(Predicate<Transaction> predicate,
-      SetProperty<Pair<ListType, String>> identifierPairs,
+      SetProperty<Pair<TransactionField, String>> identifierPairs,
       StringProperty note) {
     this.predicate = predicate;
     this.identifierPairs = identifierPairs;
@@ -56,7 +56,7 @@ public class Rule {
     return note.get();
   }
 
-  public Set<Pair<ListType, String>> getIdentifierPairs() {
+  public Set<Pair<TransactionField, String>> getIdentifierPairs() {
     return identifierPairs.get();
   }
 
@@ -68,112 +68,113 @@ public class Rule {
   public static class RuleFactory {
 
     // Wrap note and call next wrapper
-    public static Rule generate(Pair<ListType, String> pair, String note)
+    public static Rule generate(Pair<TransactionField, String> pair, String note)
         throws ParseException, NumberFormatException {
-      SetProperty<Pair<ListType, String>> container = new SimpleSetProperty<>(
+      SetProperty<Pair<TransactionField, String>> container = new SimpleSetProperty<>(
           FXCollections.observableSet(new HashSet<>()));
       container.add(pair);
       return generate(container, new SimpleStringProperty(note));
     }
 
     // Wrap pair
-    public static Rule generate(Pair<ListType, String> pair, StringProperty note)
+    public static Rule generate(Pair<TransactionField, String> pair, StringProperty note)
         throws ParseException, NumberFormatException {
-      SetProperty<Pair<ListType, String>> container = new SimpleSetProperty<>(
+      SetProperty<Pair<TransactionField, String>> container = new SimpleSetProperty<>(
           FXCollections.observableSet(new HashSet<>()));
       container.add(pair);
       return generate(container, note);
     }
 
     // Wrap set and note
-    public static Rule generate(Set<Pair<ListType, String>> container, String note)
+    public static Rule generate(Set<Pair<TransactionField, String>> container, String note)
         throws ParseException, NumberFormatException {
-      SetProperty<Pair<ListType, String>> pairsProperty = new SimpleSetProperty<>(
+      SetProperty<Pair<TransactionField, String>> pairsProperty = new SimpleSetProperty<>(
           FXCollections.observableSet(container));
       StringProperty stringProperty = new SimpleStringProperty(note);
       return generate(pairsProperty, stringProperty);
     }
 
     // Real generator
-    public static Rule generate(SetProperty<Pair<ListType, String>> container, StringProperty note)
+    public static Rule generate(SetProperty<Pair<TransactionField, String>> container,
+        StringProperty note)
         throws ParseException, NumberFormatException {
       if (container.isEmpty()) {
         throw new IllegalArgumentException("No Qualifier");
       }
-      Predicate<Transaction> concatPred = camtTransaction -> true;
-      for (Pair<ListType, String> pair : container) {
+      Predicate<Transaction> concatPred = transaction -> true;
+      for (Pair<TransactionField, String> pair : container) {
 
         Predicate<Transaction> innerPredicate;
         switch (pair.getKey()) {
           case ACCOUNT_IBAN:
-            innerPredicate = camtTransaction -> camtTransaction.getAccountIban()
+            innerPredicate = transaction -> transaction.getAccountIban()
                 .equals(pair.getValue());
             break;
           case TRANSFER_DATE:
             Date date = Utility.dateFormatter.parse(pair.getValue());
-            innerPredicate = camtTransaction -> camtTransaction.getDate().equals(date);
+            innerPredicate = transaction -> transaction.getDate().equals(date);
             break;
           case VALIDATION_DATE:
             Date valDate = Utility.dateFormatter.parse(pair.getValue());
-            innerPredicate = camtTransaction -> camtTransaction.getValidationDate().equals(valDate);
+            innerPredicate = transaction -> transaction.getValidationDate().equals(valDate);
             break;
           case TRANSFER_SPECIFICATION:
-            innerPredicate = camtTransaction -> camtTransaction
+            innerPredicate = transaction -> transaction
                 .getTransferSpecification()
                 .equals(pair.getValue());
             break;
           case USAGE:
-            innerPredicate = camtTransaction -> camtTransaction.getUsage()
+            innerPredicate = transaction -> transaction.getUsage()
                 .toLowerCase()
                 .contains(pair.getValue().toLowerCase());
             break;
           case CREDITOR_ID:
-            innerPredicate = camtTransaction -> camtTransaction.getCreditorId()
+            innerPredicate = transaction -> transaction.getCreditorId()
                 .equals(pair.getValue());
             break;
           case MANDATE_REFERENCE:
-            innerPredicate = camtTransaction -> camtTransaction.getMandateReference()
+            innerPredicate = transaction -> transaction.getMandateReference()
                 .equals(pair.getValue());
             break;
           case CUSTOMER_REFERENCE_END_TO_END:
-            innerPredicate = camtTransaction -> camtTransaction
+            innerPredicate = transaction -> transaction
                 .getCustomerReference()
                 .equals(pair.getValue());
             break;
           case COLLECTION_REFERENCE:
-            innerPredicate = camtTransaction -> camtTransaction
+            innerPredicate = transaction -> transaction
                 .getCollectionReference()
                 .equals(pair.getValue());
             break;
           case DEBIT_ORIGINAL_AMOUNT:
-            innerPredicate = camtTransaction -> camtTransaction
+            innerPredicate = transaction -> transaction
                 .getDebitOriginalAmount()
                 .equals(pair.getValue());
             break;
           case BACK_DEBIT:
-            innerPredicate = camtTransaction -> camtTransaction.getBackDebit()
+            innerPredicate = transaction -> transaction.getBackDebit()
                 .equals(pair.getValue());
             break;
           case OTHER_PARTY:
-            innerPredicate = camtTransaction -> camtTransaction.getOtherParty()
+            innerPredicate = transaction -> transaction.getOtherParty()
                 .toLowerCase()
                 .contains(pair.getValue().toLowerCase());
             break;
           case IBAN:
-            innerPredicate = camtTransaction -> camtTransaction.getIban()
+            innerPredicate = transaction -> transaction.getIban()
                 .equals(pair.getValue());
             break;
           case BIC:
-            innerPredicate = camtTransaction -> camtTransaction.getBic()
+            innerPredicate = transaction -> transaction.getBic()
                 .equals(pair.getValue());
             break;
           case AMOUNT:
             Money amount = new Money(pair.getValue());
-            innerPredicate = camtTransaction -> camtTransaction.getMoneyAmount()
+            innerPredicate = transaction -> transaction.getMoneyAmount()
                 .equals(amount);
             break;
           case INFO:
-            innerPredicate = camtTransaction -> camtTransaction.getInfo()
+            innerPredicate = transaction -> transaction.getInfo()
                 .equals(pair.getValue());
             break;
           default:
