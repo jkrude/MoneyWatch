@@ -44,7 +44,7 @@
                 <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="100.0">
                   <children>
                     <Label fx:id="categoryNameLabel" alignment="CENTER" contentDisplay="CENTER"
-                      prefHeight="80.0" text="Kategoriename" textAlignment="CENTER">
+                      prefHeight="80.0" text="Category name" textAlignment="CENTER">
                       <padding>
                         <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
                       </padding>
@@ -52,7 +52,7 @@
                         <Font name="System Bold" size="24.0"/>
                       </font>
                     </Label>
-                    <Button fx:id="ruleBtn" mnemonicParsing="false" text="Hinzufügen"
+                    <Button fx:id="ruleBtn" mnemonicParsing="false" text="Create new rule"
                       onAction="#newRuleDialog"/>
                   </children>
                   <padding>

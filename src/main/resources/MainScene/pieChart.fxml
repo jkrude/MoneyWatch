@@ -24,7 +24,8 @@
                <children>
                   <ButtonBar prefHeight="26.0" prefWidth="1280.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0">
                      <buttons>
-                        <Button contentDisplay="CENTER" mnemonicParsing="false" text="Datenauswahl"
+                        <Button contentDisplay="CENTER" mnemonicParsing="false"
+                          text="Data selection"
                           onAction="#changeDataSource"/>
                         <Button fx:id="backBtn" mnemonicParsing="false" text="Back" ButtonBar.buttonData="LEFT" />
                         <Button mnemonicParsing="false" onAction="#goToCategories" text="Categories" ButtonBar.buttonData="RIGHT" />

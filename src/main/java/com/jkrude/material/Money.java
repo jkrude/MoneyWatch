@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
 
@@ -59,10 +60,11 @@ public class Money implements Comparable<Money>{
   }
 
   public Money(String val) throws NumberFormatException {
-    var splitted = val.split(",");
-    var currencies = Currency.getAvailableCurrencies();
-    var codes = currencies.stream().map(Currency::getCurrencyCode).collect(Collectors.toList());
-    var symbols = currencies.stream().map(curr -> new Pair<>(curr, curr.getSymbol()))
+    Set<Currency> currencies = Currency.getAvailableCurrencies();
+    List<String> codes = currencies.stream().map(Currency::getCurrencyCode)
+        .collect(Collectors.toList());
+    List<Pair<Currency, String>> symbols = currencies.stream()
+        .map(curr -> new Pair<>(curr, curr.getSymbol()))
         .collect(Collectors.toList());
     for (String code : codes) {
       if (val.contains(code)) {

@@ -53,8 +53,8 @@ public class StartController extends Controller {
       return;
     } else if (!file.canRead()) {
       AlertBox
-          .showAlert("Error", "Fehler beim Import.",
-              "Datei konnte nicht geöffnet werden.", AlertType.ERROR);
+          .showAlert("Error", "Import failed.",
+              "File couldn't not be opened.", AlertType.ERROR);
     }
     TransactionContainer transactionContainer;
     try {
@@ -80,8 +80,8 @@ public class StartController extends Controller {
   public void goToPieChart(ActionEvent actionEvent) {
     if (Model.getInstance().getTransactionContainerList() == null || Model.getInstance()
         .getTransactionContainerList().isEmpty()) {
-      AlertBox.showAlert("Daten benötigt!", "Noch keine CSV Dateien geladen.",
-          "Wähle im Hauptmenü: Open File",
+      AlertBox.showAlert("Data required!", "No CSV-Data was loaded.",
+          "Choose: Main-Menu-> Open File",
           AlertType.ERROR);
     } else {
       Main.goTo(UsableScene.PIECHART);
@@ -91,8 +91,8 @@ public class StartController extends Controller {
   public void goToMonthOverview(ActionEvent actionEvent) {
     if (Model.getInstance().getTransactionContainerList() == null || Model.getInstance()
         .getTransactionContainerList().isEmpty()) {
-      AlertBox.showAlert("Daten benötigt!", "Noch keine CSV Dateien geladen.",
-          "Wähle im Hauptmenü: Open File",
+      AlertBox.showAlert("Data required!", "No CSV-Data was loaded.",
+          "Choose: Main-Menu-> Open File",
           AlertType.ERROR);
     } else {
       Main.goTo(UsableScene.TIMELINE);

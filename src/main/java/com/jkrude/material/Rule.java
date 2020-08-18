@@ -179,7 +179,7 @@ public class Rule {
             break;
           default:
             throw new IllegalArgumentException(
-                "Unkown qualifier for rule creation: " + pair.getKey());
+                "Unknown qualifier for rule creation: " + pair.getKey());
         }
         concatPred = concatPred.and(innerPredicate);
       }

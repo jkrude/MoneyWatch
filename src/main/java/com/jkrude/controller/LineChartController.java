@@ -28,7 +28,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
 
-public class LineChartController extends DataDependingControlller {
+public class LineChartController extends DataDependingController {
 
   @FXML
   private LineChart<Number, Number> lineChart;

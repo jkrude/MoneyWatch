@@ -40,7 +40,7 @@ import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
 import javafx.util.Pair;
 
-public class PieChartController extends DataDependingControlller {
+public class PieChartController extends DataDependingController {
 
   private boolean populatedChart = false;
   private boolean isInvalidated = false;
@@ -50,7 +50,7 @@ public class PieChartController extends DataDependingControlller {
   private Map<String, ObservableList<Transaction>> negEntryLookup;
   private Map<String, ObservableList<Transaction>> posEntryLookup;
   // The default name for the slice for transactions without matching rule
-  public static final String UNMATCHED_TRANSACTIONS = "Undefiniert";
+  public static final String UNMATCHED_TRANSACTIONS = "Undefined";
 
   private ObservableList<PieChart.Data> posChartData;
   private ObservableList<PieChart.Data> negChartData;
@@ -122,7 +122,7 @@ public class PieChartController extends DataDependingControlller {
   @FXML
   private void changeDataSource() {
     if (Model.getInstance().getTransactionContainerList().isEmpty()) {
-      AlertBox.showAlert("Keine Auswahl möglich", "Keine CSV-Datein geladen", "", AlertType.ERROR);
+      AlertBox.showAlert("No selection possible!", "No CSV-Files loaded", "", AlertType.ERROR);
     } else {
       Optional<TransactionContainer> result = SourceChoiceDialog
           .showAndWait(Model.getInstance().getTransactionContainerList());
@@ -247,7 +247,7 @@ public class PieChartController extends DataDependingControlller {
     // IMPORTANT: The transaction will only be evaluated when the contextmenu is shown.
     // Otherwise (if the Transaction would be given at row creation) it would be null.
     ContextMenu contextMenu = new ContextMenu();
-    Menu categoryChoices = new Menu("Als Regel hinzufügen");
+    Menu categoryChoices = new Menu("Add as rule");
     for (PieCategory category : Model.getInstance().getProfile().getPieCategories()) {
       MenuItem menuItem = new MenuItem(category.getName().get());
       menuItem.setOnAction(event -> openRuleDialogAndSave(row.getItem(), category));

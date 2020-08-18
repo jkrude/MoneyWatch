@@ -22,6 +22,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Font;
 
 
 public class CategoryEditorController extends Controller {
@@ -137,9 +138,9 @@ public class CategoryEditorController extends Controller {
   }
 
   private void newNameDialog(ListCell<PieCategory> cell) {
-    TextInputDialog textInputDialog = new TextInputDialog("Neuer Name");
+    TextInputDialog textInputDialog = new TextInputDialog("New name");
     textInputDialog.setHeaderText("");
-    textInputDialog.setTitle("Ändere hier den Namen");
+    textInputDialog.setTitle("Change the name here");
     textInputDialog.getEditor().setText(cell.getItem().getName().get());
     Optional<String> result = textInputDialog.showAndWait();
     if (result.isPresent()) {
@@ -148,7 +149,7 @@ public class CategoryEditorController extends Controller {
         newNameDialog(cell);
       } else if (!cell.getItem().getName().get()
           .equals(result.get())) {
-        // Binded biderectional
+        // Binded bidirectional
         cell.getItem().getName().set(result.get());
       }
     }
@@ -156,9 +157,9 @@ public class CategoryEditorController extends Controller {
 
   private ContextMenu getCMForRuleLVCell(ListCell<Rule> cell) {
     ContextMenu contextMenu = new ContextMenu();
-    MenuItem mIEdit = new MenuItem("Bearbeiten");
+    MenuItem mIEdit = new MenuItem("Edit");
     mIEdit.setOnAction(event -> editRuleDialog(cell));
-    MenuItem mIDelete = new MenuItem("Löschen");
+    MenuItem mIDelete = new MenuItem("Remove");
     mIDelete.setOnAction(event -> cell.getListView().getItems().remove(cell.getItem()));
     contextMenu.getItems().addAll(mIEdit, mIDelete);
     return contextMenu;
@@ -177,11 +178,11 @@ public class CategoryEditorController extends Controller {
   }
 
   private void showAlertForExistingRule() {
-    AlertBox.showAlert("Fehler", "Regel existiert schon", "", AlertType.ERROR);
+    AlertBox.showAlert("Error!", "Rule already exists", "", AlertType.ERROR);
   }
 
   private void showAlertForEmptyInput() {
-    AlertBox.showAlert("Fehlerhafte Eingabe", "Der Eingegebene Name ist leer", "",
+    AlertBox.showAlert("Incorrect input!", "The name can not be empty", "",
         AlertType.INFORMATION);
   }
 
@@ -193,6 +194,7 @@ public class CategoryEditorController extends Controller {
 
     public RuleCell() {
       super();
+      label.setFont(Font.font("Libre Sans", 14));
       hbox.getChildren().addAll(label, pane);
       HBox.setHgrow(pane, Priority.ALWAYS);
     }

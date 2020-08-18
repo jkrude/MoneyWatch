@@ -7,7 +7,7 @@ import com.jkrude.material.UI.SourceChoiceDialog;
 import java.util.Optional;
 import javafx.scene.control.Alert.AlertType;
 
-public abstract class DataDependingControlller extends Controller {
+public abstract class DataDependingController extends Controller {
 
   protected TransactionContainer transactions;
 
@@ -32,7 +32,7 @@ public abstract class DataDependingControlller extends Controller {
   }
 
   protected void returnAfterChoiceDialogError() {
-    AlertBox.showAlert("Fehlender Datensatz", "Bitte wähle im Dialog einen Datensatz", "",
+    AlertBox.showAlert("Missing dataset", "Please select a dataset", "",
         AlertType.ERROR);
     forceSourceChoiceDialog();
   }

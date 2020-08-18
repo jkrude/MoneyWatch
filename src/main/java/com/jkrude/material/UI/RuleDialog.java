@@ -34,7 +34,7 @@ public class RuleDialog {
 
   public RuleDialog() {
     internalDialog = new Dialog<>();
-    internalDialog.setTitle("Regel-Editor");
+    internalDialog.setTitle("Rule-Editor");
     internalDialog.setHeaderText(null);
     listView = new ListView<>();
     listView.prefWidthProperty().bind(internalDialog.getDialogPane().widthProperty());
@@ -101,9 +101,9 @@ public class RuleDialog {
             .collect(Collectors.toSet());
     if (generatingSet.isEmpty()) {
       AlertBox.showAlert(
-          "Keine Eingabe!",
-          "Mindestens ein Feld muss ausgewählt und aktiv sein.",
-          "Um den Dialog zu schließen klicken Sie <Cancel>.",
+          "No input!",
+          "At least one field must not be empty and checked.",
+          "To close this dialog press Cancel.",
           AlertType.WARNING
       );
       return false;
@@ -115,15 +115,15 @@ public class RuleDialog {
     } catch (ParseException e) {
       AlertBox
           .showAlert(
-              "Fehlerhafte eingabe!",
-              "Eine Eingabe hat nicht dem Format entsprochen",
+              "Incorrect input!",
+              "An entry did not match the format",
               "",
               AlertType.WARNING);
       return false;
     } catch (NumberFormatException e) {
       AlertBox.showAlert(
-          "Fehlerhafte Eingabe!",
-          "Der Geldbetrag hat nicht dem Format XX.XX oder einer Ganzzahl entsprochen",
+          "Incorrect input!",
+          "The amount did not match the format (X / X.Y / Z EUR / Z €)",
           "",
           AlertType.WARNING);
       return false;
@@ -168,9 +168,9 @@ public class RuleDialog {
         case VALIDATION_DATE:
           return "01.01.1980";
         case TRANSFER_SPECIFICATION:
-          return "Kartenzahlung";
+          return "Card payment";
         case USAGE:
-          return "Spesen";
+          return "Expenses";
         case CREDITOR_ID:
           return "DE31ZZZ00000563123";
         case MANDATE_REFERENCE:
@@ -190,7 +190,7 @@ public class RuleDialog {
         case AMOUNT:
           return "10,01€";
         case INFO:
-          return "Umsatz gebucht";
+          return "Sales posted";
       }
       throw new IllegalArgumentException();
     }
