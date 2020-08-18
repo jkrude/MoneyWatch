@@ -2,6 +2,7 @@ package com.jkrude.material;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -99,7 +100,7 @@ public class TransactionContainer {
       if (dateMap.containsKey(transaction.getDate())) {
         dateMap.get(transaction.getDate()).add(transaction);
       } else {
-        dateMap.put(transaction.getDate(), List.of(transaction));
+        dateMap.put(transaction.getDate(), new ArrayList<>(List.of(transaction))); // modifiable
       }
     }
     return dateMap;
