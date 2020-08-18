@@ -5,6 +5,8 @@ import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import javafx.util.Pair;
 
 public class Money implements Comparable<Money>{
 
@@ -57,6 +59,29 @@ public class Money implements Comparable<Money>{
   }
 
   public Money(String val) throws NumberFormatException {
+    var splitted = val.split(",");
+    var currencies = Currency.getAvailableCurrencies();
+    var codes = currencies.stream().map(Currency::getCurrencyCode).collect(Collectors.toList());
+    var symbols = currencies.stream().map(curr -> new Pair<>(curr, curr.getSymbol()))
+        .collect(Collectors.toList());
+    for (String code : codes) {
+      if (val.contains(code)) {
+        this.currency = Currency.getInstance(code);
+        String num = val.replaceAll("[^-?0-9.]", "");
+        this.amount = scaleToTwo(new BigDecimal(num));
+        return;
+
+      }
+    }
+    for (Pair<Currency, String> symPair : symbols) {
+      if (val.contains(symPair.getValue())) {
+        this.currency = symPair.getKey();
+        String num = val.replaceAll("[^-?0-9.]", "");
+        this.amount = scaleToTwo(new BigDecimal(num));
+        return;
+
+      }
+    }
     this.currency = EURO;
     this.amount = scaleToTwo(new BigDecimal(val));
   }
@@ -158,6 +183,10 @@ public class Money implements Comparable<Money>{
 
   public void setAmount(int val) {
     this.amount = scaleToTwo(new BigDecimal(val));
+  }
+
+  public final Currency getCurrency() {
+    return currency;
   }
 
 }
