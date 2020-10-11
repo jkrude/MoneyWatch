@@ -1,0 +1,67 @@
+{
+  "categories": [
+    {
+      "parent": "null",
+      "name": "debits",
+      "ids": []
+    },
+    {
+      "parent": "debits",
+      "name": "Joy",
+      "ids": []
+    },
+    {
+      "parent": "Joy",
+      "name": "Cinema",
+      "ids": [
+        {
+          "value": "Schauburg",
+          "key": "Verwendungszweck"
+        }
+      ]
+    },
+    {
+      "parent": "Joy",
+      "name": "Travel",
+      "ids": [
+        {
+          "value": "FLIXBUS",
+          "key": "Verwendungszweck"
+        },
+        {
+          "value": "Ihr Einkauf bei BVG",
+          "key": "Verwendungszweck"
+        }
+      ]
+    },
+    {
+      "parent": "debits",
+      "name": "Necessaries",
+      "ids": []
+    },
+    {
+      "parent": "Necessaries",
+      "name": "Food",
+      "ids": [
+        {
+          "value": "DE68750200730008472092",
+          "key": "Kontonummer\/IBAN"
+        },
+        {
+          "value": "DE85120800000101752405",
+          "key": "Kontonummer\/IBAN"
+        }
+      ]
+    },
+    {
+      "parent": "Necessaries",
+      "name": "Rent",
+      "ids": [
+        {
+          "value": "Maximilian Walther",
+          "key": "Beguenstigter\/Zahlungspflichtiger"
+        }
+      ]
+    }
+  ]
+}
