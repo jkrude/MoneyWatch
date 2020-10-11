@@ -1,7 +1,7 @@
 package com.jkrude.material.UI;
 
+import com.jkrude.category.Rule;
 import com.jkrude.material.AlertBox;
-import com.jkrude.material.Rule;
 import com.jkrude.material.TransactionContainer.TransactionField;
 import java.text.ParseException;
 import java.util.HashMap;

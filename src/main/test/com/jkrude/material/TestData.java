@@ -1,5 +1,8 @@
 package com.jkrude.material;
 
+import com.jkrude.category.CategoryNode;
+import com.jkrude.category.Rule;
+import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.TransactionContainer.TransactionField;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -81,6 +84,33 @@ public class TestData {
           "DRESDEFF850",
           new Money(850.00),
           "Umsatz gebucht"));
+      entries.add(new Transaction(
+          simpleDateFormat.parse("03.02.20"),
+          "DE04100500006013719070",
+          simpleDateFormat.parse("03.02.20"),
+          "DAUERAUFTRAG",
+          "Miete + Internet Wachsbleichstrasse 47, Dresden",
+          "", "", "", "", "", "",
+          "Maximilian Walther",
+          "DE15200411550651304800",
+          "COBADEHD055",
+          new Money(-303.33),
+          "Umsatz gebucht"
+      ));
+      entries.add(new Transaction(
+          simpleDateFormat.parse("25.09.19"),
+          "DE04100500006013719070",
+          simpleDateFormat.parse("25.09.19"),
+          "KARTENZAHLUNG",
+          "2019-09-24T18:25 Debitk.1 2022-12",
+          "", "",
+          "6.50321626188772E+025", "", "", "",
+          "NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE",
+          "DE68750200730008472092",
+          "HYVEDEMM447",
+          new Money(-5.27),
+          "Umsatz gebucht"
+      ));
     } catch (ParseException e) {
       e.printStackTrace();
     }
@@ -96,38 +126,35 @@ public class TestData {
 
   public static Profile getProfile() {
     Profile profile = new Profile();
-
-    PieCategory categoryEating = new PieCategory("Essen");
-
+    CategoryNode root = new CategoryNode("debits");
+    CategoryNode joy = new CategoryNode("Joy");
+    CategoryNode necessaries = new CategoryNode("Necessaries");
+    CategoryNode cinema = new CategoryNode("Cinema");
+    CategoryNode food = new CategoryNode("Food");
+    CategoryNode travel = new CategoryNode("Travel");
+    CategoryNode rent = new CategoryNode("Rent");
+    root.addCategoryIfPossible(joy);
+    root.addCategoryIfPossible(necessaries);
+    joy.addCategoryIfPossible(cinema);
+    joy.addCategoryIfPossible(travel);
+    necessaries.addCategoryIfPossible(food);
+    necessaries.addCategoryIfPossible(rent);
     try {
-      categoryEating.addRule(Rule.RuleFactory.generate(new Pair<>(
-          TransactionField.OTHER_PARTY, "NETTO MARKEN-DISCOU//DRESDEN-FRIEDRICHS/DE"), "Netto"));
-      categoryEating.addRule(Rule.RuleFactory.generate(new Pair<>(
-          TransactionField.OTHER_PARTY, "DANKE, IHR LIDL//Dresden/DE"), "LIDL"));
-
-      profile.addCategory(categoryEating);
-
-      PieCategory categoryLiving = new PieCategory("Leben");
-
-      categoryLiving.addRule(Rule.RuleFactory.generate(new Pair<>(
-          TransactionField.IBAN, "DE56800400000850447400"), "Max"));
-      categoryLiving.addRule(Rule.RuleFactory.generate(new Pair<>(
-          TransactionField.IBAN, "DE15200411550651304800"), "Marvin"));
-
-      profile.addCategory(categoryLiving);
-
-      PieCategory categoryTravel = new PieCategory("Reise");
-
-      categoryTravel.addRule(Rule.RuleFactory.generate(new Pair<>(
-          TransactionField.USAGE, "PP.7515.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS "
-      ), "Flixbus"));
-      profile.addCategory(categoryTravel);
+      cinema
+          .addRule(Rule.RuleFactory.generate(new Pair<>(TransactionField.USAGE, "Schauburg"), ""));
+      food.addRule(Rule.RuleFactory
+          .generate(new Pair<>(TransactionField.IBAN, "DE68750200730008472092"), "Netto"));
+      food.addRule(Rule.RuleFactory
+          .generate(new Pair<>(TransactionField.IBAN, "DE85120800000101752405"), "Bäckerei"));
+      travel.addRule(Rule.RuleFactory.generate(new Pair<>(TransactionField.USAGE, "FLIXBUS"), ""));
+      travel.addRule(
+          Rule.RuleFactory.generate(new Pair<>(TransactionField.USAGE, "Ihr Einkauf bei BVG"), ""));
+      rent.addRule(Rule.RuleFactory
+          .generate(new Pair<>(TransactionField.OTHER_PARTY, "Maximilian Walther"), ""));
     } catch (ParseException e) {
       e.printStackTrace();
     }
-    PieCategory categoryEmpty = new PieCategory("Empty");
-    profile.addCategory(categoryEmpty);
-
+    profile.setRootCategory(root);
     return profile;
   }
 }

@@ -84,7 +84,7 @@ public class StartController extends Controller {
           "Choose: Main-Menu-> Open File",
           AlertType.ERROR);
     } else {
-      Main.goTo(UsableScene.PIECHART);
+      Main.goTo(UsableScene.CATEGORY_EDITOR);
     }
   }
 

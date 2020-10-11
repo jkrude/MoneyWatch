@@ -22,10 +22,10 @@ public class Main extends Application {
         .getResource("/MainScene/start.fxml")),
     TIMELINE(Main.class
         .getResource("/MainScene/lineChart.fxml")),
-    PIECHART(Main.class
-        .getResource("/MainScene/pieChart.fxml")),
+    //PIECHART(Main.class
+    //    .getResource("/MainScene/pieChart.fxml")),
     CATEGORY_EDITOR(Main.class
-        .getResource("/MainScene/categoryEditor.fxml"));
+        .getResource("/MainScene/hierarchicalCategoryEditor.fxml"));
 
     private URL resourceURL;
 
@@ -39,6 +39,7 @@ public class Main extends Application {
   }
 
 
+  public static final URL persistenceFile = Main.class.getClassLoader().getResource("pers.json");
   private Model model;
   private static Map<UsableScene, Pair<Controller, Scene>> loadedFxmlFiles;
   private static Stack<Pair<Controller, Scene>> callStack;
@@ -49,8 +50,9 @@ public class Main extends Application {
   @Override
   public void start(Stage primaryStage) throws Exception {
     model = Model.getInstance();
-    model.setProfile(new Profile());
-    PersistenceManager.load(model);
+    Profile profile = new Profile();
+    PersistenceManager.load(profile, persistenceFile);
+    model.setProfile(profile);
     loadedFxmlFiles = new HashMap<>();
     callStack = new Stack<>();
 
@@ -76,7 +78,7 @@ public class Main extends Application {
   @Override
   public void stop() throws Exception {
     super.stop();
-    PersistenceManager.save(model);
+    PersistenceManager.save(model.getProfile(), persistenceFile);
   }
 
   public static void goTo(UsableScene scene, Stage stage) {
