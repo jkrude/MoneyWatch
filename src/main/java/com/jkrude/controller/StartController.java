@@ -23,6 +23,7 @@ public class StartController extends Controller {
   public Button goToPieChartBtn;
   public Button goToMonthOverviewBtn;
   public Button loadFileBtn;
+  public Button goToRuleEditor;
 
   @FXML
   public void initialize() {
@@ -97,5 +98,9 @@ public class StartController extends Controller {
     } else {
       Main.goTo(UsableScene.TIMELINE);
     }
+  }
+
+  public void goToRuleEditor(ActionEvent event) {
+    Main.goTo(UsableScene.CATEGORY_EDITOR);
   }
 }
