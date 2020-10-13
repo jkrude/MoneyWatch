@@ -1,6 +1,7 @@
 package com.jkrude.category;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -62,6 +63,10 @@ public class CategoryNode implements Observable {
   public CategoryNode(String name, List<Rule> leafs) {
     this(name);
     this.leafs.addAll(leafs);
+  }
+
+  public boolean addAllRules(Collection<Rule> rules) {
+    return leafs.addAll(rules);
   }
 
   public boolean addRule(Rule rule) {
@@ -136,7 +141,7 @@ public class CategoryNode implements Observable {
   }
 
   public Optional<CategoryNode> getParent() {
-    return parent == null ? Optional.empty() : Optional.of(parent);
+    return Optional.ofNullable(parent);
   }
 
   public boolean hasParent() {

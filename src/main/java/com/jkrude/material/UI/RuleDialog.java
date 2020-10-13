@@ -110,7 +110,7 @@ public class RuleDialog {
     }
     try {
       // TODO: Add note
-      generatedRule = Rule.RuleFactory.generate(generatingSet, "");
+      generatedRule = Rule.RuleBuilder.fromSet(generatingSet).build();
       return true;
     } catch (ParseException e) {
       AlertBox

@@ -2,6 +2,7 @@ package com.jkrude.material;
 
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
+import com.jkrude.category.Rule.RuleBuilder;
 import com.jkrude.material.TransactionContainer.TransactionField;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -79,13 +80,16 @@ public class PersistenceManager {
     }
   }
 
-  private static List<Rule> deserializeRules(JSONArray jIds) throws java.text.ParseException {
+  private static List<Rule> deserializeRules(JSONArray jIds, CategoryNode node)
+      throws java.text.ParseException {
     List<Rule> identifierList = new ArrayList<>();
     for (JSONObject jRule : (Iterable<JSONObject>) jIds) {
       String key = (String) jRule.get("key");
       TransactionField transactionField = TransactionField.get(key);
       String string = (String) jRule.get("value");
-      Rule rule = Rule.RuleFactory.generate(new Pair<>(transactionField, string), "");
+      Rule rule = RuleBuilder.fromPair(new Pair<>(transactionField, string))
+          .setParent(node)
+          .build();
       identifierList.add(rule);
     }
     return identifierList;
@@ -102,8 +106,8 @@ public class PersistenceManager {
 
     for (JSONObject jCategory : (Iterable<JSONObject>) categories) {
       String name = (String) jCategory.get("name");
-      List<Rule> rules = deserializeRules((JSONArray) jCategory.get("ids"));
-      CategoryNode node = new CategoryNode(name, rules);
+      CategoryNode node = new CategoryNode(name);
+      node.addAllRules(deserializeRules((JSONArray) jCategory.get("ids"), node));
       nodesAsNames.put(name, node);
       String parentAsString = (String) jCategory.get("parent");
       if (!parentAsString.equals("null")) {

@@ -141,16 +141,24 @@ public class TestData {
     necessaries.addCategoryIfPossible(rent);
     try {
       cinema
-          .addRule(Rule.RuleFactory.generate(new Pair<>(TransactionField.USAGE, "Schauburg"), ""));
-      food.addRule(Rule.RuleFactory
-          .generate(new Pair<>(TransactionField.IBAN, "DE68750200730008472092"), "Netto"));
-      food.addRule(Rule.RuleFactory
-          .generate(new Pair<>(TransactionField.IBAN, "DE85120800000101752405"), "Bäckerei"));
-      travel.addRule(Rule.RuleFactory.generate(new Pair<>(TransactionField.USAGE, "FLIXBUS"), ""));
-      travel.addRule(
-          Rule.RuleFactory.generate(new Pair<>(TransactionField.USAGE, "Ihr Einkauf bei BVG"), ""));
-      rent.addRule(Rule.RuleFactory
-          .generate(new Pair<>(TransactionField.OTHER_PARTY, "Maximilian Walther"), ""));
+          .addRule(Rule.RuleBuilder
+              .fromPair(new Pair<>(TransactionField.USAGE, "Schauburg"))
+              .build());
+      food.addRule(Rule.RuleBuilder
+          .fromPair(new Pair<>(TransactionField.IBAN, "DE68750200730008472092"))
+          .build());
+      food.addRule(Rule.RuleBuilder
+          .fromPair(new Pair<>(TransactionField.IBAN, "DE85120800000101752405"))
+          .build());
+      travel.addRule(Rule.RuleBuilder
+          .fromPair(new Pair<>(TransactionField.USAGE, "FLIXBUS"))
+          .build());
+      travel.addRule(Rule.RuleBuilder
+          .fromPair(new Pair<>(TransactionField.USAGE, "Ihr Einkauf bei BVG"))
+          .build());
+      rent.addRule(Rule.RuleBuilder
+          .fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Maximilian Walther"))
+          .build());
     } catch (ParseException e) {
       e.printStackTrace();
     }
