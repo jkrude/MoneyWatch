@@ -70,6 +70,7 @@ public class CategoryNode implements Observable {
   }
 
   public boolean addRule(Rule rule) {
+    rule.setParent(this);
     return leafs.add(rule);
   }
 

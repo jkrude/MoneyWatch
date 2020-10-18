@@ -5,9 +5,12 @@ import com.jkrude.category.Rule;
 import com.jkrude.main.Main;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Model;
+import com.jkrude.material.UI.RuleDialog;
 import java.util.Optional;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -40,19 +43,32 @@ public class HierarchicalCategoryEditor extends Controller {
   }
 
   private static TreeCell<TreeWrapper> cellFactory(TreeView<TreeWrapper> tree) {
-    return new TreeCell<>() {
+
+    TreeCell<TreeWrapper> cell = new TreeCell<>() {
       @Override
       public void updateItem(TreeWrapper item, boolean empty) {
         super.updateItem(item, empty);
         if (empty) {
-          setText(null);
           setContextMenu(null);
         } else {
-          setText(item.toString());
           setContextMenu(HierarchicalCategoryEditor.getContextMenu(this));
         }
       }
     };
+    cell.itemProperty().isNotNull().addListener(new ChangeListener<Boolean>() {
+      @Override
+      public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue,
+          Boolean newValue) {
+        if (newValue) {
+          cell.textProperty().bind(cell.itemProperty().get().stringProperty);
+        } else {
+          cell.textProperty().unbind();
+          cell.textProperty().set("");
+        }
+      }
+    });
+
+    return cell;
   }
 
   private static ContextMenu getContextMenu(TreeCell<TreeWrapper> cell) {
@@ -62,6 +78,10 @@ public class HierarchicalCategoryEditor extends Controller {
       MenuItem itemRename = new MenuItem("Rename");
       itemRename.setOnAction(event -> newNameDialog(cell));
       contextMenu.getItems().add(itemRename);
+    } else {
+      MenuItem itemEditRule = new MenuItem("Edit");
+      itemEditRule.setOnAction(event -> editRule(cell));
+      contextMenu.getItems().add(itemEditRule);
     }
     MenuItem itemDelete = new MenuItem("Delete");
     itemDelete.setOnAction(event -> removeFromTree(cell));
@@ -76,7 +96,6 @@ public class HierarchicalCategoryEditor extends Controller {
     item.getParent().getChildren().remove(item);
   }
 
-
   private static void newNameDialog(TreeCell<TreeWrapper> cell) {
     TextInputDialog textInputDialog = new TextInputDialog("New name");
     textInputDialog.setHeaderText("");
@@ -87,10 +106,8 @@ public class HierarchicalCategoryEditor extends Controller {
       if (result.get().isBlank()) {
         showAlertForEmptyInput();
         newNameDialog(cell);
-      } else if (!cell.getItem().toString().equals(result.get())) { //only rename if it is new name
-        //FIXME: graphic updates only after next click
+      } else if (!cell.getItem().toString().equals(result.get())) { // only rename if it is new name
         cell.getItem().renameNode(result.get());
-        cell.setText(cell.getItem().toString());
       }
     }
   }
@@ -98,6 +115,32 @@ public class HierarchicalCategoryEditor extends Controller {
   private static void showAlertForEmptyInput() {
     AlertBox.showAlert("Incorrect input!", "The name can not be empty", "",
         AlertType.INFORMATION);
+  }
+
+  private static void editRule(TreeCell<TreeWrapper> cell) {
+    Optional<Rule> optRule = editRuleDialog(cell.getItem().rule,
+        cell.getTreeView().getRoot().getValue().node);
+    optRule.ifPresent(rule -> cell.getItem().changeRule(rule));
+    int x = 1;
+    x++;
+  }
+
+  private static Optional<Rule> editRuleDialog(Rule rule, CategoryNode root) {
+    Optional<Rule> optRule = new RuleDialog().editRuleShowAndWait(rule);
+    if (optRule.isPresent() && !optRule.get().equals(rule)) {
+      Rule editedRule = optRule.get();
+      if (root.stream()
+          .flatMap(node -> node.leafsRO().stream())
+          .anyMatch(rule1 -> rule1.equals(editedRule))) {
+        showAlertForExistingRule();
+      }
+      return Optional.of(editedRule);
+    }
+    return Optional.empty();
+  }
+
+  private static void showAlertForExistingRule() {
+    AlertBox.showAlert("Error!", "Rule already exists", "", AlertType.ERROR);
   }
 
   private TreeItem<TreeWrapper> convertToTreeItems(CategoryNode rootNode) {
@@ -117,10 +160,8 @@ public class HierarchicalCategoryEditor extends Controller {
 
   private static class TreeWrapper {
 
-    private static long idCounter = 0;
-    private long id;
-    private final CategoryNode node;
-    private final Rule rule;
+    private CategoryNode node;
+    private Rule rule;
     private final StringProperty stringProperty;
 
     public static TreeItem<TreeWrapper> wrapCategory(CategoryNode node) {
@@ -136,14 +177,12 @@ public class HierarchicalCategoryEditor extends Controller {
       this.stringProperty = new SimpleStringProperty();
       this.stringProperty.bindBidirectional(node.nameProperty());
       this.rule = null;
-      this.id = ++idCounter;
     }
 
     private TreeWrapper(Rule rule) {
       this.rule = rule;
       this.stringProperty = new SimpleStringProperty(ruleAsString());
       this.node = null;
-      this.id = ++idCounter;
     }
 
     private String ruleAsString() {
@@ -179,5 +218,18 @@ public class HierarchicalCategoryEditor extends Controller {
         this.node.removeRule(value.rule);
       }
     }
+
+    public void changeRule(Rule newRule) {
+      assert !holdsNode();
+      if (this.rule.getParent().isPresent()) {
+        CategoryNode parent = this.rule.getParent().get();
+        parent.removeRule(this.rule);
+        parent.addRule(newRule);
+        newRule.setParent(parent);
+        this.rule = newRule;
+        this.stringProperty.set(ruleAsString());
+      }
+    }
+
   }
 }
