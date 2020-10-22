@@ -24,8 +24,6 @@ public class Main extends Application {
         .getResource("/MainScene/lineChart.fxml")),
     SUNBURST(Main.class
         .getResource("/MainScene/sunburstChart.fxml")),
-    //PIECHART(Main.class
-    //    .getResource("/MainScene/pieChart.fxml")),
     CATEGORY_EDITOR(Main.class
         .getResource("/MainScene/hierarchicalCategoryEditor.fxml"));
 
