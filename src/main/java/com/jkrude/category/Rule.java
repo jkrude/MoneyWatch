@@ -210,7 +210,9 @@ public class Rule {
       }
 
       public RuleBuilderWithRule addNote(String note) {
-        rule.note = new SimpleStringProperty(note);
+        if (note != null) {
+          rule.note = new SimpleStringProperty(note);
+        }
         return this;
       }
 

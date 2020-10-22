@@ -11,10 +11,12 @@ import java.net.URL;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.util.Pair;
@@ -46,7 +48,7 @@ public class PersistenceManager {
     JSONObject jCategory = new JSONObject();
     // TODO: name is primary key so duplicated should not be possible
     jCategory.put("name", categoryNode.getName());
-    jCategory.put("ids", serializeRules(categoryNode.leafsRO()));
+    jCategory.put("rules", serializeRules(categoryNode.leafsRO()));
     Optional<CategoryNode> optParent = categoryNode.getParent();
     String parentAsJson = optParent.map(CategoryNode::getName).orElse("null");
     jCategory.put("parent", parentAsJson);
@@ -54,16 +56,21 @@ public class PersistenceManager {
   }
 
   private static JSONArray serializeRules(ReadOnlyListWrapper<Rule> leafsRO) {
-    JSONArray jIds = new JSONArray();
+    JSONArray jRules = new JSONArray();
     for (Rule rule : leafsRO) {
+      JSONObject jRule = new JSONObject();
+      jRule.put("note", rule.getNote().orElseGet(() -> ""));
+      JSONArray jIds = new JSONArray();
       for (Pair<TransactionField, String> entry : rule.getIdentifierPairs()) {
-        JSONObject jRule = new JSONObject();
-        jRule.put("key", entry.getKey().toString());
-        jRule.put("value", entry.getValue());
-        jIds.add(jRule);
+        JSONObject jId = new JSONObject();
+        jId.put("key", entry.getKey().toString());
+        jId.put("value", entry.getValue());
+        jIds.add(jId);
       }
+      jRule.put("ids", jIds);
+      jRules.add(jRule);
     }
-    return jIds;
+    return jRules;
   }
 
   public static void load(Profile profile, URL fileUrl) {
@@ -80,19 +87,26 @@ public class PersistenceManager {
     }
   }
 
-  private static List<Rule> deserializeRules(JSONArray jIds, CategoryNode node)
+  private static List<Rule> deserializeRules(JSONArray jRules, CategoryNode node)
       throws java.text.ParseException {
-    List<Rule> identifierList = new ArrayList<>();
-    for (JSONObject jRule : (Iterable<JSONObject>) jIds) {
-      String key = (String) jRule.get("key");
-      TransactionField transactionField = TransactionField.get(key);
-      String string = (String) jRule.get("value");
-      Rule rule = RuleBuilder.fromPair(new Pair<>(transactionField, string))
+    List<Rule> rules = new ArrayList<>();
+    for (JSONObject jRule : (Iterable<JSONObject>) jRules) {
+      Set<Pair<TransactionField, String>> ids = new HashSet<>();
+      for (JSONObject jId : (Iterable<JSONObject>) jRule.get("ids")) {
+        String key = (String) jId.get("key");
+        TransactionField transactionField = TransactionField.get(key);
+        String string = (String) jId.get("value");
+        ids.add(new Pair<>(transactionField, string));
+      }
+      String note = (String) jRule.get("note");
+      note = note != null && note.isBlank() ? null : note;
+      Rule rule = RuleBuilder.fromSet(ids)
+          .addNote(note)
           .setParent(node)
           .build();
-      identifierList.add(rule);
+      rules.add(rule);
     }
-    return identifierList;
+    return rules;
   }
 
   private static CategoryNode deserializeCategories(JSONArray categories)
@@ -107,7 +121,7 @@ public class PersistenceManager {
     for (JSONObject jCategory : (Iterable<JSONObject>) categories) {
       String name = (String) jCategory.get("name");
       CategoryNode node = new CategoryNode(name);
-      node.addAllRules(deserializeRules((JSONArray) jCategory.get("ids"), node));
+      node.addAllRules(deserializeRules((JSONArray) jCategory.get("rules"), node));
       nodesAsNames.put(name, node);
       String parentAsString = (String) jCategory.get("parent");
       if (!parentAsString.equals("null")) {

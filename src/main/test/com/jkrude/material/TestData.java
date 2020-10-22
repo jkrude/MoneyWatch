@@ -6,6 +6,7 @@ import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.TransactionContainer.TransactionField;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Set;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
@@ -140,24 +141,27 @@ public class TestData {
     necessaries.addCategoryIfPossible(food);
     necessaries.addCategoryIfPossible(rent);
     try {
-      cinema
-          .addRule(Rule.RuleBuilder
-              .fromPair(new Pair<>(TransactionField.USAGE, "Schauburg"))
-              .build());
+      cinema.addRule(Rule.RuleBuilder
+          .fromPair(new Pair<>(TransactionField.USAGE, "Schauburg"))
+          .build());
       food.addRule(Rule.RuleBuilder
           .fromPair(new Pair<>(TransactionField.IBAN, "DE68750200730008472092"))
+          .addNote("Netto")
           .build());
       food.addRule(Rule.RuleBuilder
           .fromPair(new Pair<>(TransactionField.IBAN, "DE85120800000101752405"))
+          .addNote("Wiener Bäckerei")
           .build());
       travel.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(TransactionField.USAGE, "FLIXBUS"))
+          .fromSet(Set.of(new Pair<>(TransactionField.USAGE, "FLIXBUS"),
+              new Pair<>(TransactionField.OTHER_PARTY, "PayPal")))
           .build());
       travel.addRule(Rule.RuleBuilder
           .fromPair(new Pair<>(TransactionField.USAGE, "Ihr Einkauf bei BVG"))
           .build());
       rent.addRule(Rule.RuleBuilder
           .fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Maximilian Walther"))
+          .addNote("Miete")
           .build());
     } catch (ParseException e) {
       e.printStackTrace();

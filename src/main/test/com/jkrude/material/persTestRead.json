@@ -3,63 +3,97 @@
     {
       "parent": "null",
       "name": "debits",
-      "ids": []
+      "rules": []
     },
     {
       "parent": "debits",
       "name": "Joy",
-      "ids": []
+      "rules": []
     },
     {
       "parent": "Joy",
       "name": "Cinema",
-      "ids": [
+      "rules": [
         {
-          "value": "Schauburg",
-          "key": "Verwendungszweck"
+          "note": "",
+          "ids": [
+            {
+              "value": "Schauburg",
+              "key": "Verwendungszweck"
+            }
+          ]
         }
       ]
     },
     {
       "parent": "Joy",
       "name": "Travel",
-      "ids": [
+      "rules": [
         {
-          "value": "FLIXBUS",
-          "key": "Verwendungszweck"
+          "note": "",
+          "ids": [
+            {
+              "value": "FLIXBUS",
+              "key": "Verwendungszweck"
+            },
+            {
+              "value": "PayPal",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            }
+          ]
         },
         {
-          "value": "Ihr Einkauf bei BVG",
-          "key": "Verwendungszweck"
+          "note": "",
+          "ids": [
+            {
+              "value": "Ihr Einkauf bei BVG",
+              "key": "Verwendungszweck"
+            }
+          ]
         }
       ]
     },
     {
       "parent": "debits",
       "name": "Necessaries",
-      "ids": []
+      "rules": []
     },
     {
       "parent": "Necessaries",
       "name": "Food",
-      "ids": [
+      "rules": [
         {
-          "value": "DE68750200730008472092",
-          "key": "Kontonummer\/IBAN"
+          "note": "Netto",
+          "ids": [
+            {
+              "value": "DE68750200730008472092",
+              "key": "Kontonummer\/IBAN"
+            }
+          ]
         },
         {
-          "value": "DE85120800000101752405",
-          "key": "Kontonummer\/IBAN"
+          "note": "Wiener Bäckerei",
+          "ids": [
+            {
+              "value": "DE85120800000101752405",
+              "key": "Kontonummer\/IBAN"
+            }
+          ]
         }
       ]
     },
     {
       "parent": "Necessaries",
       "name": "Rent",
-      "ids": [
+      "rules": [
         {
-          "value": "Maximilian Walther",
-          "key": "Beguenstigter\/Zahlungspflichtiger"
+          "note": "Miete",
+          "ids": [
+            {
+              "value": "Maximilian Walther",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            }
+          ]
         }
       ]
     }
