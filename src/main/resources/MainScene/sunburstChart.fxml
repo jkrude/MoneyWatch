@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="720.0" prefWidth="1280.0"
+  xmlns="http://javafx.com/javafx/10.0.2-internal"
+  fx:controller="com.jkrude.controller.SunburstController">
+  <children>
+    <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+      AnchorPane.rightAnchor="0.0"
+      AnchorPane.topAnchor="0.0" prefHeight="720.0" prefWidth="1280.0">
+      <center>
+        <AnchorPane BorderPane.alignment="CENTER" fx:id="chartHoldingPane">
+
+        </AnchorPane>
+      </center>
+      <top>
+        <AnchorPane BorderPane.alignment="CENTER_LEFT">
+          <children>
+            <ButtonBar AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0"
+              AnchorPane.rightAnchor="16.0"
+              AnchorPane.topAnchor="16.0" prefHeight="26.0"
+              prefWidth="1280.0">
+              <buttons>
+                <Button contentDisplay="CENTER" mnemonicParsing="false"
+                  onAction="#changeDataSource"
+                  text="Data selection"/>
+                <Button ButtonBar.buttonData="LEFT" mnemonicParsing="false" onAction="#goBack"
+                  text="Back"
+                  fx:id="backBtn"/>
+                <Button ButtonBar.buttonData="RIGHT" mnemonicParsing="false"
+                  onAction="#goToCategories"
+                  text="Categories"/>
+                <ToggleButton ButtonBar.buttonData="OTHER" contentDisplay="CENTER"
+                  mnemonicParsing="false"
+                  text="Neg / Pos" textAlignment="CENTER" fx:id="negPosTglBtn"/>
+              </buttons>
+            </ButtonBar>
+          </children>
+        </AnchorPane>
+      </top>
+    </BorderPane>
+  </children>
+</AnchorPane>

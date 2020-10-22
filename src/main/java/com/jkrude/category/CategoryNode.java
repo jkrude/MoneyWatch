@@ -100,6 +100,25 @@ public class CategoryNode implements Observable {
     }
   }
 
+  public CategoryNode getRoot() {
+    if (getParent().isEmpty()) {
+      return this;
+    }
+    CategoryNode nextParent = getParent().get();
+    while (nextParent.getParent().isPresent()) {
+      nextParent = nextParent.getParent().get();
+    }
+    return nextParent;
+  }
+
+  public boolean isLeaf() {
+    return children.get().isEmpty();
+  }
+
+  public boolean isRoot() {
+    return parent == null;
+  }
+
   public Stream<CategoryNode> stream() {
     if (childrenRO().isEmpty()) {
       return Stream.of(this);

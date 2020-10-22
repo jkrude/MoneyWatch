@@ -1,5 +1,6 @@
 package com.jkrude.material;
 
+import com.jkrude.material.TransactionContainer.Transaction;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;
@@ -151,7 +152,7 @@ public class Money implements Comparable<Money>{
     return new Money(a.currency, c);
   }
 
-  public static Money sum(List<TransactionContainer.Transaction> transactions) {
+  public static Money sum(Iterable<Transaction> transactions) {
     Money total = new Money();
     transactions.forEach(transaction -> total.add(transaction.getMoneyAmount()));
     return total;

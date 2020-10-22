@@ -10,6 +10,7 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
   </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.openjfx</groupId>
@@ -21,12 +22,7 @@
       <artifactId>javafx-fxml</artifactId>
       <version>13</version>
     </dependency>
-    <!--TODO: Remove if a db is used-->
-    <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>1.1.1</version>
-    </dependency>
+
     <!--Junit-->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -39,6 +35,19 @@
       <artifactId>junit</artifactId>
       <version>4.11</version>
       <scope>test</scope>
+    </dependency>
+
+    <!-- External dependencies -->
+    <dependency>
+      <artifactId>charts</artifactId>
+      <groupId>eu.hansolo.fx</groupId>
+      <version>11.4</version>
+    </dependency>
+    <!--TODO: Remove if a db is used-->
+    <dependency>
+      <artifactId>json-simple</artifactId>
+      <groupId>com.googlecode.json-simple</groupId>
+      <version>1.1.1</version>
     </dependency>
 
   </dependencies>
