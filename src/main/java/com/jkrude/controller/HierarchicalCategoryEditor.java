@@ -7,6 +7,7 @@ import com.jkrude.material.AlertBox;
 import com.jkrude.material.Model;
 import com.jkrude.material.UI.RuleDialog;
 import java.util.Optional;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -27,19 +28,38 @@ public class HierarchicalCategoryEditor extends Controller {
   private TreeView<TreeWrapper> categoryTreeView;
   @FXML
   private Button backButton;
+  private SimpleBooleanProperty invalidatedProperty;
 
-
-  @Override
-  public void prepare() {
+  private static ContextMenu getContextMenu(TreeCell<TreeWrapper> cell) {
+    assert cell != null && cell.getItem() != null;
+    ContextMenu contextMenu = new ContextMenu();
+    if (cell.getItem().holdsNode()) {
+      MenuItem itemRename = new MenuItem("Rename");
+      itemRename.setOnAction(event -> newNameDialog(cell));
+      contextMenu.getItems().add(itemRename);
+      if (cell.getItem().node.isLeaf()) {
+        MenuItem itemAddRule = new MenuItem("Add Rule");
+        itemAddRule.setOnAction(event -> addRule(cell));
+        contextMenu.getItems().add(itemAddRule);
+      }
+    } else {
+      MenuItem itemEditRule = new MenuItem("Edit");
+      itemEditRule.setOnAction(event -> editRule(cell));
+      contextMenu.getItems().add(itemEditRule);
+    }
+    MenuItem itemDelete = new MenuItem("Delete");
+    itemDelete.setOnAction(event -> removeFromTree(cell));
+    contextMenu.getItems().add(itemDelete);
+    return contextMenu;
   }
 
-  @FXML
-  public void initialize() {
-    backButton.setOnAction(event -> Main.goBack());
-    CategoryNode rootNode = Model.getInstance().getProfile().getRootCategory();
-    TreeItem<TreeWrapper> root = convertToTreeItems(rootNode);
-    categoryTreeView.setRoot(root);
-    categoryTreeView.setCellFactory(HierarchicalCategoryEditor::cellFactory);
+  private static void addRule(TreeCell<TreeWrapper> cell) {
+    Optional<Rule> optRule = new RuleDialog().showAndWait();
+    if (optRule.isPresent()) {
+      TreeItem<TreeWrapper> newRuleItem = TreeWrapper.wrapRule(optRule.get());
+      cell.getTreeItem().getChildren().add(newRuleItem);
+      cell.getItem().node.addRule(optRule.get());
+    }
   }
 
   private static TreeCell<TreeWrapper> cellFactory(TreeView<TreeWrapper> tree) {
@@ -71,22 +91,26 @@ public class HierarchicalCategoryEditor extends Controller {
     return cell;
   }
 
-  private static ContextMenu getContextMenu(TreeCell<TreeWrapper> cell) {
-    assert cell != null && cell.getItem() != null;
-    ContextMenu contextMenu = new ContextMenu();
-    if (cell.getItem().holdsNode()) {
-      MenuItem itemRename = new MenuItem("Rename");
-      itemRename.setOnAction(event -> newNameDialog(cell));
-      contextMenu.getItems().add(itemRename);
-    } else {
-      MenuItem itemEditRule = new MenuItem("Edit");
-      itemEditRule.setOnAction(event -> editRule(cell));
-      contextMenu.getItems().add(itemEditRule);
+  @Override
+  public void prepare() {
+    if (invalidatedProperty.get()) {
+      categoryTreeView.setRoot(
+          convertToTreeItems(Model.getInstance().getProfile().getRootCategory())
+      );
+      invalidatedProperty.set(false);
     }
-    MenuItem itemDelete = new MenuItem("Delete");
-    itemDelete.setOnAction(event -> removeFromTree(cell));
-    contextMenu.getItems().add(itemDelete);
-    return contextMenu;
+  }
+
+  @FXML
+  public void initialize() {
+    invalidatedProperty = new SimpleBooleanProperty();
+    backButton.setOnAction(event -> Main.goBack());
+    CategoryNode rootCategory = Model.getInstance().getProfile().getRootCategory();
+    rootCategory.stream()
+        .forEach(node -> node.addListener(observable -> invalidatedProperty.set(true)));
+    TreeItem<TreeWrapper> root = convertToTreeItems(rootCategory);
+    categoryTreeView.setRoot(root);
+    categoryTreeView.setCellFactory(HierarchicalCategoryEditor::cellFactory);
   }
 
   private static void removeFromTree(TreeCell<TreeWrapper> cell) {
@@ -121,8 +145,6 @@ public class HierarchicalCategoryEditor extends Controller {
     Optional<Rule> optRule = editRuleDialog(cell.getItem().rule,
         cell.getTreeView().getRoot().getValue().node);
     optRule.ifPresent(rule -> cell.getItem().changeRule(rule));
-    int x = 1;
-    x++;
   }
 
   private static Optional<Rule> editRuleDialog(Rule rule, CategoryNode root) {
