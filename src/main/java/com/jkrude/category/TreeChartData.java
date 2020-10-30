@@ -1,7 +1,6 @@
 package com.jkrude.category;
 
 import com.jkrude.material.Money;
-import com.jkrude.material.TransactionContainer;
 import com.jkrude.material.TransactionContainer.Transaction;
 import java.util.HashSet;
 import java.util.List;
@@ -17,20 +16,22 @@ public class TreeChartData {
 
   private TreeChartData parent;
   private CategoryNode category;
-  private TransactionContainer transactionCollection;
+  private ObservableList<Transaction> transactionCollection;
   private ObservableList<Transaction> matchedTransactions;
   private Money value;
   private Set<TreeChartData> children;
 
-  public TreeChartData(CategoryNode category, List<Transaction> matchedTransactions,
-      TransactionContainer transactionContainer) {
-    this.transactionCollection = transactionContainer;
+  public TreeChartData(CategoryNode category,
+      List<Transaction> matchedTransactions,
+      ObservableList<Transaction> observableTransactions) {
+
+    this.transactionCollection = observableTransactions;
     this.category = category;
     this.matchedTransactions = FXCollections.observableList(matchedTransactions);
     this.children = new HashSet<>();
   }
 
-  private TreeChartData(CategoryNode category, TransactionContainer container) {
+  private TreeChartData(CategoryNode category, ObservableList<Transaction> container) {
     this.transactionCollection = container;
     this.category = category;
     this.matchedTransactions = FXCollections.observableArrayList();
@@ -38,12 +39,13 @@ public class TreeChartData {
     genChildren();
     calculateValue();
     // If the source is changing -> recalculate the value
-    container.getSource().addListener((InvalidationListener) observable -> calculateValue());
+    container.addListener((InvalidationListener) observable -> calculateValue());
   }
 
-  public static TreeChartData createTree(CategoryNode rootCategory,
-      TransactionContainer container) {
-    return new TreeChartData(rootCategory, container);
+  public static TreeChartData createTree(
+      CategoryNode rootCategory,
+      ObservableList<Transaction> observableTransactions) {
+    return new TreeChartData(rootCategory, observableTransactions);
   }
 
   private void genChildren() {
@@ -54,7 +56,7 @@ public class TreeChartData {
   }
 
   private void calculateValue() {
-    for (Transaction t : transactionCollection.getSource()) {
+    for (Transaction t : transactionCollection) {
       for (Rule r : category.leafsRO()) {
         if (r.getPredicate().test(t)) {
           matchedTransactions.add(t);

@@ -59,7 +59,7 @@ public class LineChartController extends DataDependingController {
     if (dateLookupTable == null) {
       throw new IllegalStateException("dateLookupTable was not initialized");
     }
-    fetchDataWithDialogs();
+    this.transactions = super.fetchDataWithPossibleDialog();
 
     XYChart.Series<Number, Number> series = new Series<>();
     setupSeries(series, transactions);

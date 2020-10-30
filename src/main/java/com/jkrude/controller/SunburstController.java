@@ -12,6 +12,7 @@ import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.TransactionContainer.TransactionField;
 import com.jkrude.material.TreeNodeAdapter;
 import com.jkrude.material.UI.RuleDialog;
+import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
 import eu.hansolo.fx.charts.SunburstChart.TextOrientation;
 import eu.hansolo.fx.charts.SunburstChartBuilder;
@@ -55,16 +56,13 @@ public class SunburstController extends DataDependingController {
 
   private Map<String, TreeChartData> nameToDataMap;
 
+  private ObservableList<Transaction> negativeTransactions;
+
   @Override
   public void prepare() {
     chartHoldingPane.setVisible(true);
     if (invalidatedProperty.get()) {
-      ObservableList<Transaction> negativeTransactions = Model.getInstance()
-          .getTransactionContainerList().get(0)
-          .getSource().stream()
-          .filter(t -> !t.isPositive())
-          .collect(Collectors.toCollection(FXCollections::observableArrayList));
-      super.transactions = new TransactionContainer(negativeTransactions);
+      setDataWithPossibleDialog();
       CategoryNode rootCategory = Model.getInstance().getProfile().getRootCategory();
       rootCategory.stream().forEach(node -> node.addListener(
           observable -> invalidate()));
@@ -79,6 +77,19 @@ public class SunburstController extends DataDependingController {
     invalidatedProperty = new SimpleBooleanProperty(true);
   }
 
+  private void setDataWithPossibleDialog() {
+    this.transactions = super.fetchDataWithPossibleDialog();
+    // TODO enable switch between positive and negative transactions.
+    this.negativeTransactions = filterTransactions(this.transactions);
+  }
+
+  private ObservableList<Transaction> filterTransactions(TransactionContainer data) {
+    return data.getSource().stream()
+        .filter(t -> !t.isPositive())
+        .collect(Collectors.toCollection(FXCollections::observableArrayList));
+  }
+
+
   private void invalidate() {
     if (chartHoldingPane.isVisible()) {
       drawChart(Model.getInstance().getProfile().getRootCategory());
@@ -89,7 +100,7 @@ public class SunburstController extends DataDependingController {
 
   private void drawChart(CategoryNode rootCategory) {
     nameToDataMap.clear();
-    TreeChartData rootChartData = TreeChartData.createTree(rootCategory, transactions);
+    TreeChartData rootChartData = TreeChartData.createTree(rootCategory, negativeTransactions);
     TreeNode<ChartItem> root = TreeNodeAdapter.asTreeNode(rootChartData, nameToDataMap);
     addUndefinedSegment(root);
 
@@ -111,10 +122,10 @@ public class SunburstController extends DataDependingController {
 
   private void addUndefinedSegment(TreeNode<ChartItem> root) {
     TreeChartData rootChartData = nameToDataMap.get(root.getItem().getName());
-    List<Transaction> allMatched = new ArrayList<>(transactions.getSource().size());
+    List<Transaction> allMatched = new ArrayList<>(negativeTransactions.size());
     rootChartData.stream().map(tData -> tData.matchedTransactionsRO().get())
         .forEach(allMatched::addAll);
-    List<Transaction> notMatched = new ArrayList<>(transactions.getSource());
+    List<Transaction> notMatched = new ArrayList<>(negativeTransactions);
     notMatched.removeAll(allMatched);
     TreeNode<ChartItem> undefinedNode = new TreeNode<>(
         new ChartItem(
@@ -127,7 +138,7 @@ public class SunburstController extends DataDependingController {
     TreeChartData undefinedSegment = new TreeChartData(
         new CategoryNode(UNDEFINED_SEGMENT),
         notMatched,
-        super.transactions);
+        negativeTransactions);
     nameToDataMap.put(UNDEFINED_SEGMENT, undefinedSegment);
   }
 
@@ -170,6 +181,16 @@ public class SunburstController extends DataDependingController {
   }
 
   public void changeDataSource(ActionEvent event) {
+    if (Model.getInstance().getTransactionContainerList().isEmpty()) {
+      throw new IllegalStateException("No data to chose from");
+    }
+    TransactionContainer chosenData = SourceChoiceDialog
+        .showAndWait(Model.getInstance().getTransactionContainerList());
+    if (!this.transactions.equals(chosenData)) {
+      this.transactions = chosenData;
+      negativeTransactions = filterTransactions(chosenData);
+      drawChart(Model.getInstance().getProfile().getRootCategory());
+    }
   }
 
   public void goToCategories(ActionEvent event) {
