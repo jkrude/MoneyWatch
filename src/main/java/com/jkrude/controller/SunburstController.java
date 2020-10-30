@@ -34,7 +34,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -48,15 +47,16 @@ public class SunburstController extends DataDependingController {
 
   public static final String UNDEFINED_SEGMENT = "Undefined";
 
-  public Button backBtn;
-  public ToggleButton negPosTglBtn;
+  @FXML
+  private ToggleButton negPosTglBtn;
   @FXML
   private AnchorPane chartHoldingPane;
+
   private BooleanProperty invalidatedProperty;
-
   private Map<String, TreeChartData> nameToDataMap;
-
   private ObservableList<Transaction> negativeTransactions;
+  private TreeChartData undefinedSegment;
+
 
   @Override
   public void prepare() {
@@ -135,22 +135,31 @@ public class SunburstController extends DataDependingController {
         root
     );
     root.addNode(undefinedNode);
-    TreeChartData undefinedSegment = new TreeChartData(
-        new CategoryNode(UNDEFINED_SEGMENT),
-        notMatched,
-        negativeTransactions);
-    nameToDataMap.put(UNDEFINED_SEGMENT, undefinedSegment);
+    if (undefinedSegment == null) {
+      undefinedSegment = new TreeChartData(
+          new CategoryNode(UNDEFINED_SEGMENT),
+          notMatched,
+          negativeTransactions);
+      nameToDataMap.put(UNDEFINED_SEGMENT, undefinedSegment);
+    } else {
+      undefinedSegment.update(notMatched, negativeTransactions);
+    }
   }
 
   private void openTablePopUp(String categoryName) {
-    var treeChartData = nameToDataMap.get(categoryName);
-    //TODO: bind data to popup / refresh popup if data is changed
-    var builder = TransactionTablePopUp.Builder
-        .init(treeChartData.matchedTransactionsRO());
     if (categoryName.equals(UNDEFINED_SEGMENT)) {
-      builder.setContextMenu(this::contextMenuGenerator);
+      TransactionTablePopUp.Builder
+          .initBind(undefinedSegment.matchedTransactionsRO())
+          .setTitle(categoryName)
+          .setContextMenu(this::contextMenuGenerator)
+          .showAndWait();
+    } else {
+      TreeChartData treeChartData = nameToDataMap.get(categoryName);
+      TransactionTablePopUp.Builder
+          .initSet(treeChartData.matchedTransactionsRO().get())
+          .setTitle(categoryName)
+          .showAndWait();
     }
-    builder.showAndWait();
   }
 
   private ContextMenu contextMenuGenerator(TableRow<Transaction> row) {

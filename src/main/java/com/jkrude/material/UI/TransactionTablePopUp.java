@@ -5,6 +5,7 @@ import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.Utility;
 import java.net.URL;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -18,6 +19,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -153,16 +155,27 @@ public class TransactionTablePopUp {
         .getResource("/PopUp/camtEntryAsTable.fxml");
 
     private Builder() {
+      FXMLLoader loader = new FXMLLoader();
+      stage = StageSetter.setupStage(loader, fxmlResource);
+      ttp = loader.getController();
+      ttp.closeBtn.setOnAction(event -> stage.close());
     }
 
-    public static Builder init(final ObservableList<Transaction> tableData) {
+    public static Builder initSet(final ObservableList<Transaction> tableData) {
       Builder b = new Builder();
-      FXMLLoader loader = new FXMLLoader();
-      b.stage = StageSetter.setupStage(loader, fxmlResource);
-      b.ttp = loader.getController();
       b.ttp.table.setItems(tableData);
-      b.ttp.closeBtn.setOnAction(event -> b.stage.close());
       return b;
+    }
+
+    public static Builder initBind(final ObjectProperty<ObservableList<Transaction>> tableData) {
+      Builder b = new Builder();
+      b.ttp.table.itemsProperty().bind(tableData);
+      return b;
+    }
+
+    public Builder setTitle(String categoryName) {
+      stage.setTitle(categoryName);
+      return this;
     }
 
     public Builder setContextMenu(Callback<TableRow<Transaction>, ContextMenu> menuGenerator) {
@@ -183,9 +196,9 @@ public class TransactionTablePopUp {
     }
 
     public void showAndWait() {
+      stage.initModality(Modality.APPLICATION_MODAL);
       stage.showAndWait();
     }
-
   }
 
 }

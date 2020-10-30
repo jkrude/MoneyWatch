@@ -129,7 +129,7 @@ public class LineChartController extends DataDependingController {
     data.getNode().setOnMouseClicked(
         event -> {
           if (event.getButton() == MouseButton.PRIMARY) {
-            TransactionTablePopUp.Builder.init(getTableData(data, transactionContainer))
+            TransactionTablePopUp.Builder.initSet(getTableData(data, transactionContainer))
                 .showAndWait();
           }
         });
