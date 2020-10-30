@@ -37,6 +37,11 @@ public class HierarchicalCategoryEditor extends Controller {
       MenuItem itemRename = new MenuItem("Rename");
       itemRename.setOnAction(event -> newNameDialog(cell));
       contextMenu.getItems().add(itemRename);
+
+      MenuItem itemAddChild = new MenuItem("Add SubCategory");
+      itemAddChild.setOnAction(event -> addSubCategory(cell));
+      contextMenu.getItems().add(itemAddChild);
+
       if (cell.getItem().node.isLeaf()) {
         MenuItem itemAddRule = new MenuItem("Add Rule");
         itemAddRule.setOnAction(event -> addRule(cell));
@@ -51,6 +56,20 @@ public class HierarchicalCategoryEditor extends Controller {
     itemDelete.setOnAction(event -> removeFromTree(cell));
     contextMenu.getItems().add(itemDelete);
     return contextMenu;
+  }
+
+  private static void addSubCategory(TreeCell<TreeWrapper> cell) {
+    assert cell.getItem().holdsNode();
+    var node = cell.getItem().node;
+    TextInputDialog textInputDialog = new TextInputDialog("New Category");
+    textInputDialog.setTitle("Add the name here");
+    Optional<String> result = textInputDialog.showAndWait();
+    if (result.isEmpty()) {
+      return;
+    }
+    CategoryNode newCategory = new CategoryNode(result.get());
+    node.addCategoryIfPossible(newCategory);
+    cell.getTreeItem().getChildren().add(TreeWrapper.wrapCategory(newCategory));
   }
 
   private static void addRule(TreeCell<TreeWrapper> cell) {
@@ -89,28 +108,6 @@ public class HierarchicalCategoryEditor extends Controller {
     });
 
     return cell;
-  }
-
-  @Override
-  public void prepare() {
-    if (invalidatedProperty.get()) {
-      categoryTreeView.setRoot(
-          convertToTreeItems(Model.getInstance().getProfile().getRootCategory())
-      );
-      invalidatedProperty.set(false);
-    }
-  }
-
-  @FXML
-  public void initialize() {
-    invalidatedProperty = new SimpleBooleanProperty();
-    backButton.setOnAction(event -> Main.goBack());
-    CategoryNode rootCategory = Model.getInstance().getProfile().getRootCategory();
-    rootCategory.stream()
-        .forEach(node -> node.addListener(observable -> invalidatedProperty.set(true)));
-    TreeItem<TreeWrapper> root = convertToTreeItems(rootCategory);
-    categoryTreeView.setRoot(root);
-    categoryTreeView.setCellFactory(HierarchicalCategoryEditor::cellFactory);
   }
 
   private static void removeFromTree(TreeCell<TreeWrapper> cell) {
@@ -165,6 +162,28 @@ public class HierarchicalCategoryEditor extends Controller {
     AlertBox.showAlert("Error!", "Rule already exists", "", AlertType.ERROR);
   }
 
+  @Override
+  public void prepare() {
+    if (invalidatedProperty.get()) {
+      categoryTreeView.setRoot(
+          convertToTreeItems(Model.getInstance().getProfile().getRootCategory())
+      );
+      invalidatedProperty.set(false);
+    }
+  }
+
+  @FXML
+  public void initialize() {
+    invalidatedProperty = new SimpleBooleanProperty();
+    backButton.setOnAction(event -> Main.goBack());
+    CategoryNode rootCategory = Model.getInstance().getProfile().getRootCategory();
+    rootCategory.stream()
+        .forEach(node -> node.addListener(observable -> invalidatedProperty.set(true)));
+    TreeItem<TreeWrapper> root = convertToTreeItems(rootCategory);
+    categoryTreeView.setRoot(root);
+    categoryTreeView.setCellFactory(HierarchicalCategoryEditor::cellFactory);
+  }
+
   private TreeItem<TreeWrapper> convertToTreeItems(CategoryNode rootNode) {
     TreeItem<TreeWrapper> root = TreeWrapper.wrapCategory(rootNode);
     rootNode.leafsRO().forEach(rule -> root.getChildren().add(TreeWrapper.wrapRule(rule)));
@@ -182,17 +201,9 @@ public class HierarchicalCategoryEditor extends Controller {
 
   private static class TreeWrapper {
 
+    private final StringProperty stringProperty;
     private CategoryNode node;
     private Rule rule;
-    private final StringProperty stringProperty;
-
-    public static TreeItem<TreeWrapper> wrapCategory(CategoryNode node) {
-      return new TreeItem<>(new TreeWrapper(node));
-    }
-
-    public static TreeItem<TreeWrapper> wrapRule(Rule rule) {
-      return new TreeItem<>(new TreeWrapper(rule));
-    }
 
     private TreeWrapper(CategoryNode node) {
       this.node = node;
@@ -205,6 +216,14 @@ public class HierarchicalCategoryEditor extends Controller {
       this.rule = rule;
       this.stringProperty = new SimpleStringProperty(ruleAsString());
       this.node = null;
+    }
+
+    public static TreeItem<TreeWrapper> wrapCategory(CategoryNode node) {
+      return new TreeItem<>(new TreeWrapper(node));
+    }
+
+    public static TreeItem<TreeWrapper> wrapRule(Rule rule) {
+      return new TreeItem<>(new TreeWrapper(rule));
     }
 
     private String ruleAsString() {
