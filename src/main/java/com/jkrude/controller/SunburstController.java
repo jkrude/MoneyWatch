@@ -169,9 +169,10 @@ public class SunburstController extends DataDependingController {
     Menu categoryChoices = new Menu("Add as rule");
     Model.getInstance().getProfile().getRootCategory().streamSubTree().forEach(
         categoryNode -> {
-          // Rules can only be applied to leafs
+          // Rules can only be applied to leaves.
           if (categoryNode.isLeaf()) {
-            MenuItem menuItem = new MenuItem(categoryNode.getName());
+            String parent = categoryNode.getParent().map(CategoryNode::getName).orElse("");
+            MenuItem menuItem = new MenuItem(parent + "::" + categoryNode.getName());
             menuItem.setOnAction(event -> openRuleDialogAndSave(row.getItem(), categoryNode));
             categoryChoices.getItems().add(menuItem);
           }
