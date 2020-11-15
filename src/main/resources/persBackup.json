@@ -1,0 +1,140 @@
+{
+  "categories": [
+    {
+      "parent": "null",
+      "name": "debits",
+      "rules": []
+    },
+    {
+      "parent": "debits",
+      "name": "Joy",
+      "rules": []
+    },
+    {
+      "parent": "Joy",
+      "name": "Cinema",
+      "rules": [
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "Schauburg",
+              "key": "Verwendungszweck"
+            }
+          ]
+        },
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "DE93450500010100195997",
+              "key": "Kontonummer\/IBAN"
+            },
+            {
+              "value": "FILMTHEATER SCHAUBURG\/\/Dresden\/DE",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "parent": "Joy",
+      "name": "Travel",
+      "rules": [
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "PayPal",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            },
+            {
+              "value": "FLIXBUS",
+              "key": "Verwendungszweck"
+            }
+          ]
+        },
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "Ihr Einkauf bei BVG",
+              "key": "Verwendungszweck"
+            }
+          ]
+        },
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "BERLINER VERKEHRSBETRIEBE (BVG)\/\/BERLIN\/DE",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            },
+            {
+              "value": "DE28100700000020118602",
+              "key": "Kontonummer\/IBAN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "parent": "debits",
+      "name": "Necessaries",
+      "rules": []
+    },
+    {
+      "parent": "Necessaries",
+      "name": "Food",
+      "rules": [
+        {
+          "note": "Netto",
+          "ids": [
+            {
+              "value": "DE68750200730008472092",
+              "key": "Kontonummer\/IBAN"
+            }
+          ]
+        },
+        {
+          "note": "Wiener Bäckerei",
+          "ids": [
+            {
+              "value": "DE85120800000101752405",
+              "key": "Kontonummer\/IBAN"
+            }
+          ]
+        },
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "TASTE OF INDIA GIR 69184524\/\/DRESDEN\/DE",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            },
+            {
+              "value": "DE48850900002808811009",
+              "key": "Kontonummer\/IBAN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "parent": "Necessaries",
+      "name": "Rent",
+      "rules": [
+        {
+          "note": "Miete",
+          "ids": [
+            {
+              "value": "Maximilian Walther",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
