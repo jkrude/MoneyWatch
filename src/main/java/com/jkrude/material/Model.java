@@ -1,7 +1,9 @@
 package com.jkrude.material;
 
-import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
 
 public class Model {
 
@@ -14,7 +16,7 @@ public class Model {
     return instance;
   }
 
-  private List<TransactionContainer> transactionContainerList;
+  private ListProperty<TransactionContainer> transactionContainerList;
   private Profile profile;
 
 
@@ -22,16 +24,21 @@ public class Model {
     if (transactionContainerList == null) {
       throw new NullPointerException();
     }
-    this.transactionContainerList = transactionContainerList;
+    this.transactionContainerList = new SimpleListProperty<>(
+        FXCollections.observableArrayList(transactionContainerList));
     this.profile = new Profile();
   }
 
   private Model() {
-    this.transactionContainerList = new ArrayList<>();
+    this.transactionContainerList = new SimpleListProperty<>(FXCollections.observableArrayList());
     this.profile = new Profile();
   }
 
   public List<TransactionContainer> getTransactionContainerList() {
+    return transactionContainerList.get();
+  }
+
+  public ListProperty<TransactionContainer> transactionListProperty() {
     return transactionContainerList;
   }
 

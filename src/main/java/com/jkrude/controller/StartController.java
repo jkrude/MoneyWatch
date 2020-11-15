@@ -27,8 +27,10 @@ public class StartController extends Controller {
 
   @FXML
   public void initialize() {
-    //TODO
-    //loadFile();
+    goToPieChartBtn.disableProperty()
+        .bind(Model.getInstance().transactionListProperty().emptyProperty());
+    goToMonthOverviewBtn.disableProperty()
+        .bind(Model.getInstance().transactionListProperty().emptyProperty());
   }
 
   // No checks to be done
@@ -41,8 +43,7 @@ public class StartController extends Controller {
     fileChooser.setTitle("CSV import");
     fileChooser.getExtensionFilters().add(
         new ExtensionFilter("CSV", "*.CSV"));
-    fileChooser.setInitialDirectory(new File(
-        "/home/jakob/Documents/Coding/IntelliJ-Projekte/MoneyWatch/src/main/resources/"));
+    fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
     return fileChooser
         .showOpenDialog(new Stage());
   }
