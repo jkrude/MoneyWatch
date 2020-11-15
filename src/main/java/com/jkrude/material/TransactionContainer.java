@@ -140,8 +140,12 @@ public class TransactionContainer {
         throw e;
       }
       try {
-        Date validationDate = dateFormatter.parse(strings[2]);
-        transaction.setValidationDate(validationDate);
+        if (strings[2].isBlank()) {
+          transaction.setValidationDate(null);
+        } else {
+          Date validationDate = dateFormatter.parse(strings[2]);
+          transaction.setValidationDate(validationDate);
+        }
       } catch (ParseException e) {
         e.printStackTrace();
         throw e;
