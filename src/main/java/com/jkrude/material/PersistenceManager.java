@@ -132,7 +132,7 @@ public class PersistenceManager {
     }
     searchingForParent.forEach(
         (entry) -> nodesAsNames.get(entry.getKey())
-            .addCategoryIfPossible(entry.getValue())
+            .addCategory(entry.getValue())
     );
     List<CategoryNode> roots = nodeList.stream().filter(categoryNode -> !categoryNode.hasParent())
         .collect(

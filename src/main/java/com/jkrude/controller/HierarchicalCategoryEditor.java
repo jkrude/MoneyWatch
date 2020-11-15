@@ -71,6 +71,7 @@ public class HierarchicalCategoryEditor extends Controller {
     categoryTreeView.getSelectionModel().selectedItemProperty().addListener(
         (observed, oldValue, newValue) -> {
           if (oldValue != null) {
+            //FIXME: unbind works in mysterious ways and does not unbind because it was never bound
             ruleView.itemsProperty().unbindBidirectional(oldValue.getValue().rulesRO());
           }
           if (newValue != null) {
@@ -87,6 +88,7 @@ public class HierarchicalCategoryEditor extends Controller {
     if (invalidatedProperty != null && invalidatedProperty.get()) {
       setTreeViewItems();
       invalidatedProperty.set(false);
+      categoryTreeView.getSelectionModel().clearSelection();
     }
   }
 
@@ -161,14 +163,22 @@ public class HierarchicalCategoryEditor extends Controller {
 
   private static void addSubCategory(TreeCell<CategoryNode> cell) {
     CategoryNode node = cell.getItem();
+    if (node == null) {
+      throw new NullPointerException();
+    }
     TextInputDialog textInputDialog = new TextInputDialog("New Category");
-    textInputDialog.setTitle("Add the name here");
+    textInputDialog.setTitle("Set category-name");
     Optional<String> result = textInputDialog.showAndWait();
     if (result.isEmpty()) {
       return;
     }
+    if (node.childNodesRO().stream().map(CategoryNode::getName).anyMatch(result.get()::equals)) {
+      AlertBox.showAlert("Category already existing!", "The chosen name is already used",
+          "Please choose a different name", AlertType.WARNING);
+      return;
+    }
     CategoryNode newCategory = new CategoryNode(result.get());
-    node.addCategoryIfPossible(newCategory);
+    node.addCategory(newCategory);
   }
 
   private static void removeCategory(TreeCell<CategoryNode> cell) {
@@ -185,10 +195,8 @@ public class HierarchicalCategoryEditor extends Controller {
     Utility.setCellFactory(choiceDialog, HierarchicalCategoryEditor::categoryConverter);
     Optional<CategoryNode> optCat = choiceDialog.showAndWait();
     if (optCat.isPresent() && !optCat.get().equals(node)) {
-      boolean success = optCat.get().addCategoryIfPossible(node);
-      if (success) {
-        parent.removeCategory(node);
-      }
+      optCat.get().addCategory(node);
+      parent.removeCategory(node);
     }
   }
 
@@ -196,8 +204,16 @@ public class HierarchicalCategoryEditor extends Controller {
     ContextMenu cm = new ContextMenu();
     MenuItem iEdit = new MenuItem("Edit");
     iEdit.setOnAction(actionEvent -> addRule(cell));
-    cm.getItems().add(iEdit);
+    MenuItem iRemove = new MenuItem("Remove");
+    iRemove.setOnAction(actionEvent -> removeRule(cell));
+    cm.getItems().addAll(iEdit, iRemove);
     return cm;
+  }
+
+  private static void removeRule(ListCell<Rule> cell) {
+    Rule rule = cell.getItem();
+    CategoryNode parent = rule.getParent().orElseThrow();
+    parent.removeRule(rule);
   }
 
   private static void addRule(ListCell<Rule> cell) {

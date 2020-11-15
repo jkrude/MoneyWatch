@@ -134,12 +134,12 @@ public class TestData {
     CategoryNode food = new CategoryNode("Food");
     CategoryNode travel = new CategoryNode("Travel");
     CategoryNode rent = new CategoryNode("Rent");
-    root.addCategoryIfPossible(joy);
-    root.addCategoryIfPossible(necessaries);
-    joy.addCategoryIfPossible(cinema);
-    joy.addCategoryIfPossible(travel);
-    necessaries.addCategoryIfPossible(food);
-    necessaries.addCategoryIfPossible(rent);
+    root.addCategory(joy);
+    root.addCategory(necessaries);
+    joy.addCategory(cinema);
+    joy.addCategory(travel);
+    necessaries.addCategory(food);
+    necessaries.addCategory(rent);
     try {
       cinema.addRule(Rule.RuleBuilder
           .fromPair(new Pair<>(TransactionField.USAGE, "Schauburg"))

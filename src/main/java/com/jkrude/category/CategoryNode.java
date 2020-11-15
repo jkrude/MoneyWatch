@@ -21,7 +21,6 @@ public class CategoryNode implements Observable {
   private ReadOnlyListWrapper<Rule> rules;
   private StringProperty name;
   private CategoryNode parent;
-  private int depth;
   private static final int MAX_DEPTH = 3;
 
   public CategoryNode(String name) {
@@ -33,7 +32,6 @@ public class CategoryNode implements Observable {
     this.invalidationListenerList = new ArrayList<>();
     this.childNodes = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
     this.rules = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
-    this.depth = 0;
 
     InvalidationListener invalidateOnNameChange = observable -> invalidationListenerList
         .forEach(
@@ -56,7 +54,7 @@ public class CategoryNode implements Observable {
 
   public CategoryNode(StringProperty name, List<CategoryNode> childNodes, List<Rule> rules) {
     this(name);
-    childNodes.forEach(this::addCategoryIfPossible);
+    childNodes.forEach(this::addCategory);
     this.rules.addAll(rules);
   }
 
@@ -78,16 +76,10 @@ public class CategoryNode implements Observable {
     return rules.remove(rule);
   }
 
-  public boolean addCategoryIfPossible(CategoryNode categoryNode) {
-    int otherDepth = categoryNode.depth;
-    int depthIfAdded = Math.max(this.depth + 1, otherDepth);
-    if (depthIfAdded <= MAX_DEPTH) {
-      this.depth = depthIfAdded;
-      categoryNode.setParent(this);
-      return childNodes.add(categoryNode);
-    } else {
-      return false;
-    }
+  public void addCategory(CategoryNode categoryNode) {
+    categoryNode.setParent(this);
+    childNodes.add(categoryNode);
+
   }
 
   public boolean removeCategory(CategoryNode categoryNode) {
@@ -96,12 +88,9 @@ public class CategoryNode implements Observable {
       if (optParent.isPresent() && optParent.get().equals(this)) {
         categoryNode.setParent(null);
       }
-      categoryNode.setParent(null);
-      this.depth = childNodes.stream().mapToInt(CategoryNode::getDepth).max().orElse(0);
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   public CategoryNode getRoot() {
@@ -172,9 +161,7 @@ public class CategoryNode implements Observable {
     return parent != null;
   }
 
-  public int getDepth() {
-    return depth;
-  }
+
 
   public static int getMaxDepth() {
     return MAX_DEPTH;
@@ -189,11 +176,11 @@ public class CategoryNode implements Observable {
       return false;
     }
     CategoryNode other = (CategoryNode) o;
-    boolean r = depth == other.depth &&
+    boolean r =
         childNodes.equals(other.childNodes) &&
-        rules.equals(other.rules) &&
-        getName().equals(other.getName()) &&
-        this.hasParent() == other.hasParent();
+            rules.equals(other.rules) &&
+            getName().equals(other.getName()) &&
+            this.hasParent() == other.hasParent();
     if (r && other.getParent().isPresent()) {
       r = this.parent.getName().equals(other.getParent().get().getName());
     }
