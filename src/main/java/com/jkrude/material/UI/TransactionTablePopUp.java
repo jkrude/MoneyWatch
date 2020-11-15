@@ -80,9 +80,9 @@ public class TransactionTablePopUp {
     accountIban.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getAccountIban()));
     transferDate.setCellValueFactory(callback -> new SimpleStringProperty(
-        Utility.dateFormatter.format(callback.getValue().getDate())));
+        Utility.DATE_TIME_FORMATTER.format(callback.getValue().getDate())));
     validationDate.setCellValueFactory(callback -> new SimpleStringProperty(
-        Utility.dateFormatter.format(callback.getValue().getValidationDate())));
+        Utility.DATE_TIME_FORMATTER.format(callback.getValue().getValidationDate())));
     transferSpecification.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getTransferSpecification()));
     usage.setCellValueFactory(callback -> new SimpleStringProperty(

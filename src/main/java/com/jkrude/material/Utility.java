@@ -1,8 +1,7 @@
 package com.jkrude.material;
 
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -13,16 +12,15 @@ import javafx.util.StringConverter;
 
 public abstract class Utility {
 
-  public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
+  public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
+      .ofPattern("dd.MM.yy");
 
-  public static StringConverter<Number> convertFromInstant() {
+  public static StringConverter<Number> convertFromEpochDay() {
     return new StringConverter<Number>() {
       @Override
       public String toString(Number number) {
-        Instant instant = Instant.ofEpochMilli(number.longValue());
-        SimpleDateFormat sDF = new SimpleDateFormat("dd.MM");
-        Date date = Date.from(instant);
-        return sDF.format(date);
+        return LocalDate.ofEpochDay(number.longValue())
+            .format(DateTimeFormatter.ofPattern("dd-MM"));
       }
 
       @Override

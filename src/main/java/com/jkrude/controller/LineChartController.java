@@ -1,12 +1,14 @@
 package com.jkrude.controller;
 
 import com.jkrude.main.Main;
+import com.jkrude.material.Model;
 import com.jkrude.material.Money;
 import com.jkrude.material.TransactionContainer;
 import com.jkrude.material.TransactionContainer.Transaction;
+import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
 import com.jkrude.material.Utility;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
@@ -21,7 +24,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
-import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
@@ -30,18 +33,47 @@ import javafx.util.Duration;
 
 public class LineChartController extends DataDependingController {
 
+  private enum TickRate {
+    TICKS_PER_DAY(1, "Day"),
+    TICKS_PER_WEEK(7, "Week"),
+    TICKS_PER_MONTH(31, "31 Days");// ~ Approx one month (31 Days)
+
+
+    private final double value;
+    private final String string;
+
+    TickRate(double v, String string) {
+      this.value = v;
+      this.string = string;
+    }
+
+    private double get() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return string;
+    }
+  }
+
   @FXML
   private LineChart<Number, Number> lineChart;
   @FXML
-  private Button backButton;
+  private ChoiceBox<TickRate> rangeSelection;
+  private NumberAxis xAxis;
   // Controller specific var:
   private boolean chartIsPopulated = false;
   // Saves the Date to its converted( to Instant to long ) version
-  private Map<Number, Date> dateLookupTable;
+  private Map<Number, LocalDate> dateLookupTable;
+
 
   @Override
   public void prepare() {
     if (!chartIsPopulated) {
+      if (this.transactions == null) {
+        this.transactions = super.fetchDataWithPossibleDialog();
+      }
       setupChart();
       if (!chartIsPopulated) {
         throw new IllegalStateException("Chart could not be populated");
@@ -52,19 +84,27 @@ public class LineChartController extends DataDependingController {
   @FXML
   public void initialize() {
     dateLookupTable = new HashMap<>();
-    backButton.setOnAction(e -> Main.goBack());
+    rangeSelection.getSelectionModel().select(TickRate.TICKS_PER_DAY);
+    rangeSelection.getItems().addAll(TickRate.values());
+    rangeSelection.getSelectionModel().selectedItemProperty().addListener(
+        (observableValue, oldValue, newValue) -> {
+          if (newValue != null) {
+            xAxis.setTickUnit(newValue.get());
+          }
+        });
   }
 
   private void setupChart() {
     if (dateLookupTable == null) {
       throw new IllegalStateException("dateLookupTable was not initialized");
     }
-    this.transactions = super.fetchDataWithPossibleDialog();
+    dateLookupTable = new HashMap<>();
+    lineChart.getData().clear();
 
     XYChart.Series<Number, Number> series = new Series<>();
     setupSeries(series, transactions);
 
-    NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
+    xAxis = (NumberAxis) lineChart.getXAxis();
     setupAxis(xAxis, series);
 
     for (Data<Number, Number> d : series.getData()) {
@@ -80,15 +120,11 @@ public class LineChartController extends DataDependingController {
 
   private void setupAxis(NumberAxis xAxis, XYChart.Series<Number, Number> series) {
     xAxis.setAutoRanging(false);
-    xAxis.setLowerBound(
-        series.getData().get(0).getXValue()
-            .longValue());
-    xAxis.setUpperBound(
-        series.getData().get(series.getData().size() - 1).getXValue()
-            .longValue());
-    xAxis.setTickUnit(86400000); // seconds per day
+    xAxis.setLowerBound(series.getData().get(0).getXValue().longValue());
+    xAxis.setUpperBound(series.getData().get(series.getData().size() - 1).getXValue().longValue());
+    xAxis.setTickUnit(1); // seconds per day
 
-    xAxis.setTickLabelFormatter(Utility.convertFromInstant());
+    xAxis.setTickLabelFormatter(Utility.convertFromEpochDay());
   }
 
   private void setupSeries(XYChart.Series<Number, Number> series,
@@ -104,19 +140,19 @@ public class LineChartController extends DataDependingController {
   private void genDataFromSource(XYChart.Series<Number, Number> series,
       TransactionContainer transactionContainer) {
 
-    TreeMap<Date, List<Transaction>> dateMap = transactionContainer.getSourceAsDateMap();
+    TreeMap<LocalDate, List<Transaction>> dateMap = transactionContainer.getSourceAsDateMap();
     Money currAmount = new Money(0);
 
-    for (Date date : dateMap.keySet()) {
+    for (LocalDate date : dateMap.keySet()) {
       currAmount.add(Money.sum(dateMap.get(date)));
-      Number dateAsNumber = date.toInstant().toEpochMilli();
+      Number dateAsNumber = date.toEpochDay();
       dateLookupTable.put(dateAsNumber, date);
       series.getData().add(new Data<>(dateAsNumber, currAmount.getRawAmount()));
     }
   }
 
   private void setToolTip(XYChart.Data<Number, Number> data) {
-    String text = Utility.convertFromInstant().toString(data.getXValue().longValue()) + "\n" +
+    String text = Utility.convertFromEpochDay().toString(data.getXValue().longValue()) + "\n" +
         "Total : " + data.getYValue();
     Tooltip tlp = new Tooltip(text);
     tlp.setShowDelay(new Duration(100));
@@ -152,5 +188,23 @@ public class LineChartController extends DataDependingController {
 
     node.setOnContextMenuRequested(
         event -> contextMenu.show(node, event.getScreenX(), event.getScreenY()));
+  }
+
+  @FXML
+  private void changeDataSource(ActionEvent event) {
+    if (Model.getInstance().getTransactionContainerList().isEmpty()) {
+      throw new IllegalStateException("No data to chose from");
+    }
+    TransactionContainer chosenData = SourceChoiceDialog
+        .showAndWait(Model.getInstance().getTransactionContainerList());
+    if (!this.transactions.equals(chosenData)) {
+      this.transactions = chosenData;
+      setupChart();
+    }
+  }
+
+  @FXML
+  private void goBack(ActionEvent e) {
+    Main.goBack();
   }
 }

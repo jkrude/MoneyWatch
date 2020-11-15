@@ -4,7 +4,7 @@ import com.jkrude.material.AlertBox;
 import com.jkrude.material.TransactionContainer;
 import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.Utility;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +29,9 @@ public class SourceChoiceDialog {
     // Map is used because it is not possible to cleanly edit the comboBox cellFactory from the dialog.
     Map<String, TransactionContainer> converterMap = new HashMap<>();
     for (TransactionContainer choice : choices) {
-      TreeMap<Date, List<Transaction>> asDateMap = choice.getSourceAsDateMap();
-      String firstDate = Utility.dateFormatter.format(asDateMap.firstEntry().getKey());
-      String lastDate = Utility.dateFormatter.format(asDateMap.lastEntry().getKey());
+      TreeMap<LocalDate, List<Transaction>> asDateMap = choice.getSourceAsDateMap();
+      String firstDate = Utility.DATE_TIME_FORMATTER.format(asDateMap.firstEntry().getKey());
+      String lastDate = Utility.DATE_TIME_FORMATTER.format(asDateMap.lastEntry().getKey());
       String toString = firstDate + " - " + lastDate;
       converterMap.put(toString, choice);
     }

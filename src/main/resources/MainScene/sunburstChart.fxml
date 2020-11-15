@@ -29,8 +29,7 @@
                   onAction="#changeDataSource"
                   text="Data selection"/>
                 <Button ButtonBar.buttonData="LEFT" mnemonicParsing="false" onAction="#goBack"
-                  text="Back"
-                  fx:id="backBtn"/>
+                  text="Back"/>
                 <Button ButtonBar.buttonData="RIGHT" mnemonicParsing="false"
                   onAction="#goToCategories"
                   text="Categories"/>

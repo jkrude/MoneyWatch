@@ -1,9 +1,8 @@
 package com.jkrude.material;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,8 +71,6 @@ public class TransactionContainer {
 
   private ListProperty<Transaction> source;
 
-  private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yy");
-
 
   /*
    * Constructor
@@ -94,8 +91,8 @@ public class TransactionContainer {
   /*
    * Collect all transactions according to their date.
    */
-  public TreeMap<Date, List<Transaction>> getSourceAsDateMap() {
-    TreeMap<Date, List<Transaction>> dateMap = new TreeMap<>();
+  public TreeMap<LocalDate, List<Transaction>> getSourceAsDateMap() {
+    TreeMap<LocalDate, List<Transaction>> dateMap = new TreeMap<>();
     for (Transaction transaction : source) {
       if (dateMap.containsKey(transaction.getDate())) {
         dateMap.get(transaction.getDate()).add(transaction);
@@ -123,7 +120,7 @@ public class TransactionContainer {
 
     while (sc.hasNext()) {
       final Money currAmount;
-      final Date currDate;
+      final LocalDate currDate;
       final Transaction transaction = new Transaction();
       final String line = sc.next().replaceAll("\"", "");
       final String[] strings = line.split(";");
@@ -132,23 +129,13 @@ public class TransactionContainer {
             source.size());
       }
       transaction.setAccountIban(strings[0]);
-      try {
-        currDate = dateFormatter.parse(strings[1]);
-        transaction.setDate(currDate);
-      } catch (ParseException e) {
-        e.printStackTrace();
-        throw e;
-      }
-      try {
-        if (strings[2].isBlank()) {
-          transaction.setValidationDate(null);
-        } else {
-          Date validationDate = dateFormatter.parse(strings[2]);
-          transaction.setValidationDate(validationDate);
-        }
-      } catch (ParseException e) {
-        e.printStackTrace();
-        throw e;
+      currDate = LocalDate.parse(strings[1], Utility.DATE_TIME_FORMATTER);
+      transaction.setDate(currDate);
+      if (strings[2].isBlank()) {
+        transaction.setValidationDate(null);
+      } else {
+        LocalDate validationDate = LocalDate.parse(strings[2], Utility.DATE_TIME_FORMATTER);
+        transaction.setValidationDate(validationDate);
       }
       transaction.setTransferSpecification(strings[3]);
       transaction.setUsage(strings[4]);
@@ -174,19 +161,15 @@ public class TransactionContainer {
     }
   }
 
-  public SimpleDateFormat getDateFormatter() {
-    return dateFormatter;
-  }
-
   public ObservableList<Transaction> getSource() {
     return source.get();
   }
 
   public static class Transaction {
 
-    private ObjectProperty<Date> date;
+    private ObjectProperty<LocalDate> date;
     private String accountIban;
-    private Date validationDate;
+    private LocalDate validationDate;
     private String transferSpecification;
     private String usage;
     private String creditorId;
@@ -206,8 +189,8 @@ public class TransactionContainer {
     }
 
     public Transaction(
-        Date date,
-        String accountIban, Date validationDate,
+        LocalDate date,
+        String accountIban, LocalDate validationDate,
         String transferSpecification, String usage, String creditorId,
         String mandateReference, String customerReference, String collectionReference,
         String debitOriginalAmount, String backDebit, String otherParty, String iban,
@@ -238,11 +221,11 @@ public class TransactionContainer {
       return getMoneyAmount().isPositive();
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
       return date.get();
     }
 
-    public ObjectProperty<Date> dateProperty() {
+    public ObjectProperty<LocalDate> dateProperty() {
       return date;
     }
 
@@ -250,7 +233,7 @@ public class TransactionContainer {
       return accountIban;
     }
 
-    public Date getValidationDate() {
+    public LocalDate getValidationDate() {
       return validationDate;
     }
 
@@ -310,7 +293,7 @@ public class TransactionContainer {
      * Setter.
      */
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
       this.date.set(date);
     }
 
@@ -318,7 +301,7 @@ public class TransactionContainer {
       this.accountIban = accountIban;
     }
 
-    public void setValidationDate(Date validationDate) {
+    public void setValidationDate(LocalDate validationDate) {
       this.validationDate = validationDate;
     }
 
@@ -388,11 +371,13 @@ public class TransactionContainer {
             resultSet.add(new Pair<>(transactionField, getAccountIban()));
             break;
           case TRANSFER_DATE:
-            resultSet.add(new Pair<>(transactionField, Utility.dateFormatter.format(getDate())));
+            resultSet
+                .add(new Pair<>(transactionField, Utility.DATE_TIME_FORMATTER.format(getDate())));
             break;
           case VALIDATION_DATE:
             resultSet.add(
-                new Pair<>(transactionField, Utility.dateFormatter.format(getValidationDate())));
+                new Pair<>(transactionField,
+                    Utility.DATE_TIME_FORMATTER.format(getValidationDate())));
             break;
           case TRANSFER_SPECIFICATION:
             resultSet.add(new Pair<>(transactionField, getTransferSpecification()));

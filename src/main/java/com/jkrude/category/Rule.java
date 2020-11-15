@@ -5,7 +5,7 @@ import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.TransactionContainer.TransactionField;
 import com.jkrude.material.Utility;
 import java.text.ParseException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -134,11 +134,11 @@ public class Rule {
                   .equals(pair.getValue());
               break;
             case TRANSFER_DATE:
-              Date date = Utility.dateFormatter.parse(pair.getValue());
+              LocalDate date = LocalDate.parse(pair.getValue(), Utility.DATE_TIME_FORMATTER);
               innerPredicate = transaction -> transaction.getDate().equals(date);
               break;
             case VALIDATION_DATE:
-              Date valDate = Utility.dateFormatter.parse(pair.getValue());
+              LocalDate valDate = LocalDate.parse(pair.getValue(), Utility.DATE_TIME_FORMATTER);
               innerPredicate = transaction -> transaction.getValidationDate().equals(valDate);
               break;
             case TRANSFER_SPECIFICATION:
