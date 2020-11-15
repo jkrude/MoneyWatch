@@ -35,7 +35,8 @@ public class PersistenceManager {
       JSONObject jMain = new JSONObject();
       JSONArray jCatArr = new JSONArray();
 
-      rootCategory.stream().forEach(categoryNode -> serializeCategory(categoryNode, jCatArr));
+      rootCategory.streamSubTree()
+          .forEach(categoryNode -> serializeCategory(categoryNode, jCatArr));
       jMain.put("categories", jCatArr);
       fileWriter.write(jMain.toJSONString());
       fileWriter.close();
@@ -48,7 +49,7 @@ public class PersistenceManager {
     JSONObject jCategory = new JSONObject();
     // TODO: name is primary key so duplicated should not be possible
     jCategory.put("name", categoryNode.getName());
-    jCategory.put("rules", serializeRules(categoryNode.leafsRO()));
+    jCategory.put("rules", serializeRules(categoryNode.rulesRO()));
     Optional<CategoryNode> optParent = categoryNode.getParent();
     String parentAsJson = optParent.map(CategoryNode::getName).orElse("null");
     jCategory.put("parent", parentAsJson);

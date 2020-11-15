@@ -17,8 +17,8 @@ import javafx.collections.ListChangeListener;
 public class CategoryNode implements Observable {
 
   private List<InvalidationListener> invalidationListenerList;
-  private ReadOnlyListWrapper<CategoryNode> children;
-  private ReadOnlyListWrapper<Rule> leafs;
+  private ReadOnlyListWrapper<CategoryNode> childNodes;
+  private ReadOnlyListWrapper<Rule> rules;
   private StringProperty name;
   private CategoryNode parent;
   private int depth;
@@ -31,8 +31,8 @@ public class CategoryNode implements Observable {
   public CategoryNode(StringProperty name) {
     this.name = name;
     this.invalidationListenerList = new ArrayList<>();
-    this.children = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
-    this.leafs = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
+    this.childNodes = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
+    this.rules = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
     this.depth = 0;
 
     InvalidationListener invalidateOnNameChange = observable -> invalidationListenerList
@@ -45,8 +45,8 @@ public class CategoryNode implements Observable {
     ListChangeListener<? super Rule> invalidateOnListChangeRule =
         change -> invalidationListenerList
             .forEach(invalidationListener -> invalidationListener.invalidated(this));
-    this.children.addListener(invalidateOnListChangeNode);
-    this.leafs.addListener(invalidateOnListChangeRule);
+    this.childNodes.addListener(invalidateOnListChangeNode);
+    this.rules.addListener(invalidateOnListChangeRule);
   }
 
   public CategoryNode(StringProperty name, CategoryNode parent) {
@@ -54,28 +54,28 @@ public class CategoryNode implements Observable {
     this.parent = parent;
   }
 
-  public CategoryNode(StringProperty name, List<CategoryNode> children, List<Rule> leafs) {
+  public CategoryNode(StringProperty name, List<CategoryNode> childNodes, List<Rule> rules) {
     this(name);
-    children.forEach(this::addCategoryIfPossible);
-    this.leafs.addAll(leafs);
+    childNodes.forEach(this::addCategoryIfPossible);
+    this.rules.addAll(rules);
   }
 
-  public CategoryNode(String name, List<Rule> leafs) {
+  public CategoryNode(String name, List<Rule> rules) {
     this(name);
-    this.leafs.addAll(leafs);
+    this.rules.addAll(rules);
   }
 
   public boolean addAllRules(Collection<Rule> rules) {
-    return leafs.addAll(rules);
+    return this.rules.addAll(rules);
   }
 
   public boolean addRule(Rule rule) {
     rule.setParent(this);
-    return leafs.add(rule);
+    return rules.add(rule);
   }
 
   public boolean removeRule(Rule rule) {
-    return leafs.remove(rule);
+    return rules.remove(rule);
   }
 
   public boolean addCategoryIfPossible(CategoryNode categoryNode) {
@@ -84,16 +84,20 @@ public class CategoryNode implements Observable {
     if (depthIfAdded <= MAX_DEPTH) {
       this.depth = depthIfAdded;
       categoryNode.setParent(this);
-      return children.add(categoryNode);
+      return childNodes.add(categoryNode);
     } else {
       return false;
     }
   }
 
   public boolean removeCategory(CategoryNode categoryNode) {
-    if (children.remove(categoryNode)) {
+    if (childNodes.remove(categoryNode)) {
+      Optional<CategoryNode> optParent = categoryNode.getParent();
+      if (optParent.isPresent() && optParent.get().equals(this)) {
+        categoryNode.setParent(null);
+      }
       categoryNode.setParent(null);
-      this.depth = children.stream().mapToInt(CategoryNode::getDepth).max().orElse(0);
+      this.depth = childNodes.stream().mapToInt(CategoryNode::getDepth).max().orElse(0);
       return true;
     } else {
       return false;
@@ -112,19 +116,19 @@ public class CategoryNode implements Observable {
   }
 
   public boolean isLeaf() {
-    return children.get().isEmpty();
+    return childNodes.get().isEmpty();
   }
 
   public boolean isRoot() {
     return parent == null;
   }
 
-  public Stream<CategoryNode> stream() {
-    if (childrenRO().isEmpty()) {
+  public Stream<CategoryNode> streamSubTree() {
+    if (childNodesRO().isEmpty()) {
       return Stream.of(this);
     } else {
-      return childrenRO().stream()
-          .map(CategoryNode::stream)
+      return childNodesRO().stream()
+          .map(CategoryNode::streamSubTree)
           .reduce(Stream.of(this), Stream::concat);
     }
   }
@@ -140,12 +144,12 @@ public class CategoryNode implements Observable {
     invalidationListenerList.remove(invalidationListener);
   }
 
-  public ReadOnlyListWrapper<CategoryNode> childrenRO() {
-    return children;
+  public ReadOnlyListWrapper<CategoryNode> childNodesRO() {
+    return childNodes;
   }
 
-  public ReadOnlyListWrapper<Rule> leafsRO() {
-    return leafs;
+  public ReadOnlyListWrapper<Rule> rulesRO() {
+    return rules;
   }
 
   public String getName() {
@@ -186,8 +190,8 @@ public class CategoryNode implements Observable {
     }
     CategoryNode other = (CategoryNode) o;
     boolean r = depth == other.depth &&
-        children.equals(other.children) &&
-        leafs.equals(other.leafs) &&
+        childNodes.equals(other.childNodes) &&
+        rules.equals(other.rules) &&
         getName().equals(other.getName()) &&
         this.hasParent() == other.hasParent();
     if (r && other.getParent().isPresent()) {

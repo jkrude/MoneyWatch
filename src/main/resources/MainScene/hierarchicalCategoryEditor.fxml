@@ -2,21 +2,26 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/11.0.1"
   xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="com.jkrude.controller.HierarchicalCategoryEditor">
   <children>
-    <TreeView fx:id="categoryTreeView" layoutX="530.0" layoutY="46.0" prefHeight="674.0"
-      prefWidth="1286.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-      AnchorPane.rightAnchor="-6.0" AnchorPane.topAnchor="46.0"/>
     <ButtonBar layoutX="422.0" layoutY="77.0" prefHeight="40.0" prefWidth="1280.0"
       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <buttons>
-        <Button fx:id="backButton" mnemonicParsing="false" text="Back"
-          ButtonBar.buttonData="LEFT"/>
+        <Button fx:id="backButton" onAction="#goBack" text="Back" ButtonBar.buttonData="LEFT"/>
       </buttons>
     </ButtonBar>
+    <SplitPane dividerPositions="0.5" prefHeight="680.0" prefWidth="1280.0"
+      AnchorPane.topAnchor="40.0">
+      <TreeView fx:id="categoryTreeView" layoutX="530.0" layoutY="46.0" prefHeight="674.0"
+        prefWidth="634.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+        AnchorPane.rightAnchor="-6.0" AnchorPane.topAnchor="46.0"/>
+      <ListView fx:id="ruleView" prefHeight="747.0" prefWidth="634.0"/>
+    </SplitPane>
   </children>
 </AnchorPane>

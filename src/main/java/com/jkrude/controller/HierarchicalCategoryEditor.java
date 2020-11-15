@@ -6,61 +6,161 @@ import com.jkrude.main.Main;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Model;
 import com.jkrude.material.UI.RuleDialog;
+import com.jkrude.material.Utility;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 public class HierarchicalCategoryEditor extends Controller {
 
   @FXML
-  private TreeView<TreeWrapper> categoryTreeView;
+  private ListView<Rule> ruleView;
   @FXML
-  private Button backButton;
+  private TreeView<CategoryNode> categoryTreeView;
+  @FXML
   private SimpleBooleanProperty invalidatedProperty;
 
-  private static ContextMenu getContextMenu(TreeCell<TreeWrapper> cell) {
-    assert cell != null && cell.getItem() != null;
-    ContextMenu contextMenu = new ContextMenu();
-    if (cell.getItem().holdsNode()) {
-      MenuItem itemRename = new MenuItem("Rename");
-      itemRename.setOnAction(event -> newNameDialog(cell));
-      contextMenu.getItems().add(itemRename);
 
-      MenuItem itemAddChild = new MenuItem("Add SubCategory");
-      itemAddChild.setOnAction(event -> addSubCategory(cell));
-      contextMenu.getItems().add(itemAddChild);
-
-      if (cell.getItem().node.isLeaf()) {
-        MenuItem itemAddRule = new MenuItem("Add Rule");
-        itemAddRule.setOnAction(event -> addRule(cell));
-        contextMenu.getItems().add(itemAddRule);
+  @FXML
+  public void initialize() {
+    invalidatedProperty = new SimpleBooleanProperty(false);
+    ruleView.setPlaceholder(getRuleViewPlaceholder());
+    ruleView.setCellFactory(ruleListView -> new RuleCell());
+    // TreeView::cellFactory: Bind text to name and set dynamic contextMenu
+    categoryTreeView.setCellFactory(new Callback<>() {
+      @Override
+      public TreeCell<CategoryNode> call(TreeView<CategoryNode> categoryNodeTreeView) {
+        return new TreeCell<>() {
+          @Override
+          public void updateItem(CategoryNode item, boolean isEmpty) {
+            super.updateItem(item, isEmpty);
+            if (isEmpty) {
+              setContextMenu(null);
+              textProperty().unbind();
+              textProperty().set("");
+            } else {
+              setContextMenu(HierarchicalCategoryEditor.getCMForCategory(this));
+              textProperty().unbind();
+              textProperty().bind(item.nameProperty());
+            }
+          }
+        };
       }
-    } else {
-      MenuItem itemEditRule = new MenuItem("Edit");
-      itemEditRule.setOnAction(event -> editRule(cell));
-      contextMenu.getItems().add(itemEditRule);
-    }
-    MenuItem itemDelete = new MenuItem("Delete");
-    itemDelete.setOnAction(event -> removeFromTree(cell));
-    contextMenu.getItems().add(itemDelete);
-    return contextMenu;
+    });
+    // Bin ruleView to rules of selected item.
+    categoryTreeView.getSelectionModel().selectedItemProperty().addListener(
+        (observed, oldValue, newValue) -> {
+          if (oldValue != null) {
+            ruleView.itemsProperty().unbindBidirectional(oldValue.getValue().rulesRO());
+          }
+          if (newValue != null) {
+            ruleView.itemsProperty()
+                .bindBidirectional(newValue.getValue().rulesRO());
+          }
+        });
+    // Populate categoryTreeView.
+    setTreeViewItems();
   }
 
-  private static void addSubCategory(TreeCell<TreeWrapper> cell) {
-    assert cell.getItem().holdsNode();
-    var node = cell.getItem().node;
+  @Override
+  public void prepare() {
+    if (invalidatedProperty != null && invalidatedProperty.get()) {
+      setTreeViewItems();
+      invalidatedProperty.set(false);
+    }
+  }
+
+  @FXML
+  private void goBack(ActionEvent actionEvent) {
+    Main.goBack();
+  }
+
+  private Node getRuleViewPlaceholder() {
+    VBox box = new VBox();
+    box.setOpaqueInsets(new Insets(32));
+    box.setAlignment(Pos.CENTER);
+    Label label = new Label("This category has no rules yet");
+    Button addRule = new Button("Create first rule.");
+    addRule.setOnAction(this::addRuleIfCategorySelected);
+    box.getChildren().addAll(label, addRule);
+    return box;
+  }
+
+  private void addRuleIfCategorySelected(ActionEvent event) {
+    TreeItem<CategoryNode> selectedCategory = categoryTreeView.getSelectionModel()
+        .getSelectedItem();
+    if (selectedCategory == null) {
+      AlertBox.showAlert("Error", "No Category selected", null, AlertType.ERROR);
+      return;
+    }
+    CategoryNode category = selectedCategory.getValue();
+    addRule(category);
+  }
+
+  private void setTreeViewItems() {
+    categoryTreeView.setRoot(mapToTreeItems(Model.getInstance().getProfile().getRootCategory()));
+    categoryTreeView.getRoot().getValue().streamSubTree().forEach(
+        categoryNode -> categoryNode.addListener(observable -> invalidatedProperty.set(true))
+    );
+  }
+
+  private static ContextMenu getCMForCategory(TreeCell<CategoryNode> cell) {
+    ContextMenu cm = new ContextMenu();
+    MenuItem iRename = new MenuItem("Rename");
+    iRename.setOnAction(actionEvent -> newNameDialog(cell));
+    MenuItem iAddChild = new MenuItem("Add subcategory");
+    iAddChild.setOnAction(actionEvent -> addSubCategory(cell));
+    MenuItem iRemove = new MenuItem("Delete");
+    iRemove.setOnAction(actionEvent -> removeCategory(cell));
+    // If cell != root => add #changeParent.
+    if (cell.getTreeItem().getParent() != null) {
+      MenuItem iMove = new MenuItem("Change parent");
+      iMove.setOnAction(actionEvent -> changeParent(cell));
+      cm.getItems().add(iMove);
+    }
+    cm.getItems().addAll(iRename, iAddChild, iRemove);
+    return cm;
+  }
+
+  private static void newNameDialog(TreeCell<CategoryNode> cell) {
+    TextInputDialog textInputDialog = new TextInputDialog("New name");
+    textInputDialog.setHeaderText("");
+    textInputDialog.setTitle("Change the name here");
+    textInputDialog.getEditor().setText(cell.getItem().getName());
+    Optional<String> result = textInputDialog.showAndWait();
+    if (result.isPresent()) {
+      if (result.get().isBlank()) {
+        showAlertForEmptyInput();
+        newNameDialog(cell);
+        // Only rename if it is new name.
+      } else if (!cell.getItem().toString().equals(result.get())) {
+        cell.getItem().nameProperty().set(result.get());
+      }
+    }
+  }
+
+  private static void addSubCategory(TreeCell<CategoryNode> cell) {
+    CategoryNode node = cell.getItem();
     TextInputDialog textInputDialog = new TextInputDialog("New Category");
     textInputDialog.setTitle("Add the name here");
     Optional<String> result = textInputDialog.showAndWait();
@@ -69,68 +169,79 @@ public class HierarchicalCategoryEditor extends Controller {
     }
     CategoryNode newCategory = new CategoryNode(result.get());
     node.addCategoryIfPossible(newCategory);
-    cell.getTreeItem().getChildren().add(TreeWrapper.wrapCategory(newCategory));
   }
 
-  private static void addRule(TreeCell<TreeWrapper> cell) {
-    Optional<Rule> optRule = new RuleDialog().showAndWait();
-    if (optRule.isPresent()) {
-      TreeItem<TreeWrapper> newRuleItem = TreeWrapper.wrapRule(optRule.get());
-      cell.getTreeItem().getChildren().add(newRuleItem);
-      cell.getItem().node.addRule(optRule.get());
+  private static void removeCategory(TreeCell<CategoryNode> cell) {
+    // Get parent TreeItem -> get parent::item(CategoryNode) -> remove cell::item(CategoryNode).
+    cell.getTreeItem().getParent().getValue().removeCategory(cell.getItem());
+  }
+
+  private static void changeParent(TreeCell<CategoryNode> cell) {
+    CategoryNode node = cell.getItem();
+    CategoryNode parent = cell.getTreeItem().getParent().getValue();
+    // TODO: set ChoiceDialog::Labels::Text to CategoryNode::Name
+    ChoiceDialog<CategoryNode> choiceDialog = new ChoiceDialog<>(node,
+        node.getRoot().streamSubTree().collect(Collectors.toList()));
+    Utility.setCellFactory(choiceDialog, HierarchicalCategoryEditor::categoryConverter);
+    Optional<CategoryNode> optCat = choiceDialog.showAndWait();
+    if (optCat.isPresent() && !optCat.get().equals(node)) {
+      boolean success = optCat.get().addCategoryIfPossible(node);
+      if (success) {
+        parent.removeCategory(node);
+      }
     }
   }
 
-  private static TreeCell<TreeWrapper> cellFactory(TreeView<TreeWrapper> tree) {
+  private static ContextMenu getCMForRule(ListCell<Rule> cell) {
+    ContextMenu cm = new ContextMenu();
+    MenuItem iEdit = new MenuItem("Edit");
+    iEdit.setOnAction(actionEvent -> addRule(cell));
+    cm.getItems().add(iEdit);
+    return cm;
+  }
 
-    TreeCell<TreeWrapper> cell = new TreeCell<>() {
-      @Override
-      public void updateItem(TreeWrapper item, boolean empty) {
-        super.updateItem(item, empty);
-        if (empty) {
-          setContextMenu(null);
-        } else {
-          setContextMenu(HierarchicalCategoryEditor.getContextMenu(this));
+  private static void addRule(ListCell<Rule> cell) {
+    new RuleDialog()
+        .editRuleShowAndWait(cell.getItem())
+        .ifPresent(rule -> cell.getListView().getItems().set(cell.getIndex(), rule));
+  }
+
+  private static void addRule(CategoryNode node) {
+    new RuleDialog()
+        .showAndWait()
+        .ifPresent(node::addRule);
+  }
+
+  private TreeItem<CategoryNode> mapToTreeItems(CategoryNode root) {
+    TreeItem<CategoryNode> rootItem = new TreeItem<>(root);
+    root.childNodesRO().addListener(getNodeListChangeListener(rootItem));
+    root.childNodesRO().forEach(category -> addCategoryRecursive(category, rootItem));
+    return rootItem;
+  }
+
+  private void addCategoryRecursive(CategoryNode categoryNode, TreeItem<CategoryNode> parent) {
+    TreeItem<CategoryNode> treeItem = new TreeItem<>(categoryNode);
+    parent.getChildren().add(treeItem);
+    categoryNode.childNodesRO().addListener(getNodeListChangeListener(treeItem));
+    categoryNode.childNodesRO().forEach(category -> addCategoryRecursive(category, treeItem));
+  }
+
+  private ListChangeListener<CategoryNode> getNodeListChangeListener(
+      TreeItem<CategoryNode> rootItem) {
+    // Reflect changes from categoryNode within TreeView.
+    return change -> {
+      while (change.next()) {
+        if (change.wasAdded()) {
+          for (var node : change.getAddedSubList()) {
+            addCategoryRecursive(node, rootItem);
+          }
+        }
+        if (change.wasRemoved()) {
+          rootItem.getChildren().removeIf(item -> change.getRemoved().contains(item.getValue()));
         }
       }
     };
-    cell.itemProperty().isNotNull().addListener(new ChangeListener<Boolean>() {
-      @Override
-      public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue,
-          Boolean newValue) {
-        if (newValue) {
-          cell.textProperty().bind(cell.itemProperty().get().stringProperty);
-        } else {
-          cell.textProperty().unbind();
-          cell.textProperty().set("");
-        }
-      }
-    });
 
-    return cell;
-  }
-
-  private static void removeFromTree(TreeCell<TreeWrapper> cell) {
-    TreeItem<TreeWrapper> item = cell.getTreeItem();
-    TreeWrapper parent = item.getParent().getValue();
-    parent.removeChild(item.getValue());
-    item.getParent().getChildren().remove(item);
-  }
-
-  private static void newNameDialog(TreeCell<TreeWrapper> cell) {
-    TextInputDialog textInputDialog = new TextInputDialog("New name");
-    textInputDialog.setHeaderText("");
-    textInputDialog.setTitle("Change the name here");
-    textInputDialog.getEditor().setText(cell.getItem().toString());
-    Optional<String> result = textInputDialog.showAndWait();
-    if (result.isPresent()) {
-      if (result.get().isBlank()) {
-        showAlertForEmptyInput();
-        newNameDialog(cell);
-      } else if (!cell.getItem().toString().equals(result.get())) { // only rename if it is new name
-        cell.getItem().renameNode(result.get());
-      }
-    }
   }
 
   private static void showAlertForEmptyInput() {
@@ -138,139 +249,40 @@ public class HierarchicalCategoryEditor extends Controller {
         AlertType.INFORMATION);
   }
 
-  private static void editRule(TreeCell<TreeWrapper> cell) {
-    Optional<Rule> optRule = editRuleDialog(cell.getItem().rule,
-        cell.getTreeView().getRoot().getValue().node);
-    optRule.ifPresent(rule -> cell.getItem().changeRule(rule));
-  }
-
-  private static Optional<Rule> editRuleDialog(Rule rule, CategoryNode root) {
-    Optional<Rule> optRule = new RuleDialog().editRuleShowAndWait(rule);
-    if (optRule.isPresent() && !optRule.get().equals(rule)) {
-      Rule editedRule = optRule.get();
-      if (root.stream()
-          .flatMap(node -> node.leafsRO().stream())
-          .anyMatch(rule1 -> rule1.equals(editedRule))) {
-        showAlertForExistingRule();
+  private static ListCell<CategoryNode> categoryConverter(
+      ListView<CategoryNode> categoryNodeListView) {
+    return new ListCell<>() {
+      @Override
+      protected void updateItem(CategoryNode categoryNode, boolean isEmpty) {
+        super.updateItem(categoryNode, isEmpty);
+        if (isEmpty) {
+          setText(null);
+        } else {
+          setText(categoryNode.getName());
+        }
       }
-      return Optional.of(editedRule);
-    }
-    return Optional.empty();
+    };
   }
 
-  private static void showAlertForExistingRule() {
-    AlertBox.showAlert("Error!", "Rule already exists", "", AlertType.ERROR);
-  }
-
-  @Override
-  public void prepare() {
-    if (invalidatedProperty.get()) {
-      categoryTreeView.setRoot(
-          convertToTreeItems(Model.getInstance().getProfile().getRootCategory())
-      );
-      invalidatedProperty.set(false);
-    }
-  }
-
-  @FXML
-  public void initialize() {
-    invalidatedProperty = new SimpleBooleanProperty();
-    backButton.setOnAction(event -> Main.goBack());
-    CategoryNode rootCategory = Model.getInstance().getProfile().getRootCategory();
-    rootCategory.stream()
-        .forEach(node -> node.addListener(observable -> invalidatedProperty.set(true)));
-    TreeItem<TreeWrapper> root = convertToTreeItems(rootCategory);
-    categoryTreeView.setRoot(root);
-    categoryTreeView.setCellFactory(HierarchicalCategoryEditor::cellFactory);
-  }
-
-  private TreeItem<TreeWrapper> convertToTreeItems(CategoryNode rootNode) {
-    TreeItem<TreeWrapper> root = TreeWrapper.wrapCategory(rootNode);
-    rootNode.leafsRO().forEach(rule -> root.getChildren().add(TreeWrapper.wrapRule(rule)));
-    rootNode.childrenRO().forEach(category -> addRecursive(category, root));
-    root.setExpanded(!rootNode.childrenRO().isEmpty() || !rootNode.leafsRO().isEmpty());
-    return root;
-  }
-
-  private void addRecursive(CategoryNode categoryNode, TreeItem<TreeWrapper> parent) {
-    TreeItem<TreeWrapper> node = TreeWrapper.wrapCategory(categoryNode);
-    parent.getChildren().add(node);
-    categoryNode.leafsRO().forEach(rule -> node.getChildren().add(TreeWrapper.wrapRule(rule)));
-    categoryNode.childrenRO().forEach(category -> addRecursive(category, node));
-  }
-
-  private static class TreeWrapper {
-
-    private final StringProperty stringProperty;
-    private CategoryNode node;
-    private Rule rule;
-
-    private TreeWrapper(CategoryNode node) {
-      this.node = node;
-      this.stringProperty = new SimpleStringProperty();
-      this.stringProperty.bindBidirectional(node.nameProperty());
-      this.rule = null;
-    }
-
-    private TreeWrapper(Rule rule) {
-      this.rule = rule;
-      this.stringProperty = new SimpleStringProperty(ruleAsString());
-      this.node = null;
-    }
-
-    public static TreeItem<TreeWrapper> wrapCategory(CategoryNode node) {
-      return new TreeItem<>(new TreeWrapper(node));
-    }
-
-    public static TreeItem<TreeWrapper> wrapRule(Rule rule) {
-      return new TreeItem<>(new TreeWrapper(rule));
-    }
-
-    private String ruleAsString() {
-      assert this.rule != null;
-      StringBuilder stringBuilder = new StringBuilder();
-      rule.getIdentifierPairs()
-          .forEach(
-              pair -> stringBuilder.append(pair.getKey()).append(": ").append(pair.getValue())
-                  .append(", "));
-      stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
-      return stringBuilder.toString();
-    }
+  private static class RuleCell extends ListCell<Rule> {
 
     @Override
-    public String toString() {
-      return stringProperty.get();
-    }
-
-    public void renameNode(String s) {
-      assert node != null;
-      node.nameProperty().set(s);
-    }
-
-    public boolean holdsNode() {
-      return node != null;
-    }
-
-    public void removeChild(TreeWrapper value) {
-      assert holdsNode();
-      if (value.holdsNode()) {
-        this.node.removeCategory(value.node);
+    protected void updateItem(Rule rule, boolean isEmpty) {
+      super.updateItem(rule, isEmpty);
+      if (isEmpty) {
+        setText(null);
+        setContextMenu(null);
       } else {
-        this.node.removeRule(value.rule);
+        // TODO: beautify rule visualisation
+        StringBuilder stringBuilder = new StringBuilder();
+        rule.getIdentifierPairs()
+            .forEach(
+                pair -> stringBuilder.append(pair.getKey()).append(": ").append(pair.getValue())
+                    .append(", "));
+        stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
+        setText(stringBuilder.toString());
+        setContextMenu(getCMForRule(this));
       }
     }
-
-    public void changeRule(Rule newRule) {
-      assert !holdsNode();
-      if (this.rule.getParent().isPresent()) {
-        CategoryNode parent = this.rule.getParent().get();
-        parent.removeRule(this.rule);
-        parent.addRule(newRule);
-        newRule.setParent(parent);
-        this.rule = newRule;
-        this.stringProperty.set(ruleAsString());
-      }
-    }
-
   }
 }

@@ -64,7 +64,7 @@ public class SunburstController extends DataDependingController {
     if (invalidatedProperty.get()) {
       setDataWithPossibleDialog();
       CategoryNode rootCategory = Model.getInstance().getProfile().getRootCategory();
-      rootCategory.stream().forEach(node -> node.addListener(
+      rootCategory.streamSubTree().forEach(node -> node.addListener(
           observable -> invalidate()));
       drawChart(rootCategory);
       invalidatedProperty.set(false);
@@ -167,7 +167,7 @@ public class SunburstController extends DataDependingController {
     // Otherwise (if the Transaction would be given at row creation) it would be null.
     ContextMenu contextMenu = new ContextMenu();
     Menu categoryChoices = new Menu("Add as rule");
-    Model.getInstance().getProfile().getRootCategory().stream().forEach(
+    Model.getInstance().getProfile().getRootCategory().streamSubTree().forEach(
         categoryNode -> {
           // Rules can only be applied to leafs
           if (categoryNode.isLeaf()) {

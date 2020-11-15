@@ -52,7 +52,7 @@ public class TreeChartData {
   }
 
   private void genChildren() {
-    category.childrenRO().stream()
+    category.childNodesRO().stream()
         .map(categoryNode -> new TreeChartData(categoryNode, sourceTransactionsList))
         .forEach(this::addChildren);
 
@@ -60,7 +60,7 @@ public class TreeChartData {
 
   private void calculateValue() {
     for (Transaction t : sourceTransactionsList) {
-      for (Rule r : category.leafsRO()) {
+      for (Rule r : category.rulesRO()) {
         if (r.getPredicate().test(t)) {
           matchedTransactions.add(t);
         }
