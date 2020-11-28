@@ -4,7 +4,7 @@ import com.jkrude.main.Main;
 import com.jkrude.main.Main.UsableScene;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Model;
-import com.jkrude.material.TransactionContainer;
+import com.jkrude.transaction.TransactionContainer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

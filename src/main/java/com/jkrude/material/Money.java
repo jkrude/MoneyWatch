@@ -1,6 +1,6 @@
 package com.jkrude.material;
 
-import com.jkrude.material.TransactionContainer.Transaction;
+import com.jkrude.transaction.Transaction;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;

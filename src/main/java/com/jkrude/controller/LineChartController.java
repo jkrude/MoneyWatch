@@ -3,11 +3,12 @@ package com.jkrude.controller;
 import com.jkrude.main.Main;
 import com.jkrude.material.Model;
 import com.jkrude.material.Money;
-import com.jkrude.material.TransactionContainer;
-import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
 import com.jkrude.material.Utility;
+import com.jkrude.transaction.ExtendedTransaction;
+import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.TransactionContainer;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -174,6 +175,7 @@ public class LineChartController extends DataDependingController {
   private ObservableList<Transaction> getTableData(XYChart.Data<Number, Number> data,
       TransactionContainer transactionContainer) {
     return transactionContainer.getSource().stream()
+        .map(ExtendedTransaction::getBaseTransaction)
         .filter(t -> t.getDate().equals(dateLookupTable.get(data.getXValue())))
         .collect(Collectors.toCollection(FXCollections::observableArrayList));
   }

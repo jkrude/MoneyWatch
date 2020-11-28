@@ -1,9 +1,9 @@
 package com.jkrude.material.UI;
 
 import com.jkrude.material.AlertBox;
-import com.jkrude.material.TransactionContainer;
-import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.Utility;
+import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.TransactionContainer;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;

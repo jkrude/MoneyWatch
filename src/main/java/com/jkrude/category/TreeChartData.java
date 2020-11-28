@@ -1,7 +1,7 @@
 package com.jkrude.category;
 
 import com.jkrude.material.Money;
-import com.jkrude.material.TransactionContainer.Transaction;
+import com.jkrude.transaction.Transaction;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +29,8 @@ public class TreeChartData {
     this.sourceTransactionsList = observableTransactions;
     this.category = category;
     this.matchedTransactions = FXCollections.observableList(matchedTransactions);
-    this.roListWrapper = new ReadOnlyObjectWrapper<>(this.matchedTransactions);
+    this.roListWrapper = new ReadOnlyObjectWrapper<>(
+        this.matchedTransactions);
     this.children = new HashSet<>();
   }
 
@@ -37,7 +38,8 @@ public class TreeChartData {
     this.sourceTransactionsList = container;
     this.category = category;
     this.matchedTransactions = FXCollections.observableArrayList();
-    this.roListWrapper = new ReadOnlyObjectWrapper<>(this.matchedTransactions);
+    this.roListWrapper = new ReadOnlyObjectWrapper<>(
+        this.matchedTransactions);
     this.children = new HashSet<>();
     genChildren();
     calculateValue();

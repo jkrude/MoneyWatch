@@ -1,8 +1,8 @@
 package com.jkrude.material.UI;
 
 import com.jkrude.material.Money;
-import com.jkrude.material.TransactionContainer.Transaction;
 import com.jkrude.material.Utility;
+import com.jkrude.transaction.Transaction;
 import java.net.URL;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -180,7 +180,7 @@ public class TransactionTablePopUp {
 
     public Builder setContextMenu(Callback<TableRow<Transaction>, ContextMenu> menuGenerator) {
       ttp.table.setRowFactory(
-          new Callback<>() {
+          new Callback<TableView<Transaction>, TableRow<Transaction>>() {
             @Override
             public TableRow<Transaction> call(TableView<Transaction> transactionTableView) {
               final TableRow<Transaction> row = new TableRow<>();

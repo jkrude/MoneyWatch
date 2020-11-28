@@ -1,9 +1,9 @@
 package com.jkrude.category;
 
 import com.jkrude.material.Money;
-import com.jkrude.material.TransactionContainer.Transaction;
-import com.jkrude.material.TransactionContainer.TransactionField;
 import com.jkrude.material.Utility;
+import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.Transaction.TransactionField;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.HashSet;

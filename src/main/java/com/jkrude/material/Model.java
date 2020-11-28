@@ -1,5 +1,6 @@
 package com.jkrude.material;
 
+import com.jkrude.transaction.TransactionContainer;
 import java.util.List;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;

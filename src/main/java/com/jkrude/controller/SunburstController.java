@@ -7,13 +7,14 @@ import com.jkrude.main.Main;
 import com.jkrude.main.Main.UsableScene;
 import com.jkrude.material.Model;
 import com.jkrude.material.Money;
-import com.jkrude.material.TransactionContainer;
-import com.jkrude.material.TransactionContainer.Transaction;
-import com.jkrude.material.TransactionContainer.TransactionField;
 import com.jkrude.material.TreeNodeAdapter;
 import com.jkrude.material.UI.RuleDialog;
 import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
+import com.jkrude.transaction.ExtendedTransaction;
+import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.Transaction.TransactionField;
+import com.jkrude.transaction.TransactionContainer;
 import eu.hansolo.fx.charts.SunburstChart.TextOrientation;
 import eu.hansolo.fx.charts.SunburstChartBuilder;
 import eu.hansolo.fx.charts.data.ChartItem;
@@ -85,6 +86,7 @@ public class SunburstController extends DataDependingController {
 
   private ObservableList<Transaction> filterTransactions(TransactionContainer data) {
     return data.getSource().stream()
+        .map(ExtendedTransaction::getBaseTransaction)
         .filter(t -> !t.isPositive())
         .collect(Collectors.toCollection(FXCollections::observableArrayList));
   }
@@ -123,7 +125,8 @@ public class SunburstController extends DataDependingController {
   private void addUndefinedSegment(TreeNode<ChartItem> root) {
     TreeChartData rootChartData = nameToDataMap.get(root.getItem().getName());
     List<Transaction> allMatched = new ArrayList<>(negativeTransactions.size());
-    rootChartData.stream().map(tData -> tData.matchedTransactionsRO().get())
+    rootChartData.stream()
+        .map(tData -> tData.matchedTransactionsRO().get())
         .forEach(allMatched::addAll);
     List<Transaction> notMatched = new ArrayList<>(negativeTransactions);
     notMatched.removeAll(allMatched);

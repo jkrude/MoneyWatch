@@ -2,8 +2,8 @@ package com.jkrude.material;
 
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
-import com.jkrude.material.TransactionContainer.Transaction;
-import com.jkrude.material.TransactionContainer.TransactionField;
+import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.TransactionContainer;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.Set;
@@ -15,7 +15,7 @@ public class TestData {
 
   public static TransactionContainer getCamtWithTestData() {
 
-    ObservableList<TransactionContainer.Transaction> entries = FXCollections.observableArrayList();
+    ObservableList<Transaction> entries = FXCollections.observableArrayList();
     entries.add(new Transaction(
         LocalDate.parse("26.09.19", Utility.DATE_TIME_FORMATTER),
         "DE04100500006013719070",
@@ -135,25 +135,25 @@ public class TestData {
     necessaries.addCategory(rent);
     try {
       cinema.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(TransactionField.USAGE, "Schauburg"))
+          .fromPair(new Pair<>(Transaction.TransactionField.USAGE, "Schauburg"))
           .build());
       food.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(TransactionField.IBAN, "DE68750200730008472092"))
+          .fromPair(new Pair<>(Transaction.TransactionField.IBAN, "DE68750200730008472092"))
           .addNote("Netto")
           .build());
       food.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(TransactionField.IBAN, "DE85120800000101752405"))
+          .fromPair(new Pair<>(Transaction.TransactionField.IBAN, "DE85120800000101752405"))
           .addNote("Wiener Bäckerei")
           .build());
       travel.addRule(Rule.RuleBuilder
-          .fromSet(Set.of(new Pair<>(TransactionField.USAGE, "FLIXBUS"),
-              new Pair<>(TransactionField.OTHER_PARTY, "PayPal")))
+          .fromSet(Set.of(new Pair<>(Transaction.TransactionField.USAGE, "FLIXBUS"),
+              new Pair<>(Transaction.TransactionField.OTHER_PARTY, "PayPal")))
           .build());
       travel.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(TransactionField.USAGE, "Ihr Einkauf bei BVG"))
+          .fromPair(new Pair<>(Transaction.TransactionField.USAGE, "Ihr Einkauf bei BVG"))
           .build());
       rent.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Maximilian Walther"))
+          .fromPair(new Pair<>(Transaction.TransactionField.OTHER_PARTY, "Maximilian Walther"))
           .addNote("Miete")
           .build());
     } catch (ParseException e) {

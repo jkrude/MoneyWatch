@@ -3,7 +3,8 @@ package com.jkrude.material;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
 import com.jkrude.category.Rule.RuleBuilder;
-import com.jkrude.material.TransactionContainer.TransactionField;
+import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.Transaction.TransactionField;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -95,7 +96,7 @@ public class PersistenceManager {
       Set<Pair<TransactionField, String>> ids = new HashSet<>();
       for (JSONObject jId : (Iterable<JSONObject>) jRule.get("ids")) {
         String key = (String) jId.get("key");
-        TransactionField transactionField = TransactionField.get(key);
+        TransactionField transactionField = Transaction.TransactionField.get(key);
         String string = (String) jId.get("value");
         ids.add(new Pair<>(transactionField, string));
       }
