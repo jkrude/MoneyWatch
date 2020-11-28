@@ -1,7 +1,7 @@
 package com.jkrude.category;
 
 import com.jkrude.material.Money;
-import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.ExtendedTransaction;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -16,15 +16,15 @@ public class TreeChartData {
 
   private TreeChartData parent;
   private CategoryNode category;
-  private ObservableList<Transaction> sourceTransactionsList;
-  private ObservableList<Transaction> matchedTransactions;
-  private ReadOnlyObjectWrapper<ObservableList<Transaction>> roListWrapper;
+  private ObservableList<ExtendedTransaction> sourceTransactionsList;
+  private ObservableList<ExtendedTransaction> matchedTransactions;
+  private ReadOnlyObjectWrapper<ObservableList<ExtendedTransaction>> roListWrapper;
   private Money value;
   private Set<TreeChartData> children;
 
   public TreeChartData(CategoryNode category,
-      List<Transaction> matchedTransactions,
-      ObservableList<Transaction> observableTransactions) {
+      List<ExtendedTransaction> matchedTransactions,
+      ObservableList<ExtendedTransaction> observableTransactions) {
 
     this.sourceTransactionsList = observableTransactions;
     this.category = category;
@@ -34,7 +34,7 @@ public class TreeChartData {
     this.children = new HashSet<>();
   }
 
-  private TreeChartData(CategoryNode category, ObservableList<Transaction> container) {
+  private TreeChartData(CategoryNode category, ObservableList<ExtendedTransaction> container) {
     this.sourceTransactionsList = container;
     this.category = category;
     this.matchedTransactions = FXCollections.observableArrayList();
@@ -49,7 +49,7 @@ public class TreeChartData {
 
   public static TreeChartData createTree(
       CategoryNode rootCategory,
-      ObservableList<Transaction> observableTransactions) {
+      ObservableList<ExtendedTransaction> observableTransactions) {
     return new TreeChartData(rootCategory, observableTransactions);
   }
 
@@ -61,14 +61,14 @@ public class TreeChartData {
   }
 
   private void calculateValue() {
-    for (Transaction t : sourceTransactionsList) {
+    for (ExtendedTransaction t : sourceTransactionsList) {
       for (Rule r : category.rulesRO()) {
-        if (r.getPredicate().test(t)) {
+        if (r.getPredicate().test(t.getBaseTransaction())) {
           matchedTransactions.add(t);
         }
       }
     }
-    this.value = Money.sum(matchedTransactions);
+    this.value = Money.mapSum(matchedTransactions);
     getChildren().forEach(child -> value.add(child.value));
   }
 
@@ -115,12 +115,12 @@ public class TreeChartData {
     return children;
   }
 
-  public ReadOnlyObjectWrapper<ObservableList<Transaction>> matchedTransactionsRO() {
+  public ReadOnlyObjectWrapper<ObservableList<ExtendedTransaction>> matchedTransactionsRO() {
     return roListWrapper;
   }
 
-  public void update(List<Transaction> matchedTransactions,
-      ObservableList<Transaction> negativeTransactions) {
+  public void update(List<ExtendedTransaction> matchedTransactions,
+      ObservableList<ExtendedTransaction> negativeTransactions) {
     this.sourceTransactionsList = negativeTransactions;
     this.matchedTransactions.clear();
     this.matchedTransactions.addAll(matchedTransactions);

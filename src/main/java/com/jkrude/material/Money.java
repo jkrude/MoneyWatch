@@ -1,5 +1,6 @@
 package com.jkrude.material;
 
+import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -154,7 +155,15 @@ public class Money implements Comparable<Money>{
 
   public static Money sum(Iterable<Transaction> transactions) {
     Money total = new Money();
-    transactions.forEach(transaction -> total.add(transaction.getMoneyAmount()));
+    transactions.forEach(
+        transaction -> total.add(transaction.getMoneyAmount()));
+    return total;
+  }
+
+  public static Money mapSum(Iterable<? extends ExtendedTransaction> transactions) {
+    Money total = new Money();
+    transactions.forEach(
+        eTransaction -> total.add(eTransaction.getBaseTransaction().getMoneyAmount()));
     return total;
   }
 

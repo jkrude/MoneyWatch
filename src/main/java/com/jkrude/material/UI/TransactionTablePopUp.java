@@ -2,7 +2,7 @@ package com.jkrude.material.UI;
 
 import com.jkrude.material.Money;
 import com.jkrude.material.Utility;
-import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.ExtendedTransaction;
 import java.net.URL;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -25,44 +25,46 @@ import javafx.util.Callback;
 
 public class TransactionTablePopUp {
 
-  public TableView<Transaction> table;
+  public TableView<ExtendedTransaction> table;
   // Columns
   @FXML
-  private TableColumn<Transaction, String> accountIban;
+  private TableColumn<ExtendedTransaction, String> isActive;
   @FXML
-  private TableColumn<Transaction, String> transferDate;
+  private TableColumn<ExtendedTransaction, String> accountIban;
   @FXML
-  private TableColumn<Transaction, String> validationDate;
+  private TableColumn<ExtendedTransaction, String> transferDate;
   @FXML
-  private TableColumn<Transaction, String> transferSpecification;
+  private TableColumn<ExtendedTransaction, String> validationDate;
   @FXML
-  private TableColumn<Transaction, String> usage;
+  private TableColumn<ExtendedTransaction, String> transferSpecification;
   @FXML
-  private TableColumn<Transaction, String> creditorId;
+  private TableColumn<ExtendedTransaction, String> usage;
   @FXML
-  private TableColumn<Transaction, String> mandateReference;
+  private TableColumn<ExtendedTransaction, String> creditorId;
   @FXML
-  private TableColumn<Transaction, String> customerReferenceRndToEnd;
+  private TableColumn<ExtendedTransaction, String> mandateReference;
   @FXML
-  private TableColumn<Transaction, String> collectionReference;
+  private TableColumn<ExtendedTransaction, String> customerReferenceRndToEnd;
   @FXML
-  private TableColumn<Transaction, String> debitOriginalAmount;
+  private TableColumn<ExtendedTransaction, String> collectionReference;
   @FXML
-  private TableColumn<Transaction, String> backDebit;
+  private TableColumn<ExtendedTransaction, String> debitOriginalAmount;
   @FXML
-  private TableColumn<Transaction, String> otherParty;
+  private TableColumn<ExtendedTransaction, String> backDebit;
   @FXML
-  private TableColumn<Transaction, String> iban;
+  private TableColumn<ExtendedTransaction, String> otherParty;
   @FXML
-  private TableColumn<Transaction, String> bic;
+  private TableColumn<ExtendedTransaction, String> iban;
   @FXML
-  private TableColumn<Transaction, Money> amount;
+  private TableColumn<ExtendedTransaction, String> bic;
   @FXML
-  private TableColumn<Transaction, String> info;
+  private TableColumn<ExtendedTransaction, Money> amount;
+  @FXML
+  private TableColumn<ExtendedTransaction, String> info;
 
   public Button closeBtn;
 
-  private SimpleIntegerProperty activatedColumns = new SimpleIntegerProperty(5);
+  private final SimpleIntegerProperty activatedColumns = new SimpleIntegerProperty(6);
   private SimpleIntegerProperty columnWidth;
 
   // Constructor needs to be public (FXML) but should NOT be used
@@ -77,38 +79,46 @@ public class TransactionTablePopUp {
     table.getColumns().forEach(
         transactionTableColumn -> transactionTableColumn.prefWidthProperty().bind(columnWidth));
 
+    isActive.setCellValueFactory(callback -> {
+          SimpleStringProperty stringProp = new SimpleStringProperty();
+          stringProp.bind(Bindings.when(callback.getValue().isActiveProperty()).then("Active")
+              .otherwise("Ignored"));
+          return stringProp;
+        }
+    );
     accountIban.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getAccountIban()));
+        callback.getValue().getBaseTransaction().getAccountIban()));
     transferDate.setCellValueFactory(callback -> new SimpleStringProperty(
-        Utility.DATE_TIME_FORMATTER.format(callback.getValue().getDate())));
+        Utility.DATE_TIME_FORMATTER.format(callback.getValue().getBaseTransaction().getDate())));
     validationDate.setCellValueFactory(callback -> new SimpleStringProperty(
-        Utility.DATE_TIME_FORMATTER.format(callback.getValue().getValidationDate())));
+        Utility.DATE_TIME_FORMATTER
+            .format(callback.getValue().getBaseTransaction().getValidationDate())));
     transferSpecification.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getTransferSpecification()));
+        callback.getValue().getBaseTransaction().getTransferSpecification()));
     usage.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getUsage()));
+        callback.getValue().getBaseTransaction().getUsage()));
     creditorId.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getCreditorId()));
+        callback.getValue().getBaseTransaction().getCreditorId()));
     mandateReference.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getMandateReference()));
+        callback.getValue().getBaseTransaction().getMandateReference()));
     customerReferenceRndToEnd.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getCustomerReference()));
+        callback.getValue().getBaseTransaction().getCustomerReference()));
     collectionReference.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getCollectionReference()));
+        callback.getValue().getBaseTransaction().getCollectionReference()));
     debitOriginalAmount.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getDebitOriginalAmount()));
+        callback.getValue().getBaseTransaction().getDebitOriginalAmount()));
     backDebit.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getBackDebit()));
+        callback.getValue().getBaseTransaction().getBackDebit()));
     otherParty.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getOtherParty()));
+        callback.getValue().getBaseTransaction().getOtherParty()));
     iban.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getIban()));
+        callback.getValue().getBaseTransaction().getIban()));
     bic.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getBic()));
+        callback.getValue().getBaseTransaction().getBic()));
     amount.setCellValueFactory(callback -> new SimpleObjectProperty<>(
-        callback.getValue().getMoneyAmount()));
+        callback.getValue().getBaseTransaction().getMoneyAmount()));
     info.setCellValueFactory(callback -> new SimpleStringProperty(
-        callback.getValue().getInfo()));
+        callback.getValue().getBaseTransaction().getInfo()));
 
     amount.setCellFactory(getColoredCellFactory());
 
@@ -123,12 +133,12 @@ public class TransactionTablePopUp {
     table.setContextMenu(contextMenu);*/
   }
 
-  private Callback<TableColumn<Transaction, Money>, TableCell<Transaction, Money>> getColoredCellFactory() {
+  private Callback<TableColumn<ExtendedTransaction, Money>, TableCell<ExtendedTransaction, Money>> getColoredCellFactory() {
     // Set the color of the text depending on amount > 0 ?
     return new Callback<>() {
       @Override
-      public TableCell<Transaction, Money> call(
-          TableColumn<Transaction, Money> moneyTableColumn) {
+      public TableCell<ExtendedTransaction, Money> call(
+          TableColumn<ExtendedTransaction, Money> moneyTableColumn) {
         return new TableCell<>() {
           @Override
           protected void updateItem(Money money, boolean empty) {
@@ -148,8 +158,8 @@ public class TransactionTablePopUp {
 
   public static class Builder {
 
-    private TransactionTablePopUp ttp;
-    private Stage stage;
+    private final TransactionTablePopUp ttp;
+    private final Stage stage;
 
     private static final URL fxmlResource = TransactionTablePopUp.class
         .getResource("/PopUp/camtEntryAsTable.fxml");
@@ -161,13 +171,14 @@ public class TransactionTablePopUp {
       ttp.closeBtn.setOnAction(event -> stage.close());
     }
 
-    public static Builder initSet(final ObservableList<Transaction> tableData) {
+    public static Builder initSet(final ObservableList<ExtendedTransaction> tableData) {
       Builder b = new Builder();
       b.ttp.table.setItems(tableData);
       return b;
     }
 
-    public static Builder initBind(final ObjectProperty<ObservableList<Transaction>> tableData) {
+    public static Builder initBind(
+        final ObjectProperty<? extends ObservableList<ExtendedTransaction>> tableData) {
       Builder b = new Builder();
       b.ttp.table.itemsProperty().bind(tableData);
       return b;
@@ -178,12 +189,14 @@ public class TransactionTablePopUp {
       return this;
     }
 
-    public Builder setContextMenu(Callback<TableRow<Transaction>, ContextMenu> menuGenerator) {
+    public Builder setContextMenu(
+        Callback<TableRow<ExtendedTransaction>, ContextMenu> menuGenerator) {
       ttp.table.setRowFactory(
-          new Callback<TableView<Transaction>, TableRow<Transaction>>() {
+          new Callback<TableView<com.jkrude.transaction.ExtendedTransaction>, TableRow<com.jkrude.transaction.ExtendedTransaction>>() {
             @Override
-            public TableRow<Transaction> call(TableView<Transaction> transactionTableView) {
-              final TableRow<Transaction> row = new TableRow<>();
+            public TableRow<ExtendedTransaction> call(
+                TableView<ExtendedTransaction> transactionTableView) {
+              final TableRow<ExtendedTransaction> row = new TableRow<>();
               ContextMenu contextMenu = menuGenerator.call(row);
               row.contextMenuProperty().bind(
                   Bindings.when(Bindings.isNotNull(row.itemProperty())).then(contextMenu)

@@ -55,7 +55,7 @@ public class SunburstController extends DataDependingController {
 
   private BooleanProperty invalidatedProperty;
   private Map<String, TreeChartData> nameToDataMap;
-  private ObservableList<Transaction> negativeTransactions;
+  private ObservableList<ExtendedTransaction> negativeTransactions;
   private TreeChartData undefinedSegment;
 
 
@@ -84,10 +84,9 @@ public class SunburstController extends DataDependingController {
     this.negativeTransactions = filterTransactions(this.transactions);
   }
 
-  private ObservableList<Transaction> filterTransactions(TransactionContainer data) {
+  private ObservableList<ExtendedTransaction> filterTransactions(TransactionContainer data) {
     return data.getSource().stream()
-        .map(ExtendedTransaction::getBaseTransaction)
-        .filter(t -> !t.isPositive())
+        .filter(t -> !t.getBaseTransaction().isPositive())
         .collect(Collectors.toCollection(FXCollections::observableArrayList));
   }
 
@@ -124,16 +123,16 @@ public class SunburstController extends DataDependingController {
 
   private void addUndefinedSegment(TreeNode<ChartItem> root) {
     TreeChartData rootChartData = nameToDataMap.get(root.getItem().getName());
-    List<Transaction> allMatched = new ArrayList<>(negativeTransactions.size());
+    List<ExtendedTransaction> allMatched = new ArrayList<>(negativeTransactions.size());
     rootChartData.stream()
         .map(tData -> tData.matchedTransactionsRO().get())
         .forEach(allMatched::addAll);
-    List<Transaction> notMatched = new ArrayList<>(negativeTransactions);
+    List<ExtendedTransaction> notMatched = new ArrayList<>(negativeTransactions);
     notMatched.removeAll(allMatched);
     TreeNode<ChartItem> undefinedNode = new TreeNode<>(
         new ChartItem(
             UNDEFINED_SEGMENT,
-            Money.sum(notMatched).getRawAmount().floatValue(),
+            Money.mapSum(notMatched).getRawAmount().floatValue(),
             Color.rgb(96, 96, 96)),
         root
     );
@@ -165,7 +164,7 @@ public class SunburstController extends DataDependingController {
     }
   }
 
-  private ContextMenu contextMenuGenerator(TableRow<Transaction> row) {
+  private ContextMenu contextMenuGenerator(TableRow<ExtendedTransaction> row) {
     // IMPORTANT: The transaction will only be evaluated when the contextmenu is shown.
     // Otherwise (if the Transaction would be given at row creation) it would be null.
     ContextMenu contextMenu = new ContextMenu();
@@ -176,7 +175,8 @@ public class SunburstController extends DataDependingController {
           if (categoryNode.isLeaf()) {
             String parent = categoryNode.getParent().map(CategoryNode::getName).orElse("");
             MenuItem menuItem = new MenuItem(parent + "::" + categoryNode.getName());
-            menuItem.setOnAction(event -> openRuleDialogAndSave(row.getItem(), categoryNode));
+            menuItem.setOnAction(
+                event -> openRuleDialogAndSave(row.getItem().getBaseTransaction(), categoryNode));
             categoryChoices.getItems().add(menuItem);
           }
         }

@@ -47,4 +47,8 @@ public class ExtendedTransaction {
   public void setIsActive(boolean isVisible) {
     this.isActive.set(isVisible);
   }
+
+  public void switchActive() {
+    this.isActive.set(!this.isActive.get());
+  }
 }

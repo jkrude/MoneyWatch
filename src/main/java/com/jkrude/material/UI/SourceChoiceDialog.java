@@ -2,7 +2,7 @@ package com.jkrude.material.UI;
 
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Utility;
-import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.TransactionContainer;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class SourceChoiceDialog {
     // Map is used because it is not possible to cleanly edit the comboBox cellFactory from the dialog.
     Map<String, TransactionContainer> converterMap = new HashMap<>();
     for (TransactionContainer choice : choices) {
-      TreeMap<LocalDate, List<Transaction>> asDateMap = choice.getSourceAsDateMap();
+      TreeMap<LocalDate, List<ExtendedTransaction>> asDateMap = choice.getSourceAsDateMap();
       String firstDate = Utility.DATE_TIME_FORMATTER.format(asDateMap.firstEntry().getKey());
       String lastDate = Utility.DATE_TIME_FORMATTER.format(asDateMap.lastEntry().getKey());
       String toString = firstDate + " - " + lastDate;

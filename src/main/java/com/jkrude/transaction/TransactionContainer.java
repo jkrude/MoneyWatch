@@ -39,19 +39,17 @@ public class TransactionContainer {
   /*
    * Collect all transactions according to their date.
    */
-  public TreeMap<LocalDate, List<Transaction>> getSourceAsDateMap() {
+  public TreeMap<LocalDate, List<ExtendedTransaction>> getSourceAsDateMap() {
 
-    TreeMap<LocalDate, List<Transaction>> dateMap = new TreeMap<>();
+    TreeMap<LocalDate, List<ExtendedTransaction>> dateMap = new TreeMap<>();
     for (ExtendedTransaction extendedTransaction : source) {
-      if (extendedTransaction.isActive()) {
-        var date = extendedTransaction.getBaseTransaction().getDate();
-        if (dateMap.containsKey(date)) {
-          dateMap.get(date).add(extendedTransaction.getBaseTransaction());
-        } else {
-          dateMap.put(date,
-              new ArrayList<>(List.of(extendedTransaction.getBaseTransaction()))); // modifiable
-        }
+      LocalDate date = extendedTransaction.getBaseTransaction().getDate();
+      if (dateMap.containsKey(date)) {
+        dateMap.get(date).add(extendedTransaction);
+      } else {
+        dateMap.put(date, new ArrayList<>(List.of(extendedTransaction))); // modifiable
       }
+
     }
     return dateMap;
   }
