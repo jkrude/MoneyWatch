@@ -18,7 +18,7 @@
           "note": "",
           "ids": [
             {
-              "value": "Schauburg",
+              "value": "Cinema",
               "key": "Verwendungszweck"
             }
           ]
@@ -46,7 +46,7 @@
           "note": "",
           "ids": [
             {
-              "value": "Ihr Einkauf bei BVG",
+              "value": "Public transport",
               "key": "Verwendungszweck"
             }
           ]
@@ -63,19 +63,19 @@
       "name": "Food",
       "rules": [
         {
-          "note": "Netto",
+          "note": "Discounter",
           "ids": [
             {
-              "value": "DE68750200730008472092",
+              "value": "DE43500105171223732312",
               "key": "Kontonummer\/IBAN"
             }
           ]
         },
         {
-          "note": "Wiener Bäckerei",
+          "note": "Backery",
           "ids": [
             {
-              "value": "DE85120800000101752405",
+              "value": "DE55500105179467748128",
               "key": "Kontonummer\/IBAN"
             }
           ]
@@ -87,10 +87,10 @@
       "name": "Rent",
       "rules": [
         {
-          "note": "Miete",
+          "note": "Rent",
           "ids": [
             {
-              "value": "Maximilian Walther",
+              "value": "Max Mustermann",
               "key": "Beguenstigter\/Zahlungspflichtiger"
             }
           ]

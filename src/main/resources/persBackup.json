@@ -18,21 +18,8 @@
           "note": "",
           "ids": [
             {
-              "value": "Schauburg",
+              "value": "Cinema",
               "key": "Verwendungszweck"
-            }
-          ]
-        },
-        {
-          "note": "",
-          "ids": [
-            {
-              "value": "DE93450500010100195997",
-              "key": "Kontonummer\/IBAN"
-            },
-            {
-              "value": "FILMTHEATER SCHAUBURG\/\/Dresden\/DE",
-              "key": "Beguenstigter\/Zahlungspflichtiger"
             }
           ]
         }
@@ -46,34 +33,21 @@
           "note": "",
           "ids": [
             {
-              "value": "PayPal",
-              "key": "Beguenstigter\/Zahlungspflichtiger"
-            },
-            {
               "value": "FLIXBUS",
               "key": "Verwendungszweck"
-            }
-          ]
-        },
-        {
-          "note": "",
-          "ids": [
-            {
-              "value": "Ihr Einkauf bei BVG",
-              "key": "Verwendungszweck"
-            }
-          ]
-        },
-        {
-          "note": "",
-          "ids": [
-            {
-              "value": "BERLINER VERKEHRSBETRIEBE (BVG)\/\/BERLIN\/DE",
-              "key": "Beguenstigter\/Zahlungspflichtiger"
             },
             {
-              "value": "DE28100700000020118602",
-              "key": "Kontonummer\/IBAN"
+              "value": "PayPal",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            }
+          ]
+        },
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "Public transport",
+              "key": "Verwendungszweck"
             }
           ]
         }
@@ -89,32 +63,19 @@
       "name": "Food",
       "rules": [
         {
-          "note": "Netto",
+          "note": "Discounter",
           "ids": [
             {
-              "value": "DE68750200730008472092",
+              "value": "DE43500105171223732312",
               "key": "Kontonummer\/IBAN"
             }
           ]
         },
         {
-          "note": "Wiener Bäckerei",
+          "note": "Backery",
           "ids": [
             {
-              "value": "DE85120800000101752405",
-              "key": "Kontonummer\/IBAN"
-            }
-          ]
-        },
-        {
-          "note": "",
-          "ids": [
-            {
-              "value": "TASTE OF INDIA GIR 69184524\/\/DRESDEN\/DE",
-              "key": "Beguenstigter\/Zahlungspflichtiger"
-            },
-            {
-              "value": "DE48850900002808811009",
+              "value": "DE55500105179467748128",
               "key": "Kontonummer\/IBAN"
             }
           ]
@@ -126,10 +87,10 @@
       "name": "Rent",
       "rules": [
         {
-          "note": "Miete",
+          "note": "Rent",
           "ids": [
             {
-              "value": "Maximilian Walther",
+              "value": "Max Mustermann",
               "key": "Beguenstigter\/Zahlungspflichtiger"
             }
           ]

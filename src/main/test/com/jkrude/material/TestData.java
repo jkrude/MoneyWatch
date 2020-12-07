@@ -108,6 +108,20 @@ public class TestData {
         new Money(-5.27),
         "Revenue booked"
     ));
+    entries.add(new Transaction(
+        LocalDate.parse("04.10.19", Utility.DATE_TIME_FORMATTER),
+        "DE92500105176644294936",
+        LocalDate.parse("04.10.19", Utility.DATE_TIME_FORMATTER),
+        "Card payment",
+        "2019-09- 25T20:48 Debitk.1 202",
+        "", "",
+        "1.11111111111111E+011", "", "", "",
+        "Cinema",
+        "DEDE93450000010100199999",
+        "WELAXX1XXXX",
+        new Money(-17.00),
+        "Revenue booked"
+    ));
 
     return new TransactionContainer(entries);
   }
