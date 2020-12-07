@@ -29,7 +29,7 @@
       <top>
         <ButtonBar BorderPane.alignment="TOP_LEFT">
           <buttons>
-            <ChoiceBox fx:id="rangeSelection" prefWidth="150.0"/>
+            <ChoiceBox fx:id="tickRateChoiceBox" prefWidth="150.0"/>
             <Button mnemonicParsing="false" onAction="#changeDataSource" text="Data selection"/>
             <Button mnemonicParsing="false" onAction="#goBack" text="Back"
               ButtonBar.buttonData="LEFT"/>
