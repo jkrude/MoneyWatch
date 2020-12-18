@@ -33,9 +33,6 @@
                 <Button ButtonBar.buttonData="RIGHT" mnemonicParsing="false"
                   onAction="#goToCategories"
                   text="Categories"/>
-                <ToggleButton ButtonBar.buttonData="OTHER" contentDisplay="CENTER"
-                  mnemonicParsing="false"
-                  text="Neg / Pos" textAlignment="CENTER" fx:id="negPosTglBtn"/>
               </buttons>
             </ButtonBar>
           </children>

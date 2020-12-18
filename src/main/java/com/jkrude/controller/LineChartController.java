@@ -112,6 +112,7 @@ public class LineChartController extends DataDependingController {
     assert super.transactions != null;
     assert selectedTickRate != null;
     series = new Series<>();
+    series.setName("Change over time");
     lineChart.getData().clear();
     lineChart.getData().add(series);
     if (selectedTickRate.get() != TickRate.TICKS_PER_DAY) {
@@ -137,7 +138,7 @@ public class LineChartController extends DataDependingController {
 
       AlertBox.showAlert(
           "Not enough data",
-          "In the range you selected you be only one data point",
+          "There are not enough data points in the selected range.",
           "",
           AlertType.INFORMATION);
       // triggers this method → triggers tickRateChange → oldValue will be newValue → return
@@ -285,7 +286,7 @@ public class LineChartController extends DataDependingController {
     LocalDate currDate = LocalDate.MIN;
     for (var entry : dateMap.entrySet()) {
       // If the last-saved-date is older than the current date → create new data-point
-      if (DAYS.between(currDate, entry.getKey()) >= tickRate.asDays) {
+      if (DAYS.between(currDate, entry.getKey()) >= tickRate.asDays || entry.getKey().equals(dateMap.lastKey())) {
         var list = new PropertyFilteredList<>(
             ExtendedTransaction::isActiveProperty, entry.getValue());
         accumulatedMap.put(entry.getKey(), list);

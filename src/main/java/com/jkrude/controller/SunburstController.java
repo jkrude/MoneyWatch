@@ -49,8 +49,6 @@ public class SunburstController extends DataDependingController {
   public static final String UNDEFINED_SEGMENT = "Undefined";
 
   @FXML
-  private ToggleButton negPosTglBtn;
-  @FXML
   private AnchorPane chartHoldingPane;
 
   private BooleanProperty invalidatedProperty;
