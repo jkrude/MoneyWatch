@@ -193,7 +193,7 @@ public class Money implements Comparable<Money>{
     return amount;
   }
 
-  public void setAmount(int val) {
+  public void setAmount(double val) {
     this.amount = scaleToTwo(new BigDecimal(val));
   }
 

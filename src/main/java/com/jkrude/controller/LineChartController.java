@@ -202,7 +202,7 @@ public class LineChartController extends DataDependingController {
     Data<Number, Number> dataPoint = new Data<>();
     // Bind Y, Set X
     DoubleBinding currentDP = previousDataPoint
-        .add(bindToSumOfList(extendedTransactions.getFilteredList()));
+        .add(Utility.bindToSumOfList(extendedTransactions.getFilteredList()));
     dataPoint.YValueProperty().bind(currentDP);
     dataPoint.setXValue(localDate.toEpochDay());
 
@@ -252,28 +252,6 @@ public class LineChartController extends DataDependingController {
     tlp.textProperty().bind(property);
     tlp.setShowDelay(new Duration(100));
     Tooltip.install(dataPoint.getNode(), tlp);
-  }
-
-
-  private DoubleProperty bindToSumOfList(FilteredList<ExtendedTransaction> list) {
-    // DoubleProperty that reflects the sum of a list of transactions.
-    DoubleProperty d = new SimpleDoubleProperty(Money.mapSum(list).getRawAmount().doubleValue());
-    list.addListener(new ListChangeListener<ExtendedTransaction>() {
-      @Override
-      public void onChanged(Change<? extends ExtendedTransaction> change) {
-        while (change.next()) {
-          if (change.wasRemoved()) {
-            var removed = change.getRemoved();
-            d.set(d.get() - Money.mapSum(removed).getRawAmount().doubleValue());
-          }
-          if (change.wasAdded()) {
-            d.set(d.get() + Money.mapSum(change.getAddedSubList()).getRawAmount().doubleValue());
-          }
-        }
-      }
-    });
-    return d;
-
   }
 
   private TreeMap<LocalDate, PropertyFilteredList<ExtendedTransaction>> transformToTickRate(

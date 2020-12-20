@@ -1,7 +1,13 @@
 package com.jkrude.material;
 
+import com.jkrude.transaction.ExtendedTransaction;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -38,4 +44,26 @@ public abstract class Utility {
             .getContent()).getChildren().get(1);
     comboBox.setCellFactory(cellFactory);
   }
+
+  public static  DoubleProperty bindToSumOfList(ObservableList<ExtendedTransaction> list) {
+    // DoubleProperty that reflects the sum of a list of transactions.
+    DoubleProperty d = new SimpleDoubleProperty(Money.mapSum(list).getRawAmount().doubleValue());
+    list.addListener(new ListChangeListener<ExtendedTransaction>() {
+      @Override
+      public void onChanged(Change<? extends ExtendedTransaction> change) {
+        while (change.next()) {
+          if (change.wasRemoved()) {
+            var removed = change.getRemoved();
+            d.set(d.get() - Money.mapSum(removed).getRawAmount().doubleValue());
+          }
+          if (change.wasAdded()) {
+            d.set(d.get() + Money.mapSum(change.getAddedSubList()).getRawAmount().doubleValue());
+          }
+        }
+      }
+    });
+    return d;
+
+  }
+
 }
