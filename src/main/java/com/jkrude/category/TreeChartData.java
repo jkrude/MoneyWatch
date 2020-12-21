@@ -1,80 +1,153 @@
 package com.jkrude.category;
 
-import com.jkrude.material.Money;
+import com.jkrude.material.DoubleBindingSum;
+import com.jkrude.material.PropertyFilteredList;
+import com.jkrude.material.Utility;
 import com.jkrude.transaction.ExtendedTransaction;
-import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 public class TreeChartData {
 
   private TreeChartData parent;
   private CategoryNode category;
-  private ObservableList<ExtendedTransaction> sourceTransactionsList;
-  private ObservableList<ExtendedTransaction> matchedTransactions;
-  private ReadOnlyObjectWrapper<ObservableList<ExtendedTransaction>> roListWrapper;
-  private Money value;
-  private Set<TreeChartData> children;
+  private ObservableList<ExtendedTransaction> source;
+  private final PropertyFilteredList<ExtendedTransaction> matchedTransactions;
+  private final DoubleProperty valueProperty;
+  private final DoubleBindingSum accumulatedValues;
+  private final ObservableList<TreeChartData> children;
+
+
+  private TreeChartData(
+      CategoryNode categoryNode,
+      ObservableList<ExtendedTransaction> source,
+      PropertyFilteredList<ExtendedTransaction> matchedTransactions) {
+    this.category = categoryNode;
+    this.source = source;
+    this.children = FXCollections.observableArrayList();
+    this.matchedTransactions = matchedTransactions;
+    this.valueProperty = Utility.bindToSumOfList(this.matchedTransactions.getFilteredList());
+    this.accumulatedValues = new DoubleBindingSum(Utility.asBinding(valueProperty));
+    this.registerListener();
+  }
 
   public TreeChartData(CategoryNode category,
       List<ExtendedTransaction> matchedTransactions,
-      ObservableList<ExtendedTransaction> observableTransactions) {
-
-    this.sourceTransactionsList = observableTransactions;
-    this.category = category;
-    this.matchedTransactions = FXCollections.observableList(matchedTransactions);
-    this.roListWrapper = new ReadOnlyObjectWrapper<>(
-        this.matchedTransactions);
-    this.children = new HashSet<>();
+      ObservableList<ExtendedTransaction> source) {
+    this(category, source, new PropertyFilteredList<>(
+        ExtendedTransaction::isActiveProperty, matchedTransactions));
   }
 
-  private TreeChartData(CategoryNode category, ObservableList<ExtendedTransaction> container) {
-    this.sourceTransactionsList = container;
-    this.category = category;
-    this.matchedTransactions = FXCollections.observableArrayList();
-    this.roListWrapper = new ReadOnlyObjectWrapper<>(
-        this.matchedTransactions);
-    this.children = new HashSet<>();
+  private TreeChartData(CategoryNode category, ObservableList<ExtendedTransaction> source) {
+    this(category, source, new PropertyFilteredList<>(ExtendedTransaction::isActiveProperty));
     genChildren();
-    calculateValue();
-    // If the source is changing -> recalculate the value
-    container.addListener((InvalidationListener) observable -> calculateValue());
+    calculateMatchedTransactions();
   }
+
 
   public static TreeChartData createTree(
       CategoryNode rootCategory,
       ObservableList<ExtendedTransaction> observableTransactions) {
+
     return new TreeChartData(rootCategory, observableTransactions);
+  }
+
+  public static void updateSource(
+      ObservableList<ExtendedTransaction> negativeTransactions,
+      TreeChartData root) {
+    root.updateSourceRec(negativeTransactions);
+  }
+
+  private void updateSourceRec(ObservableList<ExtendedTransaction> negativeTransactions) {
+    this.children.forEach(node -> node.updateSourceRec(negativeTransactions));
+    this.source.clear();
+    this.source.addAll(negativeTransactions);
+    calculateMatchedTransactions();
+  }
+
+  private void registerListener() {
+    category.rulesRO().addListener(
+        (InvalidationListener) observable -> calculateMatchedTransactions());
+    category.childNodesRO().addListener(new ListChangeListener<CategoryNode>() {
+      @Override
+      public void onChanged(Change<? extends CategoryNode> change) {
+        while (change.next()) {
+          if (change.wasAdded()) {
+            change.getAddedSubList().forEach(categoryNode ->
+                TreeChartData.this.addChildren(new TreeChartData(categoryNode, source)));
+          }
+          if (change.wasRemoved()) {
+            removeChildren(change.getRemoved());
+
+          }
+        }
+      }
+    });
+    this.children.addListener(new ListChangeListener<TreeChartData>() {
+      @Override
+      public void onChanged(Change<? extends TreeChartData> change) {
+        while (change.next()) {
+          if (change.wasAdded()) {
+            for (TreeChartData added : change.getAddedSubList()) {
+              accumulatedValues.addDependency(added.getValueBinding());
+            }
+          }
+          if (change.wasRemoved()) {
+            for (TreeChartData removed : change.getRemoved()) {
+              accumulatedValues.removeDependency(removed.getValueBinding());
+            }
+          }
+        }
+      }
+    });
   }
 
   private void genChildren() {
     category.childNodesRO().stream()
-        .map(categoryNode -> new TreeChartData(categoryNode, sourceTransactionsList))
+        .map(categoryNode -> new TreeChartData(categoryNode, source))
         .forEach(this::addChildren);
-
   }
 
-  private void calculateValue() {
-    for (ExtendedTransaction t : sourceTransactionsList) {
+  private void calculateMatchedTransactions() {
+    matchedTransactions.clear();
+    for (ExtendedTransaction t : source) {
       for (Rule r : category.rulesRO()) {
         if (r.getPredicate().test(t.getBaseTransaction())) {
           matchedTransactions.add(t);
         }
       }
     }
-    this.value = Money.mapSum(matchedTransactions);
-    getChildren().forEach(child -> value.add(child.value));
   }
 
-  public void addChildren(TreeChartData treeChartData) {
+  private void addChildren(TreeChartData treeChartData) {
     treeChartData.setParent(this);
     this.children.add(treeChartData);
+  }
+
+  private void removeChildren(List<? extends CategoryNode> categoryNodes) {
+    ListIterator<TreeChartData> iterator = this.children.listIterator();
+    while (iterator.hasNext()) {
+      var next = iterator.next();
+      if (categoryNodes.contains(next.category)) {
+        next.parent = null;
+        iterator.remove();
+      }
+    }
+  }
+
+  public void update(List<ExtendedTransaction> matchedTransactions,
+      ObservableList<ExtendedTransaction> negativeTransactions) {
+    this.source = negativeTransactions;
+    this.matchedTransactions.clear();
+    this.matchedTransactions.addAll(matchedTransactions);
   }
 
   public Stream<TreeChartData> stream() {
@@ -87,6 +160,10 @@ public class TreeChartData {
     }
   }
 
+
+  /*
+   * Getter / Setter
+   */
   public Optional<TreeChartData> getParent() {
     return Optional.ofNullable(parent);
   }
@@ -103,26 +180,19 @@ public class TreeChartData {
     this.category = category;
   }
 
-  public Money getValue() {
-    return value;
+  public DoubleBinding getValueBinding() {
+    return accumulatedValues;
   }
 
-  public float valueAsFloat() {
-    return value.getRawAmount().floatValue();
+  public double getValue() {
+    return accumulatedValues.get();
   }
 
-  public Set<TreeChartData> getChildren() {
+  public ObservableList<TreeChartData> getChildren() {
     return children;
   }
 
-  public ReadOnlyObjectWrapper<ObservableList<ExtendedTransaction>> matchedTransactionsRO() {
-    return roListWrapper;
-  }
-
-  public void update(List<ExtendedTransaction> matchedTransactions,
-      ObservableList<ExtendedTransaction> negativeTransactions) {
-    this.sourceTransactionsList = negativeTransactions;
-    this.matchedTransactions.clear();
-    this.matchedTransactions.addAll(matchedTransactions);
+  public PropertyFilteredList<ExtendedTransaction> getMatchedTransactions() {
+    return matchedTransactions;
   }
 }

@@ -36,7 +36,7 @@ public class PersistenceManager {
       JSONObject jMain = new JSONObject();
       JSONArray jCatArr = new JSONArray();
 
-      rootCategory.streamSubTree()
+      rootCategory.streamCollapse()
           .forEach(categoryNode -> serializeCategory(categoryNode, jCatArr));
       jMain.put("categories", jCatArr);
       fileWriter.write(jMain.toJSONString());

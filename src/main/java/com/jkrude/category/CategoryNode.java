@@ -16,10 +16,10 @@ import javafx.collections.ListChangeListener;
 
 public class CategoryNode implements Observable {
 
-  private List<InvalidationListener> invalidationListenerList;
-  private ReadOnlyListWrapper<CategoryNode> childNodes;
-  private ReadOnlyListWrapper<Rule> rules;
-  private StringProperty name;
+  private final List<InvalidationListener> invalidationListenerList;
+  private final ReadOnlyListWrapper<CategoryNode> childNodes;
+  private final ReadOnlyListWrapper<Rule> rules;
+  private final StringProperty name;
   private CategoryNode parent;
   private static final int MAX_DEPTH = 3;
 
@@ -112,12 +112,12 @@ public class CategoryNode implements Observable {
     return parent == null;
   }
 
-  public Stream<CategoryNode> streamSubTree() {
+  public Stream<CategoryNode> streamCollapse() {
     if (childNodesRO().isEmpty()) {
       return Stream.of(this);
     } else {
       return childNodesRO().stream()
-          .map(CategoryNode::streamSubTree)
+          .map(CategoryNode::streamCollapse)
           .reduce(Stream.of(this), Stream::concat);
     }
   }
@@ -160,7 +160,6 @@ public class CategoryNode implements Observable {
   public boolean hasParent() {
     return parent != null;
   }
-
 
 
   public static int getMaxDepth() {

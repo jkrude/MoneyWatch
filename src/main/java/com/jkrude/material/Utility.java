@@ -3,11 +3,12 @@ package com.jkrude.material;
 import com.jkrude.transaction.ExtendedTransaction;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -63,7 +64,29 @@ public abstract class Utility {
       }
     });
     return d;
+  }
 
+  public static DoubleBinding asBinding(DoubleProperty property) {
+    return new DoubleBinding() {
+      {
+        super.bind(property);
+      }
+
+      @Override
+      public void dispose() {
+        super.unbind(property);
+      }
+
+      @Override
+      protected double computeValue() {
+        return property.get();
+      }
+
+      @Override
+      public ObservableList<?> getDependencies() {
+        return FXCollections.singletonObservableList(property);
+      }
+    };
   }
 
 }

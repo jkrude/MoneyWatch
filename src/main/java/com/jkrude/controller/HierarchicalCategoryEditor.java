@@ -121,7 +121,7 @@ public class HierarchicalCategoryEditor extends Controller {
 
   private void setTreeViewItems() {
     categoryTreeView.setRoot(mapToTreeItems(Model.getInstance().getProfile().getRootCategory()));
-    categoryTreeView.getRoot().getValue().streamSubTree().forEach(
+    categoryTreeView.getRoot().getValue().streamCollapse().forEach(
         categoryNode -> categoryNode.addListener(observable -> invalidatedProperty.set(true))
     );
   }
@@ -191,7 +191,7 @@ public class HierarchicalCategoryEditor extends Controller {
     CategoryNode parent = cell.getTreeItem().getParent().getValue();
     // TODO: set ChoiceDialog::Labels::Text to CategoryNode::Name
     ChoiceDialog<CategoryNode> choiceDialog = new ChoiceDialog<>(node,
-        node.getRoot().streamSubTree().collect(Collectors.toList()));
+        node.getRoot().streamCollapse().collect(Collectors.toList()));
     Utility.setCellFactory(choiceDialog, HierarchicalCategoryEditor::categoryConverter);
     Optional<CategoryNode> optCat = choiceDialog.showAndWait();
     if (optCat.isPresent() && !optCat.get().equals(node)) {
