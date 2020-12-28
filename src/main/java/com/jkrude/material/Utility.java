@@ -3,6 +3,7 @@ package com.jkrude.material;
 import com.jkrude.transaction.ExtendedTransaction;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -19,18 +20,29 @@ import javafx.util.StringConverter;
 
 public abstract class Utility {
 
-  public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
-      .ofPattern("dd.MM.yy");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
+        .ofPattern("dd.MM.yy");
 
-  public static StringConverter<Number> convertFromEpochDay() {
-    return new StringConverter<Number>() {
-      @Override
-      public String toString(Number number) {
-        return LocalDate.ofEpochDay(number.longValue())
-            .format(DateTimeFormatter.ofPattern("dd-MM"));
-      }
+    public static LocalDate parse(String stringDate) {
+        LocalDate localDate;
+        try {
+            localDate = LocalDate.parse(stringDate, DATE_TIME_FORMATTER);
+        } catch (DateTimeParseException exception) {
+            // Could fail too
+            localDate = LocalDate.parse(stringDate, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        }
+        return localDate;
+    }
 
-      @Override
+    public static StringConverter<Number> convertFromEpochDay() {
+        return new StringConverter<Number>() {
+            @Override
+            public String toString(Number number) {
+                return LocalDate.ofEpochDay(number.longValue())
+                    .format(DateTimeFormatter.ofPattern("dd-MM"));
+            }
+
+            @Override
       public Number fromString(String s) {
         throw new UnsupportedOperationException();
       }

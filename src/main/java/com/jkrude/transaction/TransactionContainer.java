@@ -80,12 +80,12 @@ public class TransactionContainer {
             source.size());
       }
       transaction.setAccountIban(strings[0]);
-      currDate = LocalDate.parse(strings[1], Utility.DATE_TIME_FORMATTER);
-      transaction.setDate(currDate);
+        currDate = Utility.parse(strings[1]);
+        transaction.setDate(currDate);
       if (strings[2].isBlank()) {
         transaction.setValidationDate(null);
       } else {
-        LocalDate validationDate = LocalDate.parse(strings[2], Utility.DATE_TIME_FORMATTER);
+          LocalDate validationDate = Utility.parse(strings[1]);
         transaction.setValidationDate(validationDate);
       }
       transaction.setTransferSpecification(strings[3]);
