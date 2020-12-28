@@ -163,7 +163,7 @@ public class SunburstController extends DataDependingController {
   private List<ExtendedTransaction> getUnmatchedTransactions() {
     List<ExtendedTransaction> allMatched = new ArrayList<>(negativeTransactions.size());
     root.stream()
-        .map(TreeChartData::getMatchedTransactions)
+        .map(t -> t.getMatchedTransactions().getBaseList())
         .forEach(allMatched::addAll);
     List<ExtendedTransaction> notMatched = new ArrayList<>(negativeTransactions);
     notMatched.removeAll(allMatched);
