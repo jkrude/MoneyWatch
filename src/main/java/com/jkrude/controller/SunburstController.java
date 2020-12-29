@@ -132,10 +132,10 @@ public class SunburstController extends DataDependingController {
 
 
   private void registerInvalidationListener(TreeChartData rootChartData) {
-    rootChartData.stream().forEach(treeChartData -> {
-      treeChartData.getValueBinding().addListener(invalidator);
-      treeChartData.getCategory().addListener(invalidator);
-    });
+    // Any valueBinding changes (within the tree) are propagated to the top
+    rootChartData.stream()
+        .forEach(treeChartData -> treeChartData.getValueBinding().addListener(invalidator));
+    // Chart internally redraws if TreeNode changes
   }
 
   private void createUndefinedSegment() {
@@ -209,10 +209,12 @@ public class SunburstController extends DataDependingController {
     Menu categoryChoices = new Menu("Add as rule");
     Model.getInstance().getProfile().getRootCategory().streamCollapse().forEach(
         categoryNode -> {
-          // Rules can only be applied to leaves.
-          if (categoryNode.isLeaf()) {
-            String parent = categoryNode.getParent().map(CategoryNode::getName).orElse("");
-            MenuItem menuItem = new MenuItem(parent + "::" + categoryNode.getName());
+          if (!categoryNode.isRoot()) {
+            // Append category to parent to clarify which one is which.
+            var optParent = categoryNode.getParent().map(CategoryNode::getName);
+            String text = optParent.isEmpty() ? "" : optParent.get() + "::";
+            text += categoryNode.getName();
+            MenuItem menuItem = new MenuItem(text);
             menuItem.setOnAction(
                 event -> openRuleDialogAndSave(row.getItem().getBaseTransaction(), categoryNode));
             categoryChoices.getItems().add(menuItem);

@@ -41,7 +41,7 @@
     <dependency>
       <artifactId>charts</artifactId>
       <groupId>eu.hansolo.fx</groupId>
-      <version>11.4</version>
+      <version>11.6</version>
     </dependency>
     <!--TODO: Remove if a db is used-->
     <dependency>
