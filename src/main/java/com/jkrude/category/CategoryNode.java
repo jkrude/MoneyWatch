@@ -8,11 +8,14 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.scene.paint.Color;
 
 public class CategoryNode implements Observable {
 
@@ -21,17 +24,14 @@ public class CategoryNode implements Observable {
   private final ReadOnlyListWrapper<Rule> rules;
   private final StringProperty name;
   private CategoryNode parent;
-  private static final int MAX_DEPTH = 3;
-
-  public CategoryNode(String name) {
-    this(new SimpleStringProperty(name));
-  }
+  private ObjectProperty<Color> color;
 
   public CategoryNode(StringProperty name) {
     this.name = name;
     this.invalidationListenerList = new ArrayList<>();
     this.childNodes = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
     this.rules = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
+    this.color = new SimpleObjectProperty<>(Color.DEEPPINK);
 
     InvalidationListener invalidateOnNameChange = observable -> invalidationListenerList
         .forEach(
@@ -45,6 +45,10 @@ public class CategoryNode implements Observable {
             .forEach(invalidationListener -> invalidationListener.invalidated(this));
     this.childNodes.addListener(invalidateOnListChangeNode);
     this.rules.addListener(invalidateOnListChangeRule);
+  }
+
+  public CategoryNode(String name) {
+    this(new SimpleStringProperty(name));
   }
 
   public CategoryNode(StringProperty name, CategoryNode parent) {
@@ -104,6 +108,18 @@ public class CategoryNode implements Observable {
     return nextParent;
   }
 
+  public Color getColor() {
+    return color.get();
+  }
+
+  public void setColor(Color color) {
+    this.color.set(color);
+  }
+
+  public ObjectProperty<Color> colorProperty() {
+    return color;
+  }
+
   public boolean isLeaf() {
     return childNodes.get().isEmpty();
   }
@@ -161,10 +177,6 @@ public class CategoryNode implements Observable {
     return parent != null;
   }
 
-
-  public static int getMaxDepth() {
-    return MAX_DEPTH;
-  }
 
   @Override
   public boolean equals(Object o) {

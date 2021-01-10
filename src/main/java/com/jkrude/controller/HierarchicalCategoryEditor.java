@@ -5,6 +5,7 @@ import com.jkrude.category.Rule;
 import com.jkrude.main.Main;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.Model;
+import com.jkrude.material.UI.ColorPickerDialog;
 import com.jkrude.material.UI.RuleDialog;
 import com.jkrude.material.Utility;
 import java.util.Optional;
@@ -29,6 +30,8 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 
 public class HierarchicalCategoryEditor extends Controller {
@@ -58,10 +61,14 @@ public class HierarchicalCategoryEditor extends Controller {
               setContextMenu(null);
               textProperty().unbind();
               textProperty().set("");
+              setGraphic(null);
             } else {
               setContextMenu(HierarchicalCategoryEditor.getCMForCategory(this));
               textProperty().unbind();
               textProperty().bind(item.nameProperty());
+              Circle c = new Circle(5);
+              c.fillProperty().bind(item.colorProperty());
+              setGraphic(c);
             }
           }
         };
@@ -134,14 +141,21 @@ public class HierarchicalCategoryEditor extends Controller {
     iAddChild.setOnAction(actionEvent -> addSubCategory(cell));
     MenuItem iRemove = new MenuItem("Delete");
     iRemove.setOnAction(actionEvent -> removeCategory(cell));
+    MenuItem iColor = new MenuItem("Change color");
+    iColor.setOnAction(actionEvent -> changeColor(cell.getItem()));
     // If cell != root => add #changeParent.
     if (cell.getTreeItem().getParent() != null) {
       MenuItem iMove = new MenuItem("Change parent");
       iMove.setOnAction(actionEvent -> changeParent(cell));
       cm.getItems().add(iMove);
     }
-    cm.getItems().addAll(iRename, iAddChild, iRemove);
+    cm.getItems().addAll(iRename, iAddChild, iRemove, iColor);
     return cm;
+  }
+
+  private static void changeColor(CategoryNode node) {
+    var optColor = ColorPickerDialog.showAndWait();
+    optColor.ifPresent(node::setColor);
   }
 
   private static void newNameDialog(TreeCell<CategoryNode> cell) {
@@ -177,7 +191,9 @@ public class HierarchicalCategoryEditor extends Controller {
           "Please choose a different name", AlertType.WARNING);
       return;
     }
+    var optColor = ColorPickerDialog.showAndWait();
     CategoryNode newCategory = new CategoryNode(result.get());
+    newCategory.setColor(optColor.orElse(Color.DEEPPINK));
     node.addCategory(newCategory);
   }
 

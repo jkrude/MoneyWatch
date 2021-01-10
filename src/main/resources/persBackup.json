@@ -2,16 +2,19 @@
   "categories": [
     {
       "parent": "null",
+      "color": "0xff1493ff",
       "name": "debits",
       "rules": []
     },
     {
       "parent": "debits",
+      "color": "0x99b3ffff",
       "name": "Joy",
       "rules": []
     },
     {
       "parent": "Joy",
+      "color": "0x6680e6ff",
       "name": "Cinema",
       "rules": [
         {
@@ -27,6 +30,7 @@
     },
     {
       "parent": "Joy",
+      "color": "0xb399ffff",
       "name": "Travel",
       "rules": [
         {
@@ -55,11 +59,13 @@
     },
     {
       "parent": "debits",
+      "color": "0xffcc99ff",
       "name": "Necessaries",
       "rules": []
     },
     {
       "parent": "Necessaries",
+      "color": "0xffb366ff",
       "name": "Food",
       "rules": [
         {
@@ -84,6 +90,7 @@
     },
     {
       "parent": "Necessaries",
+      "color": "0xff9980ff",
       "name": "Rent",
       "rules": [
         {

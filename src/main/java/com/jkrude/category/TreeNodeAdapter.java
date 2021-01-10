@@ -67,7 +67,7 @@ public class TreeNodeAdapter {
     ChartItem chartItem = new ChartItem();
     chartItem.valueProperty().bind(treeChartData.getValueBinding());
     chartItem.nameProperty().bind(treeChartData.getCategory().nameProperty());
-    chartItem.setFill(getNextColor());
+    chartItem.setFill(treeChartData.getCategory().getColor());
     return chartItem;
   }
 

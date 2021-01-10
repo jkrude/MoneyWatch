@@ -134,7 +134,10 @@ public class SunburstController extends DataDependingController {
   private void registerInvalidationListener(TreeChartData rootChartData) {
     // Any valueBinding changes (within the tree) are propagated to the top
     rootChartData.stream()
-        .forEach(treeChartData -> treeChartData.getValueBinding().addListener(invalidator));
+        .forEach(treeChartData -> {
+          treeChartData.getValueBinding().addListener(invalidator);
+          treeChartData.getCategory().colorProperty().addListener(invalidator);
+        });
     // Chart internally redraws if TreeNode changes
   }
 

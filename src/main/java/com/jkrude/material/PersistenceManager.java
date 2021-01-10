@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javafx.beans.property.ReadOnlyListWrapper;
+import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -50,6 +51,7 @@ public class PersistenceManager {
     JSONObject jCategory = new JSONObject();
     // TODO: name is primary key so duplicated should not be possible
     jCategory.put("name", categoryNode.getName());
+    jCategory.put("color", categoryNode.getColor().toString());
     jCategory.put("rules", serializeRules(categoryNode.rulesRO()));
     Optional<CategoryNode> optParent = categoryNode.getParent();
     String parentAsJson = optParent.map(CategoryNode::getName).orElse("null");
@@ -123,6 +125,11 @@ public class PersistenceManager {
     for (JSONObject jCategory : (Iterable<JSONObject>) categories) {
       String name = (String) jCategory.get("name");
       CategoryNode node = new CategoryNode(name);
+      Object colorObj = jCategory.get("color");
+      if (colorObj != null) {
+        Color color = Color.valueOf((String) colorObj);
+        node.setColor(color);
+      }
       node.addAllRules(deserializeRules((JSONArray) jCategory.get("rules"), node));
       nodesAsNames.put(name, node);
       String parentAsString = (String) jCategory.get("parent");
