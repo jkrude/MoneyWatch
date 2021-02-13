@@ -8,15 +8,15 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx"
-  xmlns:fx="http://javafx.com/fxml" fx:controller="com.jkrude.controller.LineChartController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/11.0.1"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.controller.TimeLineView">
   <children>
     <BorderPane prefHeight="720.0" prefWidth="1280.0">
       <center>
-        <LineChart fx:id="lineChart" minHeight="-Infinity" minWidth="-Infinity"
+        <LineChart fx:id="lineChart" animated="false" minHeight="-Infinity" minWidth="-Infinity"
           BorderPane.alignment="CENTER">
           <xAxis>
-            <NumberAxis side="BOTTOM"/>
+            <NumberAxis side="BOTTOM" fx:id="xAxis"/>
           </xAxis>
           <yAxis>
             <NumberAxis side="LEFT"/>

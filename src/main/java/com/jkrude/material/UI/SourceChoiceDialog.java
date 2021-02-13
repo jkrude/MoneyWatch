@@ -35,7 +35,6 @@ public class SourceChoiceDialog {
       String toString = firstDate + " - " + lastDate;
       converterMap.put(toString, choice);
     }
-
     Set<String> keySet = converterMap.keySet();
     ChoiceDialog<String> sourceChoiceDialog = new ChoiceDialog<>(keySet.iterator().next(), keySet);
     Button btnApply = (Button) sourceChoiceDialog.getDialogPane().lookupButton(ButtonType.OK);

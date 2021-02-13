@@ -83,7 +83,7 @@ public class TreeChartDataTest {
                 new Money(-5.27),
                 "Revenue booked"
             )));
-    TreeChartData.updateSource(newSource, tree);
+    TreeChartData.changeSource(newSource, tree);
     assertEquals(-5.27, tree.getValue(), 0.001);
 
   }

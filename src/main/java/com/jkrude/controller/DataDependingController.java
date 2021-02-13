@@ -4,11 +4,9 @@ import com.jkrude.material.Model;
 import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.transaction.TransactionContainer;
 
-public abstract class DataDependingController extends Controller {
+public abstract class DataDependingController {
 
-  protected TransactionContainer transactions;
-
-  protected TransactionContainer fetchDataWithPossibleDialog() {
+  public static TransactionContainer fetchDataWithPossibleDialog() {
     TransactionContainer data;
 
     if (Model.getInstance().getTransactionContainerList() == null

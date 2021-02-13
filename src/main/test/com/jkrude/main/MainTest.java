@@ -15,7 +15,9 @@ public class MainTest {
   private final static URL OVERWRITE = Main.class.getClassLoader().getResource("pers.json");
 
   public static void main(String[] args) throws IOException, URISyntaxException {
-    Model.getInstance().getTransactionContainerList().add(TestData.getCamtWithTestData());
+    var testData = TestData.getCamtWithTestData();
+    Model.getInstance().getTransactionContainerList().add(testData);
+    Model.getInstance().setActiveData(testData);
     Main.main(args);
     Files.copy(Path.of(BACKUP.toURI()), Path.of(OVERWRITE.toURI()),
         StandardCopyOption.REPLACE_EXISTING);

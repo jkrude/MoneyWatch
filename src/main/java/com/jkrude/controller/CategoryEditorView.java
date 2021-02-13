@@ -4,16 +4,20 @@ import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
 import com.jkrude.main.Main;
 import com.jkrude.material.AlertBox;
-import com.jkrude.material.Model;
 import com.jkrude.material.UI.ColorPickerDialog;
 import com.jkrude.material.UI.RuleDialog;
 import com.jkrude.material.Utility;
+import de.saxsys.mvvmfx.FxmlView;
+import de.saxsys.mvvmfx.InjectViewModel;
+import java.net.URL;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -34,7 +38,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 
-public class HierarchicalCategoryEditor extends Controller {
+public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, Initializable,
+    Prepareable {
 
   @FXML
   private ListView<Rule> ruleView;
@@ -44,8 +49,13 @@ public class HierarchicalCategoryEditor extends Controller {
   private SimpleBooleanProperty invalidatedProperty;
 
 
-  @FXML
-  public void initialize() {
+  @InjectViewModel
+  private CategoryEditorViewModel viewModel;
+  private final InvalidationListener invalidator = (observable -> invalidatedProperty.set(true));
+
+
+  @Override
+  public void initialize(URL url, ResourceBundle resourceBundle) {
     invalidatedProperty = new SimpleBooleanProperty(false);
     ruleView.setPlaceholder(getRuleViewPlaceholder());
     ruleView.setCellFactory(ruleListView -> new RuleCell());
@@ -63,7 +73,7 @@ public class HierarchicalCategoryEditor extends Controller {
               textProperty().set("");
               setGraphic(null);
             } else {
-              setContextMenu(HierarchicalCategoryEditor.getCMForCategory(this));
+              setContextMenu(CategoryEditorView.getCMForCategory(this));
               textProperty().unbind();
               textProperty().bind(item.nameProperty());
               Circle c = new Circle(5);
@@ -87,21 +97,16 @@ public class HierarchicalCategoryEditor extends Controller {
           }
         });
     // Populate categoryTreeView.
-    setTreeViewItems();
+    viewModel.setTreeViewItems(categoryTreeView, invalidator);
   }
 
   @Override
   public void prepare() {
     if (invalidatedProperty != null && invalidatedProperty.get()) {
-      setTreeViewItems();
+      viewModel.setTreeViewItems(categoryTreeView, invalidator);
       invalidatedProperty.set(false);
       categoryTreeView.getSelectionModel().clearSelection();
     }
-  }
-
-  @FXML
-  private void goBack(ActionEvent actionEvent) {
-    Main.goBack();
   }
 
   private Node getRuleViewPlaceholder() {
@@ -122,17 +127,13 @@ public class HierarchicalCategoryEditor extends Controller {
       AlertBox.showAlert("Error", "No Category selected", null, AlertType.ERROR);
       return;
     }
-    CategoryNode category = selectedCategory.getValue();
-    addRule(category);
+    selectedCategory.getValue();
+    addRule(selectedCategory.getValue());
   }
 
-  private void setTreeViewItems() {
-    categoryTreeView.setRoot(mapToTreeItems(Model.getInstance().getProfile().getRootCategory()));
-    categoryTreeView.getRoot().getValue().streamCollapse().forEach(
-        categoryNode -> categoryNode.addListener(observable -> invalidatedProperty.set(true))
-    );
-  }
-
+  /*
+   * Category
+   */
   private static ContextMenu getCMForCategory(TreeCell<CategoryNode> cell) {
     ContextMenu cm = new ContextMenu();
     MenuItem iRename = new MenuItem("Rename");
@@ -208,7 +209,7 @@ public class HierarchicalCategoryEditor extends Controller {
     // TODO: set ChoiceDialog::Labels::Text to CategoryNode::Name
     ChoiceDialog<CategoryNode> choiceDialog = new ChoiceDialog<>(node,
         node.getRoot().streamCollapse().collect(Collectors.toList()));
-    Utility.setCellFactory(choiceDialog, HierarchicalCategoryEditor::categoryConverter);
+    Utility.setCellFactory(choiceDialog, CategoryEditorView::categoryConverter);
     Optional<CategoryNode> optCat = choiceDialog.showAndWait();
     if (optCat.isPresent() && !optCat.get().equals(node)) {
       optCat.get().addCategory(node);
@@ -216,26 +217,17 @@ public class HierarchicalCategoryEditor extends Controller {
     }
   }
 
+  /*
+   * Rule
+   */
   private static ContextMenu getCMForRule(ListCell<Rule> cell) {
     ContextMenu cm = new ContextMenu();
     MenuItem iEdit = new MenuItem("Edit");
-    iEdit.setOnAction(actionEvent -> addRule(cell));
+    iEdit.setOnAction(actionEvent -> replaceRule(cell));
     MenuItem iRemove = new MenuItem("Remove");
     iRemove.setOnAction(actionEvent -> removeRule(cell));
     cm.getItems().addAll(iEdit, iRemove);
     return cm;
-  }
-
-  private static void removeRule(ListCell<Rule> cell) {
-    Rule rule = cell.getItem();
-    CategoryNode parent = rule.getParent().orElseThrow();
-    parent.removeRule(rule);
-  }
-
-  private static void addRule(ListCell<Rule> cell) {
-    new RuleDialog()
-        .editRuleShowAndWait(cell.getItem())
-        .ifPresent(rule -> cell.getListView().getItems().set(cell.getIndex(), rule));
   }
 
   private static void addRule(CategoryNode node) {
@@ -244,41 +236,16 @@ public class HierarchicalCategoryEditor extends Controller {
         .ifPresent(node::addRule);
   }
 
-  private TreeItem<CategoryNode> mapToTreeItems(CategoryNode root) {
-    TreeItem<CategoryNode> rootItem = new TreeItem<>(root);
-    root.childNodesRO().addListener(getNodeListChangeListener(rootItem));
-    root.childNodesRO().forEach(category -> addCategoryRecursive(category, rootItem));
-    return rootItem;
+  private static void replaceRule(ListCell<Rule> cell) {
+    new RuleDialog()
+        .editRuleShowAndWait(cell.getItem())
+        .ifPresent(rule -> cell.getListView().getItems().set(cell.getIndex(), rule));
   }
 
-  private void addCategoryRecursive(CategoryNode categoryNode, TreeItem<CategoryNode> parent) {
-    TreeItem<CategoryNode> treeItem = new TreeItem<>(categoryNode);
-    parent.getChildren().add(treeItem);
-    categoryNode.childNodesRO().addListener(getNodeListChangeListener(treeItem));
-    categoryNode.childNodesRO().forEach(category -> addCategoryRecursive(category, treeItem));
-  }
-
-  private ListChangeListener<CategoryNode> getNodeListChangeListener(
-      TreeItem<CategoryNode> rootItem) {
-    // Reflect changes from categoryNode within TreeView.
-    return change -> {
-      while (change.next()) {
-        if (change.wasAdded()) {
-          for (var node : change.getAddedSubList()) {
-            addCategoryRecursive(node, rootItem);
-          }
-        }
-        if (change.wasRemoved()) {
-          rootItem.getChildren().removeIf(item -> change.getRemoved().contains(item.getValue()));
-        }
-      }
-    };
-
-  }
-
-  private static void showAlertForEmptyInput() {
-    AlertBox.showAlert("Incorrect input!", "The name can not be empty", "",
-        AlertType.INFORMATION);
+  private static void removeRule(ListCell<Rule> cell) {
+    Rule rule = cell.getItem();
+    CategoryNode parent = rule.getParent().orElseThrow();
+    parent.removeRule(rule);
   }
 
   private static ListCell<CategoryNode> categoryConverter(
@@ -295,6 +262,17 @@ public class HierarchicalCategoryEditor extends Controller {
       }
     };
   }
+
+  private static void showAlertForEmptyInput() {
+    AlertBox.showAlert("Incorrect input!", "The name can not be empty", "",
+        AlertType.INFORMATION);
+  }
+
+  @FXML
+  private void goBack() {
+    Main.goBack();
+  }
+
 
   private static class RuleCell extends ListCell<Rule> {
 
@@ -317,4 +295,5 @@ public class HierarchicalCategoryEditor extends Controller {
       }
     }
   }
+
 }

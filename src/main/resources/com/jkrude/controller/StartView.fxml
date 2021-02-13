@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <GridPane alignment="center" hgap="10" prefHeight="720" prefWidth="1280" vgap="10"
   xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-  fx:controller="com.jkrude.controller.StartController">
+  fx:controller="com.jkrude.controller.StartView">
    <columnConstraints>
       <ColumnConstraints/>
       <ColumnConstraints/>
@@ -16,12 +16,12 @@
       <RowConstraints/>
       <RowConstraints/>
    </rowConstraints>
-   <Button fx:id="loadFileBtn" mnemonicParsing="false" onAction="#loadFile" text="Load file"
+   <Button mnemonicParsing="false" onAction="#loadFile" text="Load file"
      GridPane.columnIndex="2"/>
-   <Button fx:id="goToPieChartBtn" mnemonicParsing="false" onAction="#goToPieChart" text="PieChart"
+   <Button fx:id="goToSunburstBtn" mnemonicParsing="false" onAction="#goToSunburst" text="PieChart"
      GridPane.columnIndex="1"/>
-   <Button fx:id="goToMonthOverviewBtn" mnemonicParsing="false" onAction="#goToMonthOverview"
+   <Button fx:id="goToTimeLineBtn" mnemonicParsing="false" onAction="#goToTimeLine"
      text="Month-Overview" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-   <Button fx:id="goToRuleEditor" mnemonicParsing="false" onAction="#goToRuleEditor"
-     text="Rule-Editor" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+   <Button mnemonicParsing="false" onAction="#goToCategoryEditor"
+     text="Category-Editor" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
 </GridPane>

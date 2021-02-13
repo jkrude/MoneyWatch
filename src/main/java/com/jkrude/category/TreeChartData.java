@@ -60,16 +60,16 @@ public class TreeChartData {
     return new TreeChartData(rootCategory, observableTransactions);
   }
 
-  public static void updateSource(
+  public static void changeSource(
       ObservableList<ExtendedTransaction> negativeTransactions,
       TreeChartData root) {
-    root.updateSourceRec(negativeTransactions);
+    root.changeSourceRec(negativeTransactions);
   }
 
-  private void updateSourceRec(ObservableList<ExtendedTransaction> negativeTransactions) {
-    this.children.forEach(node -> node.updateSourceRec(negativeTransactions));
+  private void changeSourceRec(ObservableList<ExtendedTransaction> transactions) {
+    this.children.forEach(node -> node.changeSourceRec(transactions));
     this.source.clear();
-    this.source.addAll(negativeTransactions);
+    this.source.addAll(transactions);
     calculateMatchedTransactions();
   }
 
