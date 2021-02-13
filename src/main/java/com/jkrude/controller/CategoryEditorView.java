@@ -18,9 +18,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
@@ -31,9 +28,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
@@ -41,6 +37,14 @@ import javafx.util.Callback;
 public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, Initializable,
     Prepareable {
 
+  @FXML
+  private AnchorPane rulePane;
+  @FXML
+  private Button addRuleBtn;
+  @FXML
+  private Button editRuleBtn;
+  @FXML
+  private Button deleteRuleBtn;
   @FXML
   private ListView<Rule> ruleView;
   @FXML
@@ -57,8 +61,18 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
     invalidatedProperty = new SimpleBooleanProperty(false);
-    ruleView.setPlaceholder(getRuleViewPlaceholder());
+    rulePane.visibleProperty().bind(categoryTreeView.getSelectionModel().selectedItemProperty()
+        .isNotNull());
+    ruleView.setPlaceholder(new Label("This category has no rules yet"));
     ruleView.setCellFactory(ruleListView -> new RuleCell());
+    addRuleBtn.disableProperty().bind(categoryTreeView.getSelectionModel().selectedItemProperty()
+        .isNull());
+    editRuleBtn.disableProperty()
+        .bind(ruleView.getSelectionModel().selectedItemProperty()
+            .isNull());
+    deleteRuleBtn.disableProperty()
+        .bind(ruleView.getSelectionModel().selectedItemProperty()
+            .isNull());
     // TreeView::cellFactory: Bind text to name and set dynamic contextMenu
     categoryTreeView.setCellFactory(new Callback<>() {
       @Override
@@ -107,28 +121,6 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
       invalidatedProperty.set(false);
       categoryTreeView.getSelectionModel().clearSelection();
     }
-  }
-
-  private Node getRuleViewPlaceholder() {
-    VBox box = new VBox();
-    box.setOpaqueInsets(new Insets(32));
-    box.setAlignment(Pos.CENTER);
-    Label label = new Label("This category has no rules yet");
-    Button addRule = new Button("Create first rule.");
-    addRule.setOnAction(this::addRuleIfCategorySelected);
-    box.getChildren().addAll(label, addRule);
-    return box;
-  }
-
-  private void addRuleIfCategorySelected(ActionEvent event) {
-    TreeItem<CategoryNode> selectedCategory = categoryTreeView.getSelectionModel()
-        .getSelectedItem();
-    if (selectedCategory == null) {
-      AlertBox.showAlert("Error", "No Category selected", null, AlertType.ERROR);
-      return;
-    }
-    selectedCategory.getValue();
-    addRule(selectedCategory.getValue());
   }
 
   /*
@@ -220,32 +212,30 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   /*
    * Rule
    */
-  private static ContextMenu getCMForRule(ListCell<Rule> cell) {
-    ContextMenu cm = new ContextMenu();
-    MenuItem iEdit = new MenuItem("Edit");
-    iEdit.setOnAction(actionEvent -> replaceRule(cell));
-    MenuItem iRemove = new MenuItem("Remove");
-    iRemove.setOnAction(actionEvent -> removeRule(cell));
-    cm.getItems().addAll(iEdit, iRemove);
-    return cm;
-  }
-
-  private static void addRule(CategoryNode node) {
+  private void addRule() {
+    CategoryNode node = categoryTreeView.getSelectionModel().getSelectedItem().getValue();
+    assert node != null;
     new RuleDialog()
         .showAndWait()
         .ifPresent(node::addRule);
   }
 
-  private static void replaceRule(ListCell<Rule> cell) {
+  private void replaceRule() {
+    Rule currentRule = ruleView.getSelectionModel().getSelectedItem();
+    int idx = ruleView.getSelectionModel().getSelectedIndex();
+    assert currentRule != null;
     new RuleDialog()
-        .editRuleShowAndWait(cell.getItem())
-        .ifPresent(rule -> cell.getListView().getItems().set(cell.getIndex(), rule));
+        .editRuleShowAndWait(currentRule)
+        .ifPresent(newRule -> ruleView.getItems().set(idx, newRule));
   }
 
-  private static void removeRule(ListCell<Rule> cell) {
-    Rule rule = cell.getItem();
-    CategoryNode parent = rule.getParent().orElseThrow();
-    parent.removeRule(rule);
+  private void removeRule() {
+    assert ruleView.getSelectionModel().getSelectedItem() != null;
+    assert categoryTreeView.getSelectionModel().getSelectedItem() != null;
+    Rule currentRule = ruleView.getSelectionModel().getSelectedItem();
+    categoryTreeView.getSelectionModel().getSelectedItem().getValue().removeRule(
+        currentRule
+    );
   }
 
   private static ListCell<CategoryNode> categoryConverter(
@@ -273,6 +263,20 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
     Main.goBack();
   }
 
+  @FXML
+  private void addRuleAction(ActionEvent event) {
+    addRule();
+  }
+
+  @FXML
+  private void editRuleAction(ActionEvent event) {
+    replaceRule();
+  }
+
+  @FXML
+  private void deleteRuleAction(ActionEvent event) {
+    removeRule();
+  }
 
   private static class RuleCell extends ListCell<Rule> {
 
@@ -291,7 +295,6 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
                     .append(", "));
         stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
         setText(stringBuilder.toString());
-        setContextMenu(getCMForRule(this));
       }
     }
   }
