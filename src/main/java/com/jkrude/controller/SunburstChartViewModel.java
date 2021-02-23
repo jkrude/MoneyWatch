@@ -20,6 +20,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
@@ -66,7 +67,7 @@ public class SunburstChartViewModel implements ViewModel {
 
   }
 
-  public void addInvalidationListener(InvalidationListener listener) {
+  public void addChangeListener(ChangeListener<Boolean> listener) {
     invalidatedProperty.addListener(listener);
   }
 
@@ -102,6 +103,8 @@ public class SunburstChartViewModel implements ViewModel {
         .forEach(treeChartData -> {
           treeChartData.getValueBinding()
               .addListener(new AndInvalidationListener(observable -> updateUndefinedSegment()));
+          undefinedSegment.getValueBinding()
+              .addListener(observable -> invalidatedProperty.setValue(true));
           treeChartData.getCategory().colorProperty()
               .addListener((observable -> invalidatedProperty.set(true)));
         });

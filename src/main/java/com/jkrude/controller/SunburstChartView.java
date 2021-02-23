@@ -51,7 +51,11 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
-    viewModel.addInvalidationListener(observable -> invalidate());
+    viewModel.addChangeListener((observableValue, oldValue, newValue) -> {
+      if (!oldValue && newValue) {
+        invalidate();
+      }
+    });
   }
 
   @Override
@@ -62,14 +66,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
         setDataWithPossibleDialog();
       }
       adaptedRoot = viewModel.getAdaptedRoot();
-      adaptedRoot.setOnTreeNodeEvent(new TreeNodeEventListener() {
-        @Override
-        public void onTreeNodeEvent(TreeNodeEvent EVENT) {
-          if (EVENT.getType() == EventType.NODE_SELECTED) {
-            openTablePopUp(EVENT.getSource().getItem().getName());
-          }
-        }
-      });
+      applyNodeListener(adaptedRoot);
       drawChart();
       viewModel.resolvedInvalidity();
     }
@@ -78,9 +75,24 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   private void invalidate() {
     if (chartHoldingPane.isVisible()) { // Otherwise checked by prepare.
       adaptedRoot = viewModel.getAdaptedRoot();
+      applyNodeListener(adaptedRoot);
       drawChart();
       viewModel.resolvedInvalidity();
     }
+  }
+
+  private void applyNodeListener(TreeNode<ChartItem> node) {
+    System.out.println("Attaching click listener.");
+    ;
+    node.setOnTreeNodeEvent(new TreeNodeEventListener() {
+      @Override
+      public void onTreeNodeEvent(TreeNodeEvent EVENT) {
+        if (EVENT.getType() == EventType.NODE_SELECTED) {
+          System.out.println("Triggered listener");
+          openTablePopUp(EVENT.getSource().getItem().getName());
+        }
+      }
+    });
   }
 
   @FXML
