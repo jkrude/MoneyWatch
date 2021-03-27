@@ -112,9 +112,16 @@ public class TransactionContainer {
     }
   }
 
-  public ObservableList<ExtendedTransaction> getSource() {
-    return source.get();
+  public ObservableList<ExtendedTransaction> getSourceRO() {
+    return FXCollections.unmodifiableObservableList(source);
   }
 
+  public void addExtendedTransaction(ExtendedTransaction transaction) {
+    source.add(transaction);
+  }
+
+  public boolean removeExtendedTransaction(ExtendedTransaction transaction) {
+    return source.remove(transaction);
+  }
 
 }

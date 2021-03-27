@@ -1,23 +1,21 @@
 package com.jkrude.controller;
 
 import com.jkrude.category.CategoryNode;
-import com.jkrude.category.TreeChartData;
+import com.jkrude.category.CategoryValueNode;
+import com.jkrude.category.CategoryValueTree;
 import com.jkrude.category.TreeNodeAdapter;
 import com.jkrude.material.Model;
-import com.jkrude.material.PropertyFilteredList;
+import com.jkrude.material.Utility;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.TransactionContainer;
 import de.saxsys.mvvmfx.ViewModel;
 import eu.hansolo.fx.charts.data.ChartItem;
 import eu.hansolo.fx.charts.data.TreeNode;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -33,10 +31,10 @@ public class SunburstChartViewModel implements ViewModel {
 
   private final Model globalModel;
 
-  private final Map<String, TreeChartData> nameToDataMap;
+  private final Map<String, CategoryValueNode> nameToDataMap;
   private ObservableList<ExtendedTransaction> negativeTransactions;
-  private final TreeChartData undefinedSegment;
-  private final TreeChartData root;
+  //private final Cate undefinedSegment;
+  private final CategoryValueTree categoryValueTree;
 
 
   public SunburstChartViewModel() {
@@ -51,14 +49,7 @@ public class SunburstChartViewModel implements ViewModel {
     // Build tree.
     CategoryNode rootCategory = globalModel.getProfile().getRootCategory();
     nameToDataMap.clear();
-    root = TreeChartData.createTree(rootCategory, negativeTransactions);
-    // Add undefined segment.
-    List<ExtendedTransaction> notMatched = getUnmatchedTransactions();
-    undefinedSegment = new TreeChartData(
-        new CategoryNode(UNDEFINED_SEGMENT),
-        notMatched,
-        negativeTransactions);
-    nameToDataMap.put(UNDEFINED_SEGMENT, undefinedSegment);
+    categoryValueTree = CategoryValueTree.buildTree(rootCategory, negativeTransactions);
     // Respond to dependencies.
     registerInvalidationListener();
 
@@ -72,57 +63,51 @@ public class SunburstChartViewModel implements ViewModel {
   }
 
   public TreeNode<ChartItem> getAdaptedRoot() {
-    TreeNode<ChartItem> adaptedRoot = TreeNodeAdapter.asTreeNode(this.root, this.nameToDataMap);
+    TreeNode<ChartItem> adaptedRoot = TreeNodeAdapter
+        .asTreeNode(this.categoryValueTree, this.nameToDataMap);
     ChartItem item = new ChartItem();
     item.setName(UNDEFINED_SEGMENT);
-    item.valueProperty().bind(undefinedSegment.getValueBinding());
+    item.valueProperty().bind(Utility.bindToSumOfSet(categoryValueTree.getUnmatchedTransactions()));
     item.setFill(Color.GRAY);
     TreeNode<ChartItem> undefinedNode = new TreeNode<>(item, adaptedRoot);
     adaptedRoot.addNode(undefinedNode);
     return adaptedRoot;
   }
 
-  public boolean possibleActiveDataChange(TransactionContainer chosenData) {
+  public void possibleActiveDataChange(TransactionContainer chosenData) {
     if (!chosenData.equals(globalModel.getActiveData())) {
-      activeDataChange(chosenData);
-      return true;
+      // Implicitly triggers onActiveDataChange.
+      globalModel.setActiveData(chosenData);
     }
-    return false;
   }
 
-  private void activeDataChange(TransactionContainer chosenData) {
+  private void onActiveDataChange(TransactionContainer chosenData) {
     globalModel.setActiveData(chosenData);
     negativeTransactions = filterTransactions(chosenData);
-    TreeChartData.changeSource(negativeTransactions, root);
-    updateUndefinedSegment();
+    categoryValueTree.changeSource(negativeTransactions);
   }
 
   private void registerInvalidationListener() {
     // Any valueBinding changes (within the tree) are propagated to the top.
-    root.stream()
-        .forEach(treeChartData -> {
-          treeChartData.getValueBinding()
-              .addListener(new AndInvalidationListener(observable -> updateUndefinedSegment()));
-          undefinedSegment.getValueBinding()
-              .addListener(observable -> invalidatedProperty.setValue(true));
-          treeChartData.getCategory().colorProperty()
-              .addListener((observable -> invalidatedProperty.set(true)));
+    categoryValueTree.addListener(observable -> invalidatedProperty.set(true));
+    globalModel.getProfile().getRootCategory().streamCollapse().forEach(
+        categoryNode -> {
+          categoryNode.colorProperty()
+              .addListener(observable -> invalidatedProperty.set(true));
+          categoryNode.nameProperty().addListener(observable -> invalidatedProperty.set(true));
         });
     globalModel.activeDataProperty()
-        .addListener(new AndInvalidationListener(
-            (observable) -> activeDataChange(globalModel.getActiveData())));
+        .addListener(observable -> {
+          onActiveDataChange(globalModel.getActiveData());
+          invalidatedProperty.set(true);
+        });
   }
 
 
   private ObservableList<ExtendedTransaction> filterTransactions(TransactionContainer data) {
-    return data.getSource().stream()
+    return data.getSourceRO().stream()
         .filter(t -> !t.getBaseTransaction().isPositive())
         .collect(Collectors.toCollection(FXCollections::observableArrayList));
-  }
-
-  private void updateUndefinedSegment() {
-    List<ExtendedTransaction> notMatched = getUnmatchedTransactions();
-    this.undefinedSegment.update(notMatched, this.negativeTransactions);
   }
 
   /*
@@ -141,26 +126,21 @@ public class SunburstChartViewModel implements ViewModel {
     return globalModel.activeDataProperty().isNotNull().get();
   }
 
-  public PropertyFilteredList<ExtendedTransaction> getTransactionsForSegment(String segmentName) {
+  public ObservableList<ExtendedTransaction> getTransactionsForSegment(String segmentName) {
+    if (segmentName.equals(UNDEFINED_SEGMENT)) {
+      return Utility.bindList2Set(categoryValueTree.getUnmatchedTransactions());
+
+    }
     if (!nameToDataMap.containsKey(segmentName)) {
       throw new IllegalArgumentException("Segment does not exist");
     }
-    return nameToDataMap.get(segmentName).getMatchedTransactions();
+    return nameToDataMap.get(segmentName).getMatchedTransactions().getBaseList();
   }
 
   public Stream<CategoryNode> collapsedCategories() {
     return globalModel.getProfile().getRootCategory().streamCollapse();
   }
 
-  private List<ExtendedTransaction> getUnmatchedTransactions() {
-    List<ExtendedTransaction> allMatched = new ArrayList<>(negativeTransactions.size());
-    root.stream()
-        .map(t -> t.getMatchedTransactions().getBaseList())
-        .forEach(allMatched::addAll);
-    List<ExtendedTransaction> notMatched = new ArrayList<>(negativeTransactions);
-    notMatched.removeAll(allMatched);
-    return notMatched;
-  }
 
   public List<TransactionContainer> getTransactionContainerList() {
     return globalModel.getTransactionContainerList();
@@ -174,21 +154,6 @@ public class SunburstChartViewModel implements ViewModel {
     // TODO enable switch between positive and negative transactions.
     this.negativeTransactions = filterTransactions(container);
 
-  }
-
-  private class AndInvalidationListener implements InvalidationListener {
-
-    private final InvalidationListener listener;
-
-    public AndInvalidationListener(InvalidationListener listener) {
-      this.listener = listener;
-    }
-
-    @Override
-    public void invalidated(Observable observable) {
-      SunburstChartViewModel.this.invalidatedProperty.set(true);
-      listener.invalidated(observable);
-    }
   }
 
 }

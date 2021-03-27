@@ -22,7 +22,7 @@
           "ids": [
             {
               "value": "Cinema",
-              "key": "Verwendungszweck"
+              "key": "Beguenstigter/Zahlungspflichtiger"
             }
           ]
         }

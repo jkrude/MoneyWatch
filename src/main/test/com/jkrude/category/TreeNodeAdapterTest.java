@@ -12,49 +12,51 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javafx.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TreeNodeAdapterTest {
 
-  private TreeChartData root;
-  private Map<String, TreeChartData> nameMap;
+  private CategoryValueTree tree;
+  private Map<String, CategoryValueNode> nameMap;
   TreeNode<ChartItem> adaptedRoot;
 
   @Before
   public void setUp() throws Exception {
-    root = TreeChartData.createTree(
+    tree = CategoryValueTree.buildTree(
         TestData.getProfile().getRootCategory(),
-        TestData.getCamtWithTestData().getSource());
+        TestData.getNewCamtWithTestData().getSourceRO());
     nameMap = new HashMap<>();
-    adaptedRoot = TreeNodeAdapter.asTreeNode(root, nameMap);
+    adaptedRoot = TreeNodeAdapter.asTreeNode(tree, nameMap);
   }
 
   @Test
   public void asTreeNodeTest() {
-    root.stream().forEach(
+    tree.getRoot().stream().forEach(
         node -> assertTrue(nameMap.containsKey(node.getCategory().getName()))
     );
     adaptedRoot.stream().forEach(
         adaptedNode -> {
-          if (adaptedNode.getParent() != null) {
-            var parentName = adaptedNode.getParent().getItem().getName();
-            var parentNodeName = nameMap.get(parentName).getCategory().getName();
-            var parentNodeName1 = nameMap.get(adaptedNode.getItem().getName()).getParent()
-                .orElseThrow().getCategory().getName();
-            assertEquals(parentNodeName, parentNodeName1);
+          var node = nameMap.get(adaptedNode.getItem().getName());
+          var childNamesSet = node.getChildren().stream().map(c -> c.getCategory().getName())
+              .collect(
+                  Collectors.toSet());
+          for (var adaptedChild : adaptedNode.getChildren()) {
+            assertTrue(
+                childNamesSet.contains(adaptedChild.getItem().getName()));
           }
         }
     );
-    assertEquals(root.getValueBinding().get(), adaptedRoot.getItem().getValue(), 0.001);
+    assertEquals(tree.getRoot().getValueBinding().get(), adaptedRoot.getItem().getValue(), 0.001);
   }
 
   @Test
   public void removeCategory() {
-    TreeChartData child0 = root.getChildren().get(0);
-    root.getCategory().removeCategory(child0.getCategory());
-    assertFalse(root.getChildren().contains(child0));
+    CategoryValueNode child0 = tree.getRoot().getChildren().get(0);
+    tree.getRoot().getCategory().removeCategory(child0.getCategory());
+    assertFalse(tree.getRoot().getChildren().contains(child0));
     assertTrue(adaptedRoot.getChildren().stream()
         .map(TreeNode::getItem)
         .map(ChartItem::getName)
@@ -62,7 +64,7 @@ public class TreeNodeAdapterTest {
     for (var c : child0.getChildren()) {
       assertFalse(nameMap.containsKey(c.getCategory().getName()));
     }
-    assertEquals(root.getValueBinding().get(), adaptedRoot.getItem().getValue(), 0.001);
+    assertEquals(tree.getRoot().getValueBinding().get(), adaptedRoot.getItem().getValue(), 0.001);
   }
 
   @Test
@@ -70,27 +72,27 @@ public class TreeNodeAdapterTest {
     Rule newRule = Rule.RuleBuilder.fromPair(
         new Pair<>(TransactionField.OTHER_PARTY, "Extra")).build();
     CategoryNode extraCategory = new CategoryNode("Extra", List.of(newRule));
-    root.getCategory().addCategory(extraCategory);
+    tree.getRoot().getCategory().addCategory(extraCategory);
     assertEquals(1, adaptedRoot.getChildren().stream()
         .map(TreeNode::getItem)
         .map(ChartItem::getName)
         .filter(name -> name.equals(extraCategory.getName()))
         .count());
-    assertEquals(root.getValueBinding().get(), adaptedRoot.getItem().getValue(), 0.001);
+    assertEquals(tree.getRoot().getValueBinding().get(), adaptedRoot.getItem().getValue(), 0.001);
   }
 
   @Test
   public void changeAccVal() {
-    var node = root.getChildren().get(0).getChildren().get(1);
+    var node = tree.getRoot().getChildren().get(0).getChildren().get(1);
     var extendedTransaction = node.getMatchedTransactions().get(0);
     extendedTransaction.setIsActive(false);
-    assertEquals(root.getValueBinding().get(), adaptedRoot.getItem().getValue(), 0.001);
+    assertEquals(tree.getRoot().getValueBinding().get(), adaptedRoot.getItem().getValue(), 0.001);
   }
 
   @Test
   public void changeCategoryName() {
-    root.getCategory().nameProperty().set("");
-    assertEquals(root.getCategory().getName(), adaptedRoot.getItem().getName());
+    tree.getRoot().getCategory().nameProperty().set("");
+    assertEquals(tree.getRoot().getCategory().getName(), adaptedRoot.getItem().getName());
   }
 
 }

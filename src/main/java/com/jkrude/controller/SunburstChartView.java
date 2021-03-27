@@ -82,13 +82,10 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   }
 
   private void applyNodeListener(TreeNode<ChartItem> node) {
-    System.out.println("Attaching click listener.");
-    ;
     node.setOnTreeNodeEvent(new TreeNodeEventListener() {
       @Override
       public void onTreeNodeEvent(TreeNodeEvent EVENT) {
         if (EVENT.getType() == EventType.NODE_SELECTED) {
-          System.out.println("Triggered listener");
           openTablePopUp(EVENT.getSource().getItem().getName());
         }
       }
@@ -99,11 +96,8 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   private void changeDataSource() {
     TransactionContainer chosenData = SourceChoiceDialog
         .showAndWait(viewModel.getTransactionContainerList());
-    boolean changeOccurred = viewModel.possibleActiveDataChange(chosenData);
-    if (changeOccurred) {
-      drawChart();
-    }
-
+    // Chart will update on viewModel invalidation.
+    viewModel.possibleActiveDataChange(chosenData);
   }
 
   private void setDataWithPossibleDialog() {
@@ -123,7 +117,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   private void openTablePopUp(String categoryName) {
 
     ObservableList<ExtendedTransaction> transactions = viewModel
-        .getTransactionsForSegment(categoryName).getBaseList();
+        .getTransactionsForSegment(categoryName);
     TransactionTablePopUp.Builder.initBind(
         new ReadOnlyObjectWrapper<>(transactions))
         .setTitle(categoryName)

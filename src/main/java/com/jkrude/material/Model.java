@@ -67,5 +67,8 @@ public class Model {
 
   public void setActiveData(TransactionContainer activeDataProperty) {
     this.activeDataProperty.set(activeDataProperty);
+    if (!this.transactionContainerList.contains(activeDataProperty)) {
+      this.transactionContainerList.add(activeDataProperty);
+    }
   }
 }

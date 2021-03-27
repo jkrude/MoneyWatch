@@ -4,9 +4,7 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 
 import com.jkrude.category.CategoryNode;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Objects;
 import org.junit.Test;
 
 public class PersistenceManagerTest {
@@ -20,7 +18,7 @@ public class PersistenceManagerTest {
   }
 
   @Test
-  public void testLoad() throws IOException {
+  public void testLoad() {
     final URL READ = PersistenceManagerTest.class.getResource("persTestRead.json");
     Profile loadedProfile = new Profile();
     PersistenceManager.load(loadedProfile, READ);
@@ -31,6 +29,5 @@ public class PersistenceManagerTest {
     assertEquals(rootLoaded.getName(), rootCorrect.getName());
     assertFalse(rootLoaded.hasParent());
     assertEquals(rootLoaded, rootCorrect);
-    assertEquals(Objects.hash(rootCorrect), Objects.hash(rootLoaded));
   }
 }

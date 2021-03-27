@@ -6,10 +6,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -20,29 +25,29 @@ import javafx.util.StringConverter;
 
 public abstract class Utility {
 
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
-        .ofPattern("dd.MM.yy");
+  public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
+      .ofPattern("dd.MM.yy");
 
-    public static LocalDate parse(String stringDate) {
-        LocalDate localDate;
-        try {
-            localDate = LocalDate.parse(stringDate, DATE_TIME_FORMATTER);
-        } catch (DateTimeParseException exception) {
-            // Could fail too
-            localDate = LocalDate.parse(stringDate, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        }
-        return localDate;
+  public static LocalDate parse(String stringDate) {
+    LocalDate localDate;
+    try {
+      localDate = LocalDate.parse(stringDate, DATE_TIME_FORMATTER);
+    } catch (DateTimeParseException exception) {
+      // Could fail too
+      localDate = LocalDate.parse(stringDate, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
+    return localDate;
+  }
 
-    public static StringConverter<Number> convertFromEpochDay() {
-        return new StringConverter<Number>() {
-            @Override
-            public String toString(Number number) {
-                return LocalDate.ofEpochDay(number.longValue())
-                    .format(DateTimeFormatter.ofPattern("dd-MM"));
-            }
+  public static StringConverter<Number> convertFromEpochDay() {
+    return new StringConverter<>() {
+      @Override
+      public String toString(Number number) {
+        return LocalDate.ofEpochDay(number.longValue())
+            .format(DateTimeFormatter.ofPattern("dd-MM"));
+      }
 
-            @Override
+      @Override
       public Number fromString(String s) {
         throw new UnsupportedOperationException();
       }
@@ -58,10 +63,10 @@ public abstract class Utility {
     comboBox.setCellFactory(cellFactory);
   }
 
-  public static  DoubleProperty bindToSumOfList(ObservableList<ExtendedTransaction> list) {
+  public static DoubleProperty bindToSumOfList(ObservableList<ExtendedTransaction> list) {
     // DoubleProperty that reflects the sum of a list of transactions.
     DoubleProperty d = new SimpleDoubleProperty(Money.mapSum(list).getRawAmount().doubleValue());
-    list.addListener(new ListChangeListener<ExtendedTransaction>() {
+    list.addListener(new ListChangeListener<>() {
       @Override
       public void onChanged(Change<? extends ExtendedTransaction> change) {
         while (change.next()) {
@@ -77,6 +82,45 @@ public abstract class Utility {
     });
     return d;
   }
+
+  public static DoubleProperty bindToSumOfSet(ObservableSet<ExtendedTransaction> set) {
+    // DoubleProperty that reflects the sum of a list of transactions.
+    DoubleProperty d = new SimpleDoubleProperty(Money.mapSum(set).getRawAmount().doubleValue());
+    set.addListener(new SetChangeListener<>() {
+      @Override
+      public void onChanged(Change<? extends ExtendedTransaction> change) {
+
+        if (change.wasRemoved()) {
+          ExtendedTransaction removed = change.getElementRemoved();
+          d.set(
+              d.get() - removed.getBaseTransaction().getMoneyAmount().getRawAmount().doubleValue());
+        }
+        if (change.wasAdded()) {
+          d.set(d.get() + change.getElementAdded().getBaseTransaction().getMoneyAmount()
+              .getRawAmount().doubleValue());
+        }
+      }
+
+    });
+    return d;
+  }
+
+  public static <T> ReadOnlyListWrapper<T> bindList2Set(ObservableSet<T> set) {
+    ListProperty<T> listProperty = new SimpleListProperty<>(FXCollections.observableArrayList(set));
+    set.addListener(new SetChangeListener<>() {
+      @Override
+      public void onChanged(Change<? extends T> change) {
+        if (change.wasAdded()) {
+          listProperty.add(change.getElementAdded());
+        }
+        if (change.wasRemoved()) {
+          listProperty.remove(change.getElementRemoved());
+        }
+      }
+    });
+    return new ReadOnlyListWrapper<>(listProperty);
+  }
+
 
   public static DoubleBinding asBinding(DoubleProperty property) {
     return new DoubleBinding() {

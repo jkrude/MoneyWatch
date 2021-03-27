@@ -2,7 +2,9 @@ package com.jkrude.material;
 
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
+import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction;
+import com.jkrude.transaction.Transaction.TransactionField;
 import com.jkrude.transaction.TransactionContainer;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -13,8 +15,10 @@ import javafx.util.Pair;
 
 public class TestData {
 
-  public static TransactionContainer getCamtWithTestData() {
+  private static Profile profile;
 
+
+  public static TransactionContainer getNewCamtWithTestData() {
     ObservableList<Transaction> entries = FXCollections.observableArrayList();
     entries.add(new Transaction(
         LocalDate.parse("26.09.19", Utility.DATE_TIME_FORMATTER),
@@ -122,7 +126,12 @@ public class TestData {
         new Money(-17.00),
         "Revenue booked"
     ));
-    entries.add(new Transaction(
+    return new TransactionContainer(entries);
+  }
+
+  public static ExtendedTransaction getExtraTransaction() {
+
+    return new ExtendedTransaction(new Transaction(
         LocalDate.parse("04.10.19", Utility.DATE_TIME_FORMATTER),
         "DE92500100000644294936",
         LocalDate.parse("04.10.19", Utility.DATE_TIME_FORMATTER),
@@ -136,13 +145,14 @@ public class TestData {
         new Money(-50.00),
         "Revenue booked"
     ));
-
-    return new TransactionContainer(entries);
   }
 
 
   public static Profile getProfile() {
-    Profile profile = new Profile();
+    if (TestData.profile != null) {
+      return TestData.profile;
+    }
+    TestData.profile = new Profile();
     CategoryNode root = new CategoryNode("debits");
     CategoryNode joy = new CategoryNode("Joy");
     CategoryNode necessaries = new CategoryNode("Necessaries");
@@ -158,7 +168,7 @@ public class TestData {
     necessaries.addCategory(rent);
     try {
       cinema.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(Transaction.TransactionField.USAGE, "Cinema"))
+          .fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Cinema"))
           .build());
       food.addRule(Rule.RuleBuilder
           .fromPair(new Pair<>(Transaction.TransactionField.IBAN, "DE43500105171223732312"))

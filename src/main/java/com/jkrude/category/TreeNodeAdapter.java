@@ -4,48 +4,21 @@ import eu.hansolo.fx.charts.data.ChartItem;
 import eu.hansolo.fx.charts.data.TreeNode;
 import java.util.Map;
 import javafx.collections.ListChangeListener;
-import javafx.scene.paint.Color;
 
 
 public class TreeNodeAdapter {
 
-  private static Color[] defaultColors = {
-      Color.web("#66545e"),
-      Color.web("#aa6f73"),
-      Color.web("#eea990"),
-      Color.web("#f6e0b5"),
-      Color.web("#97ebdb"),
-      Color.web("#00c2c7"),
-      Color.web("#0086ad"),
-      Color.web("#005582"),
-
-  };
-  private static int idx = 0;
-
-  private static int getIdx() {
-    return idx++;
-  }
-
-  private static void resetIdx() {
-    idx = 0;
-  }
-
-  private static Color getNextColor() {
-    return defaultColors[getIdx() % defaultColors.length];
-  }
-
-  public static TreeNode<ChartItem> asTreeNode(TreeChartData rootData,
-      Map<String, TreeChartData> nameToDataMap) {
-    TreeNode<ChartItem> root = new TreeNode<>(createChartItem(rootData));
-    addChildrenRec(rootData, root, nameToDataMap, true);
-    resetIdx();
+  public static TreeNode<ChartItem> asTreeNode(CategoryValueTree tree,
+      Map<String, CategoryValueNode> nameToDataMap) {
+    TreeNode<ChartItem> root = new TreeNode<>(createChartItem(tree.getRoot()));
+    addChildrenRec(tree.getRoot(), root, nameToDataMap, true);
     return root;
   }
 
   private static void addChildrenRec(
-      TreeChartData treeChartData,
+      CategoryValueNode treeChartData,
       TreeNode<ChartItem> parent,
-      Map<String, TreeChartData> nameToDataMap,
+      Map<String, CategoryValueNode> nameToDataMap,
       boolean isRoot) {
 
     TreeNode<ChartItem> node;
@@ -63,7 +36,7 @@ public class TreeNodeAdapter {
     treeChartData.getChildren().forEach(child -> addChildrenRec(child, node, nameToDataMap, false));
   }
 
-  private static ChartItem createChartItem(TreeChartData treeChartData) {
+  private static ChartItem createChartItem(CategoryValueNode treeChartData) {
     ChartItem chartItem = new ChartItem();
     chartItem.valueProperty().bind(treeChartData.getValueBinding());
     chartItem.nameProperty().bind(treeChartData.getCategory().nameProperty());
@@ -72,13 +45,13 @@ public class TreeNodeAdapter {
   }
 
   private static void listenForChanges(
-      TreeChartData treeChartData,
+      CategoryValueNode treeChartData,
       TreeNode<ChartItem> parent,
       TreeNode<ChartItem> node,
-      Map<String, TreeChartData> nameToDataMap) {
-    treeChartData.getChildren().addListener(new ListChangeListener<TreeChartData>() {
+      Map<String, CategoryValueNode> nameToDataMap) {
+    treeChartData.getChildren().addListener(new ListChangeListener<>() {
       @Override
-      public void onChanged(Change<? extends TreeChartData> change) {
+      public void onChanged(Change<? extends CategoryValueNode> change) {
         while (change.next()) {
           if (change.wasAdded()) {
             for (var added : change.getAddedSubList()) {
@@ -96,9 +69,9 @@ public class TreeNodeAdapter {
   }
 
   private static void removeChildRec(
-      TreeChartData treeChartData,
+      CategoryValueNode treeChartData,
       TreeNode<ChartItem> parent,
-      Map<String, TreeChartData> nameToDataMap) {
+      Map<String, CategoryValueNode> nameToDataMap) {
 
     var it = parent.getChildren().listIterator();
     while (it.hasNext()) {
