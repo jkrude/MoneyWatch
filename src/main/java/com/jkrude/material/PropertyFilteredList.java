@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.property.BooleanProperty;
+import javafx.beans.binding.BooleanExpression;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -15,16 +15,16 @@ import javafx.util.Callback;
 
 public class PropertyFilteredList<T> implements ObservableList<T> {
 
-  ObservableList<T> baseList;
+  private final ObservableList<T> baseList;
 
-  FilteredList<T> filteredList;
+  private final FilteredList<T> filteredList;
 
-  public PropertyFilteredList(Callback<T, BooleanProperty> callback) {
+  public PropertyFilteredList(Callback<T, BooleanExpression> callback) {
     baseList = FXCollections.observableArrayList(t -> new Observable[]{callback.call(t)});
     filteredList = new FilteredList<>(baseList, t -> callback.call(t).get());
   }
 
-  public PropertyFilteredList(Callback<T, BooleanProperty> callback, Collection<T> collection) {
+  public PropertyFilteredList(Callback<T, BooleanExpression> callback, Collection<T> collection) {
     this(callback);
     baseList.addAll(collection);
   }
@@ -114,7 +114,7 @@ public class PropertyFilteredList<T> implements ObservableList<T> {
 
   @Override
   public boolean remove(Object o) {
-    return filteredList.remove(o);
+    return baseList.remove(o);
   }
 
   @Override
