@@ -5,6 +5,7 @@ import com.jkrude.category.CategoryValueNode;
 import com.jkrude.category.CategoryValueTree;
 import com.jkrude.category.TreeNodeAdapter;
 import com.jkrude.material.Model;
+import com.jkrude.material.PropertyFilteredList;
 import com.jkrude.material.Utility;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.TransactionContainer;
@@ -16,11 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.SetChangeListener;
 import javafx.scene.paint.Color;
 
 public class SunburstChartViewModel implements ViewModel {
@@ -35,12 +38,14 @@ public class SunburstChartViewModel implements ViewModel {
   private ObservableList<ExtendedTransaction> negativeTransactions;
   //private final Cate undefinedSegment;
   private final CategoryValueTree categoryValueTree;
+  private final InvalidationListener isActiveListener;
 
 
   public SunburstChartViewModel() {
     globalModel = Model.getInstance();
     invalidatedProperty = new SimpleBooleanProperty();
     nameToDataMap = new HashMap<>();
+    isActiveListener = (observable) -> invalidatedProperty.set(true);
 
     negativeTransactions =
         hasActiveDataProperty()
@@ -67,7 +72,9 @@ public class SunburstChartViewModel implements ViewModel {
         .asTreeNode(this.categoryValueTree, this.nameToDataMap);
     ChartItem item = new ChartItem();
     item.setName(UNDEFINED_SEGMENT);
-    item.valueProperty().bind(Utility.bindToSumOfSet(categoryValueTree.getUnmatchedTransactions()));
+    PropertyFilteredList<ExtendedTransaction> unmatchedFiltered = new PropertyFilteredList<>(
+        ExtendedTransaction::isActiveProperty, categoryValueTree.getUnmatchedTransactions());
+    item.valueProperty().bind(Utility.bindToSumOfList(unmatchedFiltered));
     item.setFill(Color.GRAY);
     TreeNode<ChartItem> undefinedNode = new TreeNode<>(item, adaptedRoot);
     adaptedRoot.addNode(undefinedNode);
@@ -101,6 +108,19 @@ public class SunburstChartViewModel implements ViewModel {
           onActiveDataChange(globalModel.getActiveData());
           invalidatedProperty.set(true);
         });
+    categoryValueTree.getUnmatchedTransactions().addListener(
+        new SetChangeListener<ExtendedTransaction>() {
+          @Override
+          public void onChanged(Change<? extends ExtendedTransaction> change) {
+            if (change.wasAdded()) {
+              change.getElementAdded().isActiveProperty().addListener(isActiveListener);
+            } else if (change.wasRemoved()) {
+              change.getElementRemoved().isActiveProperty().removeListener(isActiveListener);
+            }
+          }
+        });
+    categoryValueTree.getUnmatchedTransactions()
+        .forEach(t -> t.isActiveProperty().addListener(isActiveListener));
   }
 
 
