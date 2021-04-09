@@ -3,26 +3,40 @@ package com.jkrude.controller;
 import static com.jkrude.material.TestTools.currentTotalMatchedTransactions;
 import static com.jkrude.material.TestTools.sum;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.jkrude.category.CategoryNode;
+import com.jkrude.category.Rule;
 import com.jkrude.material.Model;
 import com.jkrude.material.TestData;
+import com.jkrude.transaction.ExtendedTransaction;
+import com.jkrude.transaction.Transaction.TransactionField;
 import com.jkrude.transaction.TransactionContainer;
 import eu.hansolo.fx.charts.data.ChartItem;
 import eu.hansolo.fx.charts.data.TreeNode;
+import java.text.ParseException;
+import java.util.List;
 import java.util.stream.Collectors;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.scene.paint.Color;
+import javafx.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
+import org.testfx.framework.junit.ApplicationTest;
 
-public class SunburstChartViewModelTest {
 
-  SunburstChartViewModel viewModel;
-  CategoryNode rootCategory;
-  TransactionContainer transactions;
+// If test fails with "module was not exported" add
+// --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+// to your Run-Configuration
+public class SunburstChartViewModelTest extends ApplicationTest {
+
+  private SunburstChartViewModel viewModel;
+  private CategoryNode rootCategory;
+  private TransactionContainer transactions;
+  private ExtendedTransaction extraTransaction;
 
   @Before
   public void setUp() throws Exception {
@@ -31,7 +45,8 @@ public class SunburstChartViewModelTest {
     Model.getInstance().setProfile(profile);
     transactions = TestData.getNewCamtWithTestData();
 
-    transactions.addExtendedTransaction(TestData.getExtraTransaction());
+    extraTransaction = TestData.getExtraTransaction();
+    transactions.addExtendedTransaction(extraTransaction);
     Model.getInstance().getTransactionContainerList().add(transactions);
     Model.getInstance().setActiveData(transactions);
     viewModel = new SunburstChartViewModel();
@@ -50,25 +65,44 @@ public class SunburstChartViewModelTest {
     assertEquals(nameSet.size(), count);
   }
 
+
+  @Test
+  public void getAdaptedRootTestIgnored() {
+    var someTransaction = transactions.getSourceRO().stream()
+        .filter(transaction -> !transaction.getBaseTransaction().isPositive()).findFirst()
+        .orElseThrow();
+    someTransaction.setIsActive(false);
+    var adaptedRoot = viewModel.getAdaptedRoot();
+    assertEquals(sum(currentTotalMatchedTransactions(rootCategory, transactions))
+            - someTransaction.getBaseTransaction().getMoneyAmount().getRawAmount().doubleValue(),
+        adaptedRoot.getItem().getValue(), 0.001);
+  }
+
+  @Test
+  public void getAdaptedRootTestIgnoredUndefined() {
+    extraTransaction.setIsActive(false);
+    var adaptedRoot = viewModel.getAdaptedRoot();
+    // Find undefined-node in adapted-Tree
+    adaptedRoot.getChildren();
+    double undefinedNodeAmount = Double.NaN;
+    for (var node : adaptedRoot.getChildren()) {
+      if (node.getItem().getName().equals(SunburstChartViewModel.UNDEFINED_SEGMENT)) {
+        undefinedNodeAmount = node.getItem().getValue();
+      }
+    }
+    assertEquals(0d, undefinedNodeAmount, 0.001);
+  }
+
   @Test
   public void possibleActiveDataChange() {
     // Tests isInvalidated and addChangeListener too
-    final boolean[] change = new boolean[1];
-    final int[] changeCalled = {0};
-    viewModel.addChangeListener(new ChangeListener<>() {
-      @Override
-      public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldV,
-          Boolean newV) {
-        changeCalled[0]++;
-        change[0] = newV;
-      }
-    });
     TransactionContainer container = new TransactionContainer();
+    assertNotEquals(0d, viewModel.getAdaptedRoot().getItem().getValue(), 0.001);
+
     viewModel.possibleActiveDataChange(container);
     assertEquals(Model.getInstance().getActiveData(), container);
     assertTrue(viewModel.isInvalidated());
-    assertTrue(change[0]);
-    assertEquals(1, changeCalled[0]);
+    assertEquals(0d, viewModel.getAdaptedRoot().getItem().getValue(), 0.001);
   }
 
   @Test
@@ -105,5 +139,84 @@ public class SunburstChartViewModelTest {
         viewModel.getTransactionsForSegment("Rent"));
   }
 
+  private int[] preInvalidationTest() {
+    final int[] counter = {0};
+    ChangeListener<Boolean> changeListener = (observableValue, oldProp, newProp) ->
+    {
+      if (newProp != oldProp) {
+        counter[0]++;
+      }
+    };
+    viewModel.addChangeListener(changeListener);
+    assertEquals(0, counter[0]);
+    assertFalse(viewModel.isInvalidated());
+    return counter;
+  }
+
+  private void postInvalidationTest(int[] counter) {
+    assertTrue(viewModel.isInvalidated());
+    assertEquals(1, counter[0]);
+  }
+
+
+  @Test
+  public void invalidationTestRemoveChild() {
+    // Model should invalidate if a category-node gets removed.
+    var counter = preInvalidationTest();
+    var childNode = rootCategory.childNodesRO().get(0);
+    rootCategory.removeCategory(childNode);
+    postInvalidationTest(counter);
+  }
+
+  @Test
+  public void invalidationTestAddChild() throws ParseException {
+    // Model should invalidate if a category-node was added.
+    var counter = preInvalidationTest();
+    var extraCategory = new CategoryNode("Extra", List.of(
+        Rule.RuleBuilder.fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Extra")).build()));
+    rootCategory.addCategory(extraCategory);
+    postInvalidationTest(counter);
+
+  }
+
+  @Test
+  public void invalidationTestIgnoreTransaction() {
+    //FIXME has to be called to update nameTo... map
+    getAdaptedRootTest();
+    // Model should invalidate if any matched transaction ist set inactive.
+    var counter = preInvalidationTest();
+    var matchedTransactions = viewModel.getTransactionsForSegment("Rent");
+    assertFalse(matchedTransactions.isEmpty());
+    matchedTransactions.stream()
+        .filter(ExtendedTransaction::isActive)
+        .findFirst().orElseThrow()
+        .setIsActive(false);
+    assertTrue(viewModel.isInvalidated());
+    postInvalidationTest(counter);
+  }
+
+  @Test
+  public void invalidationTestIgnoreUndefined() {
+    // FIXME has to be called to update nameTo... map
+    getAdaptedRootTest();
+    // Model should invalidate even if an unmatched transaction ist set inactive.
+    var counter = preInvalidationTest();
+    var undefinedTransactions = viewModel
+        .getTransactionsForSegment(SunburstChartViewModel.UNDEFINED_SEGMENT);
+    assertFalse(undefinedTransactions.isEmpty()); // Extra-Transaction should be in undefined.
+    undefinedTransactions.stream()
+        .filter(ExtendedTransaction::isActive)
+        .findFirst().orElseThrow()
+        .setIsActive(false);
+    postInvalidationTest(counter);
+  }
+
+  @Test
+  public void invalidationTestChangeColor() {
+    var counter = preInvalidationTest();
+    // Change category color
+    rootCategory.childNodesRO().get().get(0).setColor(Color.ANTIQUEWHITE);
+    postInvalidationTest(counter);
+  }
 
 }
