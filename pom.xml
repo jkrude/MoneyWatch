@@ -35,7 +35,7 @@
     <dependency>
       <artifactId>charts</artifactId>
       <groupId>eu.hansolo.fx</groupId>
-      <version>11.6</version>
+      <version>11.7</version>
     </dependency>
     <!--TODO: Remove if a db is used-->
     <dependency>
@@ -52,19 +52,14 @@
 
     <dependency>
       <groupId>org.testfx</groupId>
-      <artifactId>testfx-core</artifactId>
-      <version>4.0.16-alpha</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.testfx</groupId>
       <artifactId>testfx-junit</artifactId>
       <version>4.0.15-alpha</version>
       <scope>test</scope>
     </dependency>
 
   </dependencies>
+
+
   <build>
     <plugins>
       <plugin>

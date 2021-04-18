@@ -19,9 +19,9 @@ import eu.hansolo.fx.charts.SunburstChart.TextOrientation;
 import eu.hansolo.fx.charts.SunburstChartBuilder;
 import eu.hansolo.fx.charts.data.ChartItem;
 import eu.hansolo.fx.charts.data.TreeNode;
-import eu.hansolo.fx.charts.event.EventType;
 import eu.hansolo.fx.charts.event.TreeNodeEvent;
 import eu.hansolo.fx.charts.event.TreeNodeEventListener;
+import eu.hansolo.fx.charts.event.TreeNodeEventType;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -85,7 +85,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
     node.setOnTreeNodeEvent(new TreeNodeEventListener() {
       @Override
       public void onTreeNodeEvent(TreeNodeEvent EVENT) {
-        if (EVENT.getType() == EventType.NODE_SELECTED) {
+        if (EVENT.getType() == TreeNodeEventType.NODE_SELECTED) {
           openTablePopUp(EVENT.getSource().getItem().getName());
         }
       }
