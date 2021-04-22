@@ -9,6 +9,7 @@ import com.jkrude.main.Main.UsableScene;
 import com.jkrude.material.UI.RuleDialog;
 import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
+import com.jkrude.material.UI.TransactionTableView;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction;
 import com.jkrude.transaction.Transaction.TransactionField;
@@ -42,6 +43,10 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
     Prepareable {
 
   @FXML
+  private AnchorPane ttv;
+  @FXML
+  private TransactionTableView ttvController;
+  @FXML
   private AnchorPane chartHoldingPane;
 
   @InjectViewModel
@@ -56,6 +61,8 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
         invalidate();
       }
     });
+    ttvController.setIsActiveColumnShown(false);
+    ttvController.itemsProperty().bind(viewModel.ignoredTransactions());
   }
 
   @Override
@@ -82,7 +89,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   }
 
   private void applyNodeListener(TreeNode<ChartItem> node) {
-    node.setOnTreeNodeEvent(new TreeNodeEventListener() {
+    node.setOnTreeNodeEvent(new TreeNodeEventListener<>() {
       @Override
       public void onTreeNodeEvent(TreeNodeEvent EVENT) {
         if (EVENT.getType() == TreeNodeEventType.NODE_SELECTED) {
@@ -107,7 +114,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   private void drawChart() {
     chartHoldingPane.getChildren().clear();
     chartHoldingPane.getChildren().add(SunburstChartBuilder.create()
-        .prefSize(1280, 662)
+        .prefSize(800, 662)
         .tree(adaptedRoot)
         .interactive(true)
         .textOrientation(TextOrientation.HORIZONTAL)

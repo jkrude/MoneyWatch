@@ -4,9 +4,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.Predicate;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -19,14 +20,36 @@ public class PropertyFilteredList<T> implements ObservableList<T> {
 
   private final FilteredList<T> filteredList;
 
-  public PropertyFilteredList(Callback<T, BooleanExpression> callback) {
-    baseList = FXCollections.observableArrayList(t -> new Observable[]{callback.call(t)});
-    filteredList = new FilteredList<>(baseList, t -> callback.call(t).get());
+  public PropertyFilteredList(
+      final Callback<T, BooleanProperty> propertyExtractor,
+      final Predicate<T> predicate) {
+
+    this.baseList = FXCollections
+        .observableArrayList(t -> new Observable[]{propertyExtractor.call(t)});
+    this.filteredList = new FilteredList<>(baseList, predicate);
   }
 
-  public PropertyFilteredList(Callback<T, BooleanExpression> callback, Collection<T> collection) {
-    this(callback);
+  public PropertyFilteredList(Callback<T, BooleanProperty> propertyExtractor) {
+    this(propertyExtractor, t -> propertyExtractor.call(t).get());
+  }
+
+  // If your predicate is not the same as property.get().
+  public PropertyFilteredList(
+      final Callback<T, BooleanProperty> propertyExtractor,
+      final Collection<T> collection) {
+
+    this(propertyExtractor);
     baseList.addAll(collection);
+  }
+
+  public PropertyFilteredList(
+      final Callback<T, BooleanProperty> propertyExtractor,
+      final Predicate<T> predicate,
+      final Collection<T> collection) {
+
+    this(propertyExtractor, predicate);
+    this.baseList.addAll(collection);
+
   }
 
   public FilteredList<T> getFilteredList() {

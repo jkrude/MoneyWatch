@@ -28,7 +28,7 @@ public class Model {
     assert transactionContainerList != null;
     this.transactionContainerList = new SimpleListProperty<>(
         FXCollections.observableArrayList(transactionContainerList));
-    activeDataProperty = new SimpleObjectProperty<>();
+    this.activeDataProperty = new SimpleObjectProperty<>();
     if (!transactionContainerList.isEmpty()) {
       activeDataProperty.set(transactionContainerList.get(0));
     }

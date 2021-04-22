@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.material.UI.TransactionTablePopUp">
+  <VBox prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
+    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <children>
+      <fx:include fx:id="ttv" source="TransactionTableView.fxml"/>
+      <ButtonBar prefHeight="34.0" prefWidth="600.0">
+        <buttons>
+          <Button fx:id="closeBtn" mnemonicParsing="false" prefHeight="101.0" prefWidth="50.0"
+            text="Close"/>
+        </buttons>
+        <padding>
+          <Insets bottom="10.0" left="16.0" right="16.0" top="10.0"/>
+        </padding>
+      </ButtonBar>
+    </children>
+  </VBox>
+</AnchorPane>

@@ -2,41 +2,44 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="720.0" prefWidth="1280.0"
-  xmlns="http://javafx.com/javafx/10.0.2-internal"
-  fx:controller="com.jkrude.controller.SunburstChartView">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/11.0.1"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.controller.SunburstChartView">
   <children>
     <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-      AnchorPane.rightAnchor="0.0"
-      AnchorPane.topAnchor="0.0" prefHeight="720.0" prefWidth="1280.0">
+      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <center>
-        <AnchorPane BorderPane.alignment="CENTER" fx:id="chartHoldingPane">
+        <AnchorPane fx:id="chartHoldingPane" BorderPane.alignment="CENTER">
 
         </AnchorPane>
       </center>
       <top>
         <AnchorPane BorderPane.alignment="CENTER_LEFT">
           <children>
-            <ButtonBar AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0"
-              AnchorPane.rightAnchor="16.0"
-              AnchorPane.topAnchor="16.0" prefHeight="26.0"
-              prefWidth="1280.0">
+            <ButtonBar prefHeight="26.0" prefWidth="1280.0" AnchorPane.bottomAnchor="16.0"
+              AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0"
+              AnchorPane.topAnchor="16.0">
               <buttons>
-                <Button contentDisplay="CENTER" mnemonicParsing="false"
-                  onAction="#changeDataSource"
-                  text="Data selection"/>
-                <Button ButtonBar.buttonData="LEFT" mnemonicParsing="false" onAction="#goBack"
-                  text="Back"/>
-                <Button ButtonBar.buttonData="RIGHT" mnemonicParsing="false"
-                  onAction="#goToCategories"
-                  text="Categories"/>
+                <Button mnemonicParsing="false" onAction="#changeDataSource" text="Data selection"/>
+                <Button mnemonicParsing="false" onAction="#goBack" text="Back"
+                  ButtonBar.buttonData="LEFT"/>
+                <Button mnemonicParsing="false" onAction="#goToCategories" text="Categories"
+                  ButtonBar.buttonData="RIGHT"/>
               </buttons>
             </ButtonBar>
           </children>
         </AnchorPane>
       </top>
+      <right>
+        <TabPane prefHeight="662.0" prefWidth="350.0">
+          <Tab closable="false" text="Ignored Transactions">
+            <fx:include fx:id="ttv" source="../material/UI/TransactionTableView.fxml"/>
+          </Tab>
+        </TabPane>
+      </right>
     </BorderPane>
   </children>
 </AnchorPane>
