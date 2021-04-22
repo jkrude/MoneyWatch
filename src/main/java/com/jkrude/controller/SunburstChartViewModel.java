@@ -41,6 +41,7 @@ public class SunburstChartViewModel implements ViewModel {
   //private final Cate undefinedSegment;
   private final CategoryValueTree categoryValueTree;
   private final InvalidationListener isActiveListener;
+  private final PropertyFilteredList<ExtendedTransaction> filteredUndefined;
 
 
   public SunburstChartViewModel() {
@@ -48,6 +49,7 @@ public class SunburstChartViewModel implements ViewModel {
     invalidatedProperty = new SimpleBooleanProperty();
     nameToDataMap = new HashMap<>();
     isActiveListener = (observable) -> invalidatedProperty.set(true);
+    filteredUndefined = new PropertyFilteredList<>(ExtendedTransaction::isActiveProperty);
 
     negativeTransactions =
         hasActiveDataProperty()
@@ -74,9 +76,8 @@ public class SunburstChartViewModel implements ViewModel {
         .asTreeNode(this.categoryValueTree, this.nameToDataMap);
     ChartItem item = new ChartItem();
     item.setName(UNDEFINED_SEGMENT);
-    PropertyFilteredList<ExtendedTransaction> unmatchedFiltered = new PropertyFilteredList<>(
-        ExtendedTransaction::isActiveProperty, categoryValueTree.getUnmatchedTransactions());
-    item.valueProperty().bind(Utility.bindToSumOfList(unmatchedFiltered));
+    this.filteredUndefined.setAll(categoryValueTree.getUnmatchedTransactions());
+    item.valueProperty().bind(Utility.bindToSumOfList(this.filteredUndefined));
     item.setFill(Color.GRAY);
     TreeNode<ChartItem> undefinedNode = new TreeNode<>(item, adaptedRoot);
     adaptedRoot.addNode(undefinedNode);
@@ -115,8 +116,10 @@ public class SunburstChartViewModel implements ViewModel {
           @Override
           public void onChanged(Change<? extends ExtendedTransaction> change) {
             if (change.wasAdded()) {
+              filteredUndefined.add(change.getElementAdded());
               change.getElementAdded().isActiveProperty().addListener(isActiveListener);
             } else if (change.wasRemoved()) {
+              filteredUndefined.remove(change.getElementRemoved());
               change.getElementRemoved().isActiveProperty().removeListener(isActiveListener);
             }
           }

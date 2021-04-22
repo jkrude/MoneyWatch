@@ -15,9 +15,6 @@ import javafx.util.Pair;
 
 public class TestData {
 
-  private static Profile profile;
-
-
   public static TransactionContainer getNewCamtWithTestData() {
     ObservableList<Transaction> entries = FXCollections.observableArrayList();
     entries.add(new Transaction(
@@ -149,10 +146,6 @@ public class TestData {
 
 
   public static Profile getProfile() {
-    if (TestData.profile != null) {
-      return TestData.profile;
-    }
-    TestData.profile = new Profile();
     CategoryNode root = new CategoryNode("debits");
     CategoryNode joy = new CategoryNode("Joy");
     CategoryNode necessaries = new CategoryNode("Necessaries");
@@ -192,6 +185,7 @@ public class TestData {
     } catch (ParseException e) {
       e.printStackTrace();
     }
+    Profile profile = new Profile();
     profile.setRootCategory(root);
     return profile;
   }

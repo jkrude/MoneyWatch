@@ -94,6 +94,19 @@ public class SunburstChartViewModelTest extends ApplicationTest {
   }
 
   @Test
+  public void getAdaptedRootDefineTest() throws ParseException {
+    var adaptedRoot = viewModel.getAdaptedRoot();
+    var undefSegOpt = adaptedRoot.getChildren().stream()
+        .filter(n -> n.getItem().getName().equals(SunburstChartViewModel.UNDEFINED_SEGMENT))
+        .findFirst();
+    assertTrue(undefSegOpt.isPresent());
+    Rule extra = Rule.RuleBuilder.fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Extra"))
+        .build();
+    Model.getInstance().getProfile().getRootCategory().addRule(extra);
+    assertEquals(0d, undefSegOpt.get().getItem().getValue(), 0.001);
+  }
+
+  @Test
   public void possibleActiveDataChange() {
     // Tests isInvalidated and addChangeListener too
     TransactionContainer container = new TransactionContainer();
