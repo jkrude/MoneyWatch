@@ -278,7 +278,7 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
     removeRule();
   }
 
-  private static class RuleCell extends ListCell<Rule> {
+  public static class RuleCell extends ListCell<Rule> {
 
     @Override
     protected void updateItem(Rule rule, boolean isEmpty) {

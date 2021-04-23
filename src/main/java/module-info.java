@@ -7,6 +7,6 @@ module MoneyWatch {
   requires de.saxsys.mvvmfx;
   opens com.jkrude.controller to javafx.fxml, de.saxsys.mvvmfx;
   opens com.jkrude.material to javafx.base;
-  opens com.jkrude.material.UI to javafx.base, javafx.fxml;
+  opens com.jkrude.material.UI to javafx.base, javafx.fxml, de.saxsys.mvvmfx;
   exports com.jkrude.main;
 }

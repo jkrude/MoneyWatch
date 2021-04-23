@@ -3,6 +3,7 @@ package com.jkrude.controller;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.CategoryValueNode;
 import com.jkrude.category.CategoryValueTree;
+import com.jkrude.category.Rule;
 import com.jkrude.category.TreeNodeAdapter;
 import com.jkrude.material.Model;
 import com.jkrude.material.PropertyFilteredList;
@@ -192,5 +193,14 @@ public class SunburstChartViewModel implements ViewModel {
     globalModel.activeDataProperty().addListener(
         observable -> ignoredTransactions.get().setAll(globalModel.getActiveData().getSourceRO()));
     return ignoredTransactions;
+  }
+
+  public List<Rule> findMatchingRules(ExtendedTransaction transaction) {
+    return categoryValueTree.getRoot()
+        .stream()
+        .map(CategoryValueNode::getCategory)
+        .flatMap(category -> category.rulesRO().stream())
+        .filter(rule -> rule.getPredicate().test(transaction.getBaseTransaction()))
+        .collect(Collectors.toList());
   }
 }

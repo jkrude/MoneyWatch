@@ -4,8 +4,10 @@ import static com.jkrude.controller.SunburstChartViewModel.UNDEFINED_SEGMENT;
 
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
+import com.jkrude.controller.CategoryEditorView.RuleCell;
 import com.jkrude.main.Main;
 import com.jkrude.main.Main.UsableScene;
+import com.jkrude.material.AlertBox;
 import com.jkrude.material.UI.RuleDialog;
 import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
@@ -24,6 +26,7 @@ import eu.hansolo.fx.charts.event.TreeNodeEvent;
 import eu.hansolo.fx.charts.event.TreeNodeEventListener;
 import eu.hansolo.fx.charts.event.TreeNodeEventType;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -33,6 +36,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;
@@ -130,25 +134,27 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
         .setTitle(categoryName)
         .setContextMenu(
             categoryName.equals(UNDEFINED_SEGMENT) ?
-                this::contextMenuGenerator
-                : this::defaultContextMenu)
+                this::undefinedContextMenu
+                : this::categoryContextMenu)
         .showAndWait();
   }
 
-  private ContextMenu defaultContextMenu(TableRow<ExtendedTransaction> row) {
+  private ContextMenu categoryContextMenu(TableRow<ExtendedTransaction> row) {
     ContextMenu contextMenu = new ContextMenu();
     MenuItem ignoreTransaction = new MenuItem("Ignore/Activate transaction");
     ignoreTransaction.setOnAction(event -> row.getItem().switchActive());
-    contextMenu.getItems().add(ignoreTransaction);
+    MenuItem findMatchingRule = new MenuItem("Show matched rule");
+    findMatchingRule.setOnAction(action -> findMatchingRules(row.getItem()));
+    contextMenu.getItems().addAll(ignoreTransaction, findMatchingRule);
     return contextMenu;
   }
 
 
-  private ContextMenu contextMenuGenerator(
+  private ContextMenu undefinedContextMenu(
       TableRow<ExtendedTransaction> row) {
     // IMPORTANT: The transaction will only be evaluated when the contextmenu is shown.
     // Otherwise (if the Transaction would be given at row creation) it would be null.
-    ContextMenu contextMenu = this.defaultContextMenu(row);
+    ContextMenu contextMenu = TransactionTableView.defaultContextMenu(row);
     Menu categoryChoices = new Menu("Add as rule");
     viewModel.collapsedCategories().forEach(
         categoryNode -> {
@@ -166,6 +172,24 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
     );
     contextMenu.getItems().add(categoryChoices);
     return contextMenu;
+  }
+
+  private void findMatchingRules(ExtendedTransaction transaction) {
+    List<Rule> matchingRules = viewModel.findMatchingRules(transaction);
+    ListView<Rule> rulesList = new ListView<>();
+    rulesList.setCellFactory(callback -> new RuleCell() {
+      @Override
+      protected void updateItem(Rule rule, boolean isEmpty) {
+        super.updateItem(rule, isEmpty);
+        if (!isEmpty) {
+          assert rule.getParent().isPresent();
+          setText(
+              "Category: " + rule.getParent().orElseThrow().getName() + ",\t Rule: " + getText());
+        }
+      }
+    });
+    rulesList.getItems().addAll(matchingRules);
+    AlertBox.displayGeneric("Matched Rules", rulesList, 600, 70);
   }
 
   private void openRuleDialogAndSave(Transaction baseTransaction, CategoryNode categoryNode) {
