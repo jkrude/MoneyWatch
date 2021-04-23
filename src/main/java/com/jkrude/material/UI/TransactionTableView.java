@@ -5,17 +5,19 @@ import com.jkrude.material.Utility;
 import com.jkrude.transaction.ExtendedTransaction;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -25,6 +27,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 public class TransactionTableView implements Initializable {
+
 
   @FXML
   protected TableView<ExtendedTransaction> table;
@@ -63,30 +66,63 @@ public class TransactionTableView implements Initializable {
   protected TableColumn<ExtendedTransaction, Money> amount;
   @FXML
   protected TableColumn<ExtendedTransaction, String> info;
+  @FXML
+  protected TableColumn<ExtendedTransaction, Void> addOption;
 
 
-  protected final SimpleIntegerProperty activatedColumns = new SimpleIntegerProperty(6);
+  private final SimpleIntegerProperty numberOfActivatedColumns;
+  private final ObservableList<TableColumn<ExtendedTransaction, ?>> columnList;
   protected SimpleIntegerProperty columnWidth;
 
-  protected BooleanProperty isActiveColumnShown;
+  public TransactionTableView() {
+    this.numberOfActivatedColumns = new SimpleIntegerProperty();
+    this.columnList = FXCollections
+        .observableArrayList(column -> new Observable[]{column.visibleProperty()});
+  }
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
     // Use all available space evenly across the columns
+
+    this.columnList.setAll(
+        isActive,
+        accountIban,
+        transferDate,
+        validationDate,
+        transferSpecification,
+        usage,
+        creditorId,
+        mandateReference,
+        customerReferenceRndToEnd,
+        collectionReference,
+        debitOriginalAmount,
+        backDebit,
+        otherParty,
+        iban,
+        bic,
+        amount,
+        info,
+        addOption
+    );
+    numberOfActivatedColumns.set(
+        (int) columnList.stream().filter(column -> column.visibleProperty().get()).count());
+
+    this.columnList.addListener((InvalidationListener) obs -> numberOfActivatedColumns.set(
+        (int) columnList.stream().filter(column -> column.visibleProperty().get()).count()));
+
     this.columnWidth = new SimpleIntegerProperty();
-    this.isActiveColumnShown = new SimpleBooleanProperty(true);
-    this.columnWidth.bind(table.widthProperty().divide(activatedColumns));
+    this.columnWidth.bind(table.widthProperty().divide(numberOfActivatedColumns));
     table.getColumns().forEach(
         transactionTableColumn -> transactionTableColumn.prefWidthProperty().bind(columnWidth));
+    table.setPlaceholder(new Label("No Transactions matching."));
 
     isActive.setCellValueFactory(callback -> {
-          SimpleStringProperty stringProp = new SimpleStringProperty();
-          stringProp.bind(Bindings.when(callback.getValue().isActiveProperty()).then("Active")
+      SimpleStringProperty stringProp = new SimpleStringProperty();
+      stringProp.bind(Bindings.when(callback.getValue().isActiveProperty()).then("Active")
               .otherwise("Ignored"));
           return stringProp;
         }
     );
-    isActive.visibleProperty().bind(isActiveColumnShown);
     accountIban.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getBaseTransaction().getAccountIban()));
     transferDate.setCellValueFactory(callback -> new SimpleStringProperty(
@@ -122,6 +158,24 @@ public class TransactionTableView implements Initializable {
         callback.getValue().getBaseTransaction().getInfo()));
 
     amount.setCellFactory(getColoredCellFactory());
+
+    // Make column visibility optional.
+    for (var column : columnList) {
+      MenuItem item = new MenuItem("Disable");
+      item.setOnAction(action -> column.visibleProperty().set(false));
+      column.setContextMenu(new ContextMenu(item));
+    }
+
+    // Option to show more columns.
+    // OVERRIDES addOption.setContextMenu from before.
+    ContextMenu cm = new ContextMenu();
+    for (var column : columnList) {
+      MenuItem item = new MenuItem(column.getText());
+      item.visibleProperty().bind(column.visibleProperty().not());
+      item.setOnAction(action -> column.visibleProperty().set(!column.visibleProperty().get()));
+      cm.getItems().add(item);
+    }
+    addOption.setContextMenu(cm);
 
     table.setRowFactory(
         extendedTransactionTableView -> {
@@ -167,15 +221,11 @@ public class TransactionTableView implements Initializable {
   }
 
   public boolean getIsActiveColumnShown() {
-    return isActiveColumnShown.get();
-  }
-
-  public BooleanProperty isActiveColumnShown() {
-    return isActiveColumnShown;
+    return isActive.visibleProperty().get();
   }
 
   public void setIsActiveColumnShown(boolean isActiveColumnShown) {
-    this.isActiveColumnShown.set(isActiveColumnShown);
+    this.isActive.visibleProperty().set(isActiveColumnShown);
   }
 
   public void setContextMenu(

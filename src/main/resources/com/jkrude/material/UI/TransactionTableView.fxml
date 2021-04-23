@@ -26,6 +26,7 @@
       <TableColumn fx:id="bic" text="BIC" visible="false"/>
       <TableColumn fx:id="amount" text="Betrag"/>
       <TableColumn fx:id="info" text="Info" visible="false"/>
+      <TableColumn fx:id="addOption" editable="false" sortable="false" text="+"/>
     </columns>
   </TableView>
 </AnchorPane>

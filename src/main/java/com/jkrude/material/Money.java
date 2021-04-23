@@ -113,8 +113,8 @@ public class Money implements Comparable<Money>{
 
   @Override
   public String toString() {
-    return
-        amount.toString() + ',' + currency.toString();
+    String currencyStr = this.currency == EURO ? " €" : ", " + currency.toString();
+    return amount.toString() + currencyStr;
   }
 
   @Override
