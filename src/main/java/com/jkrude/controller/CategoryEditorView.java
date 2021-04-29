@@ -6,7 +6,6 @@ import com.jkrude.main.Main;
 import com.jkrude.material.AlertBox;
 import com.jkrude.material.UI.ColorPickerDialog;
 import com.jkrude.material.UI.RuleDialog;
-import com.jkrude.material.Utility;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import java.net.URL;
@@ -198,13 +197,15 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   private static void changeParent(TreeCell<CategoryNode> cell) {
     CategoryNode node = cell.getItem();
     CategoryNode parent = cell.getTreeItem().getParent().getValue();
-    // TODO: set ChoiceDialog::Labels::Text to CategoryNode::Name
-    ChoiceDialog<CategoryNode> choiceDialog = new ChoiceDialog<>(node,
-        node.getRoot().streamCollapse().collect(Collectors.toList()));
-    Utility.setCellFactory(choiceDialog, CategoryEditorView::categoryConverter);
-    Optional<CategoryNode> optCat = choiceDialog.showAndWait();
-    if (optCat.isPresent() && !optCat.get().equals(node)) {
-      optCat.get().addCategory(node);
+    ChoiceDialog<DrawableCategoryNode> choiceDialog = new ChoiceDialog<>(
+        new DrawableCategoryNode(parent),
+        node.getRoot().streamCollapse()
+            .filter(categoryNode -> categoryNode != node)
+            .map(DrawableCategoryNode::new)
+            .collect(Collectors.toList()));
+    Optional<DrawableCategoryNode> optCat = choiceDialog.showAndWait();
+    if (optCat.isPresent() && !optCat.get().getNode().equals(node)) {
+      optCat.get().getNode().addCategory(node);
       parent.removeCategory(node);
     }
   }
@@ -296,6 +297,24 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
         stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
         setText(stringBuilder.toString());
       }
+    }
+  }
+
+  private static class DrawableCategoryNode {
+
+    private final CategoryNode node;
+
+    public DrawableCategoryNode(CategoryNode node) {
+      this.node = node;
+    }
+
+    public CategoryNode getNode() {
+      return node;
+    }
+
+    @Override
+    public String toString() {
+      return node.getName();
     }
   }
 
