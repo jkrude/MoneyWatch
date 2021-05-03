@@ -2,7 +2,7 @@ package com.jkrude.controller;
 
 import com.jkrude.controller.TimeLineViewModel.TickRate;
 import com.jkrude.main.Main;
-import com.jkrude.material.AlertBox;
+import com.jkrude.material.AlertBox.AlertBuilder;
 import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.material.UI.TransactionTablePopUp;
 import com.jkrude.material.Utility;
@@ -110,11 +110,10 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
     }
 
     if (!viewModel.possibleTickRateChange(newValue)) {
-      AlertBox.showAlert(
-          "Not enough data",
-          "There are not enough data points in the selected range.",
-          "",
-          AlertType.INFORMATION);
+      AlertBuilder.alert(AlertType.INFORMATION)
+          .setTitle("Not enough data")
+          .setHeader("There are not enough data points in the selected range.")
+          .buildAndShow();
       tickRateManualChange = true;
       tickRateChoiceBox.setValue(oldValue);
     }

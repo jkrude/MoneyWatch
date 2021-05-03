@@ -3,7 +3,7 @@ package com.jkrude.controller;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
 import com.jkrude.main.Main;
-import com.jkrude.material.AlertBox;
+import com.jkrude.material.AlertBox.AlertBuilder;
 import com.jkrude.material.UI.ColorPickerDialog;
 import com.jkrude.material.UI.RuleDialog;
 import de.saxsys.mvvmfx.FxmlView;
@@ -179,8 +179,11 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
       return;
     }
     if (node.childNodesRO().stream().map(CategoryNode::getName).anyMatch(result.get()::equals)) {
-      AlertBox.showAlert("Category already existing!", "The chosen name is already used",
-          "Please choose a different name", AlertType.WARNING);
+      AlertBuilder.alert(AlertType.WARNING)
+          .setTitle("Category already existing!")
+          .setHeader("The chosen name is already used")
+          .setMessage("Please choose a different name")
+          .buildAndShow();
       return;
     }
     var optColor = ColorPickerDialog.showAndWait();
@@ -255,8 +258,10 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   }
 
   private static void showAlertForEmptyInput() {
-    AlertBox.showAlert("Incorrect input!", "The name can not be empty", "",
-        AlertType.INFORMATION);
+    AlertBuilder.alert(AlertType.INFORMATION)
+        .setTitle("Incorrect input!")
+        .setHeader("The name can not be empty")
+        .buildAndShow();
   }
 
   @FXML

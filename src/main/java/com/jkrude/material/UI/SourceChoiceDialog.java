@@ -1,6 +1,6 @@
 package com.jkrude.material.UI;
 
-import com.jkrude.material.AlertBox;
+import com.jkrude.material.AlertBox.AlertBuilder;
 import com.jkrude.material.Utility;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.TransactionContainer;
@@ -42,8 +42,10 @@ public class SourceChoiceDialog {
     btnApply.addEventFilter(ActionEvent.ACTION, event -> {
       if (!converterMap.containsKey(sourceChoiceDialog.getSelectedItem())) {
         event.consume();
-        AlertBox.showAlert("Missing dataset", "Please select a dataset", "",
-            AlertType.ERROR);
+        AlertBuilder.alert(AlertType.ERROR)
+            .setTitle("Missing dataset")
+            .setHeader("Please select a dataset.")
+            .buildAndShow();
       }
     });
     Optional<String> result = sourceChoiceDialog.showAndWait();

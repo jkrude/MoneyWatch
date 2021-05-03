@@ -1,7 +1,7 @@
 package com.jkrude.material.UI;
 
 import com.jkrude.category.Rule;
-import com.jkrude.material.AlertBox;
+import com.jkrude.material.AlertBox.AlertBuilder;
 import com.jkrude.transaction.Transaction;
 import com.jkrude.transaction.Transaction.TransactionField;
 import java.text.ParseException;
@@ -101,12 +101,12 @@ public class RuleDialog {
             .map(box -> new Pair<>(box.type, box.textField.getText()))
             .collect(Collectors.toSet());
     if (generatingSet.isEmpty()) {
-      AlertBox.showAlert(
-          "No input!",
-          "At least one field must not be empty and checked.",
-          "To close this dialog press Cancel.",
-          AlertType.WARNING
-      );
+      AlertBuilder
+          .alert(AlertType.WARNING)
+          .setTitle("No input!")
+          .setHeader("At least one field must not be empty and checked.")
+          .setMessage("To close this dialog press Cancel.")
+          .buildAndShow();
       return false;
     }
     try {
@@ -114,19 +114,19 @@ public class RuleDialog {
       generatedRule = Rule.RuleBuilder.fromSet(generatingSet).build();
       return true;
     } catch (ParseException e) {
-      AlertBox
-          .showAlert(
-              "Incorrect input!",
-              "An entry did not match the format",
-              "",
-              AlertType.WARNING);
+      AlertBuilder
+          .alert(AlertType.WARNING)
+          .setTitle("Incorrect input!")
+          .setHeader("An entry did not match the format")
+          .buildAndShow();
+
       return false;
     } catch (NumberFormatException e) {
-      AlertBox.showAlert(
-          "Incorrect input!",
-          "The amount did not match the format (X / X.Y / Z EUR / Z €)",
-          "",
-          AlertType.WARNING);
+      AlertBuilder
+          .alert(AlertType.WARNING)
+          .setTitle("Incorrect input!")
+          .setHeader("The amount did not match the format (X / X.Y / Z EUR / Z €)")
+          .buildAndShow();
       return false;
     }
   }

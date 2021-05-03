@@ -2,7 +2,7 @@ package com.jkrude.controller;
 
 import com.jkrude.main.Main;
 import com.jkrude.main.Main.UsableScene;
-import com.jkrude.material.AlertBox;
+import com.jkrude.material.AlertBox.AlertBuilder;
 import com.jkrude.transaction.TransactionContainer;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
@@ -62,22 +62,31 @@ public class StartView implements FxmlView<StartViewModel>, Initializable, Prepa
       // No file selected. Dialog was canceled.
       return;
     } else if (!file.canRead()) {
-      AlertBox
-          .showAlert("Error", "Import failed.",
-              "File couldn't not be opened.", AlertType.ERROR);
+      AlertBuilder.alert(AlertType.ERROR)
+          .setTitle("Error")
+          .setHeader("Import failed.")
+          .setMessage("File couldn't not be opened.")
+          .buildAndShow();
     }
     TransactionContainer transactionContainer;
     try (Scanner sc = new Scanner(file, StandardCharsets.ISO_8859_1)) {
+
       try {
         transactionContainer = new TransactionContainer(sc);
       } catch (IllegalArgumentException | ParseException e) {
-        AlertBox.showAlert("Error", null, e.getMessage(), AlertType.ERROR);
+        AlertBuilder.alert(AlertType.ERROR)
+            .setTitle("Error")
+            .setMessage(e.getMessage())
+            .buildAndShow();
         return;
       }
 
       viewModel.addTransactionData(transactionContainer);
     } catch (IOException e) {
-      AlertBox.showAlert("Error", "File couldn't be opened", "", AlertType.ERROR);
+      AlertBuilder.alert(AlertType.ERROR)
+          .setTitle("Error")
+          .setMessage("File could not be opened")
+          .buildAndShow();
     }
   }
 
