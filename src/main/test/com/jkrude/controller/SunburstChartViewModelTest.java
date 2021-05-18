@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.scene.paint.Color;
-import javafx.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
@@ -100,7 +99,7 @@ public class SunburstChartViewModelTest extends ApplicationTest {
         .filter(n -> n.getItem().getName().equals(SunburstChartViewModel.UNDEFINED_SEGMENT))
         .findFirst();
     assertTrue(undefSegOpt.isPresent());
-    Rule extra = Rule.RuleBuilder.fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Extra"))
+    Rule extra = Rule.RuleBuilder.fromPair(TransactionField.OTHER_PARTY, "Extra")
         .build();
     Model.getInstance().getProfile().getRootCategory().addRule(extra);
     assertEquals(0d, undefSegOpt.get().getItem().getValue(), 0.001);
@@ -186,7 +185,7 @@ public class SunburstChartViewModelTest extends ApplicationTest {
     // Model should invalidate if a category-node was added.
     var counter = preInvalidationTest();
     var extraCategory = new CategoryNode("Extra", List.of(
-        Rule.RuleBuilder.fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Extra")).build()));
+        Rule.RuleBuilder.fromPair(TransactionField.OTHER_PARTY, "Extra").build()));
     rootCategory.addCategory(extraCategory);
     postInvalidationTest(counter);
 

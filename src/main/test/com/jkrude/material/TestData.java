@@ -8,10 +8,9 @@ import com.jkrude.transaction.Transaction.TransactionField;
 import com.jkrude.transaction.TransactionContainer;
 import java.text.ParseException;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.Map;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.util.Pair;
 
 public class TestData {
 
@@ -161,25 +160,25 @@ public class TestData {
     necessaries.addCategory(rent);
     try {
       cinema.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Cinema"))
+          .fromPair(TransactionField.OTHER_PARTY, "Cinema")
           .build());
       food.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(Transaction.TransactionField.IBAN, "DE43500105171223732312"))
+          .fromPair(Transaction.TransactionField.IBAN, "DE43500105171223732312")
           .addNote("Discounter")
           .build());
       food.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(Transaction.TransactionField.IBAN, "DE55500105179467748128"))
+          .fromPair(Transaction.TransactionField.IBAN, "DE55500105179467748128")
           .addNote("Backery")
           .build());
       travel.addRule(Rule.RuleBuilder
-          .fromSet(Set.of(new Pair<>(Transaction.TransactionField.USAGE, "FLIXBUS"),
-              new Pair<>(Transaction.TransactionField.OTHER_PARTY, "PayPal")))
+          .fromMap(Map.of(Transaction.TransactionField.USAGE, "FLIXBUS",
+              Transaction.TransactionField.OTHER_PARTY, "PayPal"))
           .build());
       travel.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(Transaction.TransactionField.USAGE, "Public transport"))
+          .fromPair(Transaction.TransactionField.USAGE, "Public transport")
           .build());
       rent.addRule(Rule.RuleBuilder
-          .fromPair(new Pair<>(Transaction.TransactionField.OTHER_PARTY, "Max Mustermann"))
+          .fromPair(Transaction.TransactionField.OTHER_PARTY, "Max Mustermann")
           .addNote("Rent")
           .build());
     } catch (ParseException e) {

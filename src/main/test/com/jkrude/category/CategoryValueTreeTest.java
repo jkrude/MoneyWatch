@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.util.List;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
-import javafx.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -89,7 +88,7 @@ public class CategoryValueTreeTest {
   public void calcDoubleMatchedTransactions() throws ParseException {
     assertEquals(0, tree.calcDoubleMatchedTransactions().size());
     rootCategory.addRule(
-        Rule.RuleBuilder.fromPair(new Pair<>(TransactionField.OTHER_PARTY, "Max Mustermann"))
+        Rule.RuleBuilder.fromPair(TransactionField.OTHER_PARTY, "Max Mustermann")
             .build());
     assertEquals(1, tree.calcDoubleMatchedTransactions().size());
     //TODO
@@ -104,7 +103,7 @@ public class CategoryValueTreeTest {
 
     // Add a new category:
     Rule newRule = Rule.RuleBuilder.fromPair(
-        new Pair<>(TransactionField.OTHER_PARTY, "Extra")).build();
+        TransactionField.OTHER_PARTY, "Extra").build();
     CategoryNode extraCategory = new CategoryNode("Extra", List.of(newRule));
 
     rootCategory.addCategory(extraCategory);

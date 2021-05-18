@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -70,7 +69,7 @@ public class TreeNodeAdapterTest {
   @Test
   public void addCategory() throws ParseException {
     Rule newRule = Rule.RuleBuilder.fromPair(
-        new Pair<>(TransactionField.OTHER_PARTY, "Extra")).build();
+        TransactionField.OTHER_PARTY, "Extra").build();
     CategoryNode extraCategory = new CategoryNode("Extra", List.of(newRule));
     tree.getRoot().getCategory().addCategory(extraCategory);
     assertEquals(1, adaptedRoot.getChildren().stream()

@@ -4,12 +4,10 @@ import com.jkrude.material.Money;
 import com.jkrude.material.Utility;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.util.Pair;
 
 public class Transaction {
 
@@ -203,70 +201,67 @@ public class Transaction {
     this.info = info;
   }
 
-  public Set<Pair<TransactionField, String>> getAsPairSet() {
+  public Map<TransactionField, String> getAsMap() {
     return getSelectedFields(Set.of(TransactionField.values()));
   }
 
-  public Set<Pair<TransactionField, String>> getSelectedFields(
-      Set<TransactionField> selectedFields) {
-    Set<Pair<TransactionField, String>> resultSet = new HashSet<>();
+  public Map<TransactionField, String> getSelectedFields(Set<TransactionField> selectedFields) {
+    Map<TransactionField, String> resultMap = new HashMap<>();
     for (TransactionField transactionField : selectedFields) {
+
       switch (transactionField) {
 
         case ACCOUNT_IBAN:
-          resultSet.add(new Pair<>(transactionField, getAccountIban()));
+          resultMap.put(transactionField, getAccountIban());
           break;
         case TRANSFER_DATE:
-          resultSet
-              .add(new Pair<>(transactionField, Utility.DATE_TIME_FORMATTER.format(getDate())));
+          resultMap.put(transactionField, Utility.DATE_TIME_FORMATTER.format(getDate()));
           break;
         case VALIDATION_DATE:
-          resultSet.add(
-              new Pair<>(transactionField,
-                  Utility.DATE_TIME_FORMATTER.format(getValidationDate())));
+          resultMap.put(transactionField, Utility.DATE_TIME_FORMATTER.format(getValidationDate()));
           break;
         case TRANSFER_SPECIFICATION:
-          resultSet.add(new Pair<>(transactionField, getTransferSpecification()));
+          resultMap.put(transactionField, getTransferSpecification());
           break;
         case USAGE:
-          resultSet.add(new Pair<>(transactionField, getUsage()));
+          resultMap.put(transactionField, getUsage());
           break;
         case CREDITOR_ID:
-          resultSet.add(new Pair<>(transactionField, getCreditorId()));
+          resultMap.put(transactionField, getCreditorId());
           break;
         case MANDATE_REFERENCE:
-          resultSet.add(new Pair<>(transactionField, getMandateReference()));
+          resultMap.put(transactionField, getMandateReference());
           break;
         case CUSTOMER_REFERENCE_END_TO_END:
-          resultSet.add(new Pair<>(transactionField, getCustomerReference()));
+          resultMap.put(transactionField, getCustomerReference());
           break;
         case COLLECTION_REFERENCE:
-          resultSet.add(new Pair<>(transactionField, getCollectionReference()));
+          resultMap.put(transactionField, getCollectionReference());
           break;
         case DEBIT_ORIGINAL_AMOUNT:
-          resultSet.add(new Pair<>(transactionField, getDebitOriginalAmount()));
+          resultMap.put(transactionField, getDebitOriginalAmount());
           break;
         case BACK_DEBIT:
-          resultSet.add(new Pair<>(transactionField, getBackDebit()));
+          resultMap.put(transactionField, getBackDebit());
           break;
         case OTHER_PARTY:
-          resultSet.add(new Pair<>(transactionField, getOtherParty()));
+          resultMap.put(transactionField, getOtherParty());
           break;
         case IBAN:
-          resultSet.add(new Pair<>(transactionField, getIban()));
+          resultMap.put(transactionField, getIban());
           break;
         case BIC:
-          resultSet.add(new Pair<>(transactionField, getBic()));
+          resultMap.put(transactionField, getBic());
           break;
         case AMOUNT:
-          resultSet.add(new Pair<>(transactionField, getMoneyAmount().toString()));
+          resultMap.put(transactionField, getMoneyAmount().toString());
           break;
         case INFO:
-          resultSet.add(new Pair<>(transactionField, getInfo()));
+          resultMap.put(transactionField, getInfo());
           break;
       }
     }
-    return resultSet;
+    return resultMap;
   }
 
   public enum TransactionField {

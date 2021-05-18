@@ -12,16 +12,13 @@ import java.net.URL;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.scene.paint.Color;
-import javafx.util.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -63,9 +60,9 @@ public class PersistenceManager {
     JSONArray jRules = new JSONArray();
     for (Rule rule : leafsRO) {
       JSONObject jRule = new JSONObject();
-      jRule.put("note", rule.getNote().orElseGet(() -> ""));
+      jRule.put("note", rule.getNote().orElse(""));
       JSONArray jIds = new JSONArray();
-      for (Pair<TransactionField, String> entry : rule.getIdentifierPairs()) {
+      for (Map.Entry<TransactionField, String> entry : rule.getIdentifierPairs().entrySet()) {
         JSONObject jId = new JSONObject();
         jId.put("key", entry.getKey().toString());
         jId.put("value", entry.getValue());
@@ -95,16 +92,16 @@ public class PersistenceManager {
       throws java.text.ParseException {
     List<Rule> rules = new ArrayList<>();
     for (JSONObject jRule : (Iterable<JSONObject>) jRules) {
-      Set<Pair<TransactionField, String>> ids = new HashSet<>();
+      Map<TransactionField, String> ids = new HashMap<>();
       for (JSONObject jId : (Iterable<JSONObject>) jRule.get("ids")) {
         String key = (String) jId.get("key");
         TransactionField transactionField = Transaction.TransactionField.get(key);
         String string = (String) jId.get("value");
-        ids.add(new Pair<>(transactionField, string));
+        ids.put(transactionField, string);
       }
       String note = (String) jRule.get("note");
       note = note != null && note.isBlank() ? null : note;
-      Rule rule = RuleBuilder.fromSet(ids)
+      Rule rule = RuleBuilder.fromMap(ids)
           .addNote(note)
           .setParent(node)
           .build();

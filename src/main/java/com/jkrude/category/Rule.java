@@ -6,38 +6,29 @@ import com.jkrude.transaction.Transaction;
 import com.jkrude.transaction.Transaction.TransactionField;
 import java.text.ParseException;
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
-import javafx.beans.property.SetProperty;
-import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.property.MapProperty;
+import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
-import javafx.util.Pair;
 
 public class Rule {
 
   private final Predicate<Transaction> predicate;
-  private final SetProperty<Pair<TransactionField, String>> identifierPairs;
+  private final MapProperty<TransactionField, String> identifierPairs;
   private StringProperty note;
   private CategoryNode parent;
 
-  public Rule(Predicate<Transaction> predicate,
-      SetProperty<Pair<TransactionField, String>> idPairs) {
-    this.predicate = predicate;
-    this.identifierPairs = idPairs;
-    this.note = null;
-    this.parent = null;
-  }
-
   // Rules should only be constructed with the RuleFactory
+
   private Rule(Predicate<Transaction> predicate,
-      SetProperty<Pair<TransactionField, String>> identifierPairs,
+      MapProperty<TransactionField, String> identifierPairs,
       StringProperty note, CategoryNode parent) {
     this.predicate = predicate;
     this.identifierPairs = identifierPairs;
@@ -45,8 +36,13 @@ public class Rule {
     this.parent = parent;
   }
 
+  public Rule(Predicate<Transaction> predicate,
+      MapProperty<TransactionField, String> idPairs) {
+    this(predicate, idPairs, null, null);
+  }
+
   private Rule(Predicate<Transaction> predicate,
-      SetProperty<Pair<TransactionField, String>> identifierPairs,
+      MapProperty<TransactionField, String> identifierPairs,
       StringProperty note) {
     this(predicate, identifierPairs, note, null);
   }
@@ -60,7 +56,7 @@ public class Rule {
     return noteProperty.map(ObservableObjectValue::get);
   }
 
-  public Set<Pair<TransactionField, String>> getIdentifierPairs() {
+  public Map<TransactionField, String> getIdentifierPairs() {
     return identifierPairs.get();
   }
 
@@ -97,112 +93,109 @@ public class Rule {
 
   public static class RuleBuilder {
 
-    public static RuleBuilderWithRule fromPair(Pair<TransactionField, String> pair)
+    public static RuleBuilderWithRule fromPair(TransactionField field, String value)
         throws ParseException {
-      SimpleSetProperty<Pair<TransactionField, String>> set = new SimpleSetProperty<>(
-          FXCollections.observableSet(new HashSet<>()));
-      set.get().add(pair);
-      return new RuleBuilderWithRule(set);
+      MapProperty<TransactionField, String> map = new SimpleMapProperty<>(
+          FXCollections.observableMap(new HashMap<>()));
+      map.get().put(field, value);
+      return new RuleBuilderWithRule(map);
     }
 
-    public static RuleBuilderWithRule fromSet(Set<Pair<TransactionField, String>> set)
+    public static RuleBuilderWithRule fromMap(Map<TransactionField, String> map)
         throws ParseException {
-      return new RuleBuilderWithRule(new SimpleSetProperty<>(FXCollections.observableSet(set)));
+      return new RuleBuilderWithRule(new SimpleMapProperty<>(FXCollections.observableMap(map)));
     }
 
-    public static RuleBuilderWithRule fromObservableSet(
-        ObservableSet<Pair<TransactionField, String>> set) throws ParseException {
-      return new RuleBuilderWithRule(new SimpleSetProperty<>(FXCollections.observableSet(set)));
-    }
 
     public static class RuleBuilderWithRule {
 
-      Rule rule;
+      private final Rule rule;
 
-      private RuleBuilderWithRule(SetProperty<Pair<TransactionField, String>> container)
+      private RuleBuilderWithRule(MapProperty<TransactionField, String> container)
           throws ParseException {
+
         if (container.isEmpty()) {
           throw new IllegalArgumentException("No Qualifier");
         }
         Predicate<Transaction> concatPred = transaction -> true;
-        for (Pair<TransactionField, String> pair : container) {
+        for (Map.Entry<TransactionField, String> entry : container.get().entrySet()) {
 
           Predicate<Transaction> innerPredicate;
-          switch (pair.getKey()) {
+          switch (entry.getKey()) {
             case ACCOUNT_IBAN:
               innerPredicate = transaction -> transaction.getAccountIban()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case TRANSFER_DATE:
-              LocalDate date = LocalDate.parse(pair.getValue(), Utility.DATE_TIME_FORMATTER);
+              LocalDate date = LocalDate.parse(entry.getValue(), Utility.DATE_TIME_FORMATTER);
               innerPredicate = transaction -> transaction.getDate().equals(date);
               break;
             case VALIDATION_DATE:
-              LocalDate valDate = LocalDate.parse(pair.getValue(), Utility.DATE_TIME_FORMATTER);
+              LocalDate valDate = LocalDate.parse(entry.getValue(), Utility.DATE_TIME_FORMATTER);
               innerPredicate = transaction -> transaction.getValidationDate().equals(valDate);
               break;
             case TRANSFER_SPECIFICATION:
               innerPredicate = transaction -> transaction
                   .getTransferSpecification()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case USAGE:
               innerPredicate = transaction -> transaction.getUsage()
                   .toLowerCase()
-                  .contains(pair.getValue().toLowerCase());
+                  .contains(entry.getValue().toLowerCase());
               break;
             case CREDITOR_ID:
               innerPredicate = transaction -> transaction.getCreditorId()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case MANDATE_REFERENCE:
               innerPredicate = transaction -> transaction.getMandateReference()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case CUSTOMER_REFERENCE_END_TO_END:
               innerPredicate = transaction -> transaction
                   .getCustomerReference()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case COLLECTION_REFERENCE:
               innerPredicate = transaction -> transaction
                   .getCollectionReference()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case DEBIT_ORIGINAL_AMOUNT:
               innerPredicate = transaction -> transaction
                   .getDebitOriginalAmount()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case BACK_DEBIT:
               innerPredicate = transaction -> transaction.getBackDebit()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case OTHER_PARTY:
               innerPredicate = transaction -> transaction.getOtherParty()
                   .toLowerCase()
-                  .contains(pair.getValue().toLowerCase());
+                  .contains(entry.getValue().toLowerCase());
               break;
             case IBAN:
               innerPredicate = transaction -> transaction.getIban()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case BIC:
               innerPredicate = transaction -> transaction.getBic()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             case AMOUNT:
-              Money amount = new Money(pair.getValue());
+              Money amount = new Money(entry.getValue());
               innerPredicate = transaction -> transaction.getMoneyAmount()
                   .equals(amount);
               break;
             case INFO:
               innerPredicate = transaction -> transaction.getInfo()
-                  .equals(pair.getValue());
+                  .equals(entry.getValue());
               break;
             default:
               throw new IllegalArgumentException(
-                  "Unknown qualifier for rule creation: " + pair.getKey());
+                  "Unknown qualifier for rule creation: " + entry.getKey());
           }
           concatPred = concatPred.and(innerPredicate);
         }

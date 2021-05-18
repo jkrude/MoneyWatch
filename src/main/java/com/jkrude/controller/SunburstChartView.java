@@ -14,7 +14,6 @@ import com.jkrude.material.UI.TransactionTablePopUp;
 import com.jkrude.material.UI.TransactionTableView;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction;
-import com.jkrude.transaction.Transaction.TransactionField;
 import com.jkrude.transaction.TransactionContainer;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
@@ -29,8 +28,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -41,7 +38,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Pair;
 
 public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Initializable,
     Prepareable {
@@ -193,10 +189,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   }
 
   private void openRuleDialogAndSave(Transaction baseTransaction, CategoryNode categoryNode) {
-    Set<Pair<TransactionField, String>> filteredIdPairs = baseTransaction.getAsPairSet().stream()
-        .filter(pair -> !pair.getValue().isBlank())
-        .collect(Collectors.toSet());
-    Optional<Rule> optRule = new RuleDialog().editRuleShowAndWait(filteredIdPairs);
+    Optional<Rule> optRule = new RuleDialog().editRuleShowAndWait(baseTransaction.getAsMap());
     optRule.ifPresent(categoryNode::addRule);
   }
 

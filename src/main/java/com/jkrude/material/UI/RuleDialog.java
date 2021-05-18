@@ -8,8 +8,6 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,7 +21,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import javafx.util.Pair;
 
 public class RuleDialog {
 
@@ -62,7 +59,7 @@ public class RuleDialog {
 
   }
 
-  public Optional<Rule> editRuleShowAndWait(Set<Pair<TransactionField, String>> idPairs) {
+  public Optional<Rule> editRuleShowAndWait(Map<TransactionField, String> idPairs) {
     fillListFromRule(idPairs);
     return internalDialog.showAndWait();
   }
@@ -82,10 +79,13 @@ public class RuleDialog {
     }
   }
 
-  private void fillListFromRule(Set<Pair<TransactionField, String>> idPairs) {
+  private void fillListFromRule(Map<TransactionField, String> idPairs) {
     Map<TransactionField, CustomHBox> map = new HashMap<>();
-    idPairs.forEach(
-        pair -> map.put(pair.getKey(), new CustomHBox(pair.getKey(), pair.getValue()))
+    idPairs.forEach((key, value) -> {
+          if (!value.isBlank()) {
+            map.put(key, new CustomHBox(key, value));
+          }
+        }
     );
 
     for (TransactionField type : typeChoiceList) {
@@ -94,13 +94,12 @@ public class RuleDialog {
   }
 
   private boolean validateAndGenerate(ListView<CustomHBox> listView) {
-    Set<Pair<TransactionField, String>> generatingSet =
-        listView.getItems().stream()
-            .filter(box -> !box.checkBox.isDisabled())
-            .filter(box -> box.checkBox.isSelected())
-            .map(box -> new Pair<>(box.type, box.textField.getText()))
-            .collect(Collectors.toSet());
-    if (generatingSet.isEmpty()) {
+    Map<TransactionField, String> generatingMap = new HashMap<>();
+    listView.getItems().stream()
+        .filter(box -> !box.checkBox.isDisabled())
+        .filter(box -> box.checkBox.isSelected())
+        .forEach(box -> generatingMap.put(box.type, box.textField.getText()));
+    if (generatingMap.isEmpty()) {
       AlertBuilder
           .alert(AlertType.WARNING)
           .setTitle("No input!")
@@ -111,7 +110,7 @@ public class RuleDialog {
     }
     try {
       // TODO: Add note
-      generatedRule = Rule.RuleBuilder.fromSet(generatingSet).build();
+      generatedRule = Rule.RuleBuilder.fromMap(generatingMap).build();
       return true;
     } catch (ParseException e) {
       AlertBuilder

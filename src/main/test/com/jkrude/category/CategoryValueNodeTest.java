@@ -15,7 +15,6 @@ import java.text.ParseException;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ public class CategoryValueNodeTest {
   @Test
   public void addCategory() throws ParseException {
     Rule newRule = Rule.RuleBuilder.fromPair(
-        new Pair<>(TransactionField.OTHER_PARTY, "Extra")).build();
+        TransactionField.OTHER_PARTY, "Extra").build();
     CategoryNode extraCategory = new CategoryNode("Extra", List.of(newRule));
     rootCategory.addCategory(extraCategory);
     assertEquals(sum(currentTotalMatchedTransactions(rootCategory, transactions)),

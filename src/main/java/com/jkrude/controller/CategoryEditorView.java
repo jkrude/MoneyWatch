@@ -295,10 +295,8 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
       } else {
         // TODO: beautify rule visualisation
         StringBuilder stringBuilder = new StringBuilder();
-        rule.getIdentifierPairs()
-            .forEach(
-                pair -> stringBuilder.append(pair.getKey()).append(": ").append(pair.getValue())
-                    .append(", "));
+        rule.getIdentifierPairs().forEach(
+            (key, value) -> stringBuilder.append(key).append(": ").append(value).append(", "));
         stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
         setText(stringBuilder.toString());
       }
