@@ -226,11 +226,14 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
 
   private void replaceRule() {
     Rule currentRule = ruleView.getSelectionModel().getSelectedItem();
-    int idx = ruleView.getSelectionModel().getSelectedIndex();
     assert currentRule != null;
+    CategoryNode node = currentRule.getParent().orElseThrow();
     new RuleDialog()
         .editRuleShowAndWait(currentRule)
-        .ifPresent(newRule -> ruleView.getItems().set(idx, newRule));
+        .ifPresent(newRule -> {
+          node.removeRule(currentRule);
+          node.addRule(newRule);
+        });
   }
 
   private void removeRule() {
