@@ -131,17 +131,17 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
     iRename.setOnAction(actionEvent -> newNameDialog(cell));
     MenuItem iAddChild = new MenuItem("Add subcategory");
     iAddChild.setOnAction(actionEvent -> addSubCategory(cell));
-    MenuItem iRemove = new MenuItem("Delete");
-    iRemove.setOnAction(actionEvent -> removeCategory(cell));
     MenuItem iColor = new MenuItem("Change color");
     iColor.setOnAction(actionEvent -> changeColor(cell.getItem()));
-    // If cell != root => add #changeParent.
+    // If cell != root
     if (cell.getTreeItem().getParent() != null) {
       MenuItem iMove = new MenuItem("Change parent");
       iMove.setOnAction(actionEvent -> changeParent(cell));
-      cm.getItems().add(iMove);
+      MenuItem iRemove = new MenuItem("Delete");
+      iRemove.setOnAction(actionEvent -> removeCategory(cell));
+      cm.getItems().addAll(iMove, iRemove);
     }
-    cm.getItems().addAll(iRename, iAddChild, iRemove, iColor);
+    cm.getItems().addAll(iRename, iAddChild, iColor);
     return cm;
   }
 
