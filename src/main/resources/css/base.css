@@ -1,0 +1,82 @@
+@font-face {
+  src: url('../fonts/Eczar/Eczar-Regular.ttf');
+}
+
+@font-face {
+  src: url('../fonts/Roboto_Condensed/RobotoCondensed-Regular.ttf');
+}
+
+.root {
+  -fx-def-background: #32333d;
+  -fx-def-elevated: #3c3d47;
+  -fx-def-elevated-light: #5b5c66;
+  -fx-def-elevated-dark: #363740;
+  -fx-def-primary: #00aea4;
+  -fx-def-secondary: #24b981;
+
+  -fx-background-color: -fx-def-background;
+  -fx-focus-color: transparent;
+  -fx-font-size: 14;
+}
+
+.button {
+  -fx-background-color: -fx-def-elevated;
+  -fx-text-fill: #ffffff;
+  -fx-font-family: "RobotoCondensed-Regular";
+}
+
+.button-fat {
+  -fx-font-size: 40;
+}
+
+.button:focused {
+  -fx-background-color: -fx-def-elevated;
+  -fx-text-fill: #ffffff;
+}
+
+.context-menu {
+  -fx-background-color: -fx-def-elevated;
+  -fx-text-fill: white;
+  -fx-focus-color: transparent;
+}
+
+.context-menu .menu-item .label {
+  -fx-background-color: -fx-def-elevated;
+  -fx-text-fill: white;
+  -fx-font-family: "RobotoCondensed";
+  -fx-font-size: 14;
+}
+
+.context-menu .menu-item:focused:selected {
+  -fx-background-color: -fx-def-elevated;
+  -fx-font-weight: bold;
+}
+
+.context-menu .menu-item {
+  -fx-background-color: -fx-def-elevated;
+  -fx-focus-color: transparent;
+}
+
+
+.virtual-flow .scroll-bar:vertical,
+.virtual-flow .scroll-bar:vertical .track,
+.virtual-flow .scroll-bar:vertical .track-background,
+.virtual-flow .scroll-bar:horizontal,
+.virtual-flow .scroll-bar:horizontal .track,
+.virtual-flow .scroll-bar:horizontal .track-background {
+  -fx-background-color: -fx-def-background;
+}
+
+.virtual-flow .scroll-bar:horizontal .thumb {
+  -fx-background-color: -fx-def-elevated;
+}
+
+.virtual-flow .scroll-bar:vertical .thumb {
+  -fx-background-color: -fx-def-elevated;
+}
+
+.virtual-flow .scroll-bar .increment-button:focused,
+.virtual-flow .scroll-bar .decrement-button:focused {
+  -fx-background-color: -fx-def-background;
+  -fx-focus-color: transparent;
+}

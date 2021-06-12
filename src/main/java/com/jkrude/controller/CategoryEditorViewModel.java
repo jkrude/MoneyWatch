@@ -26,6 +26,7 @@ public class CategoryEditorViewModel implements ViewModel {
 
   private TreeItem<CategoryNode> mapToTreeItems(CategoryNode root) {
     TreeItem<CategoryNode> rootItem = new TreeItem<>(root);
+    rootItem.setExpanded(true);
     root.childNodesRO().addListener(getNodeListChangeListener(rootItem));
     root.childNodesRO().forEach(category -> addCategoryRecursive(category, rootItem));
     return rootItem;
@@ -33,6 +34,7 @@ public class CategoryEditorViewModel implements ViewModel {
 
   private void addCategoryRecursive(CategoryNode categoryNode, TreeItem<CategoryNode> parent) {
     TreeItem<CategoryNode> treeItem = new TreeItem<>(categoryNode);
+    treeItem.setExpanded(true);
     parent.getChildren().add(treeItem);
     categoryNode.childNodesRO().addListener(getNodeListChangeListener(treeItem));
     categoryNode.childNodesRO().forEach(category -> addCategoryRecursive(category, treeItem));

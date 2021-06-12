@@ -1,10 +1,13 @@
 package com.jkrude.controller;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jkrude.UI.AlertBox.AlertBuilder;
+import com.jkrude.UI.NavigationRail;
+import com.jkrude.UI.SourceChoiceDialog;
+import com.jkrude.UI.TransactionTablePopUp;
 import com.jkrude.controller.TimeLineViewModel.TickRate;
 import com.jkrude.main.Main;
-import com.jkrude.material.AlertBox.AlertBuilder;
-import com.jkrude.material.UI.SourceChoiceDialog;
-import com.jkrude.material.UI.TransactionTablePopUp;
+import com.jkrude.main.Main.UsableScene;
 import com.jkrude.material.Utility;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.TransactionContainer;
@@ -24,7 +27,6 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;
@@ -37,10 +39,12 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
   @FXML
   private LineChart<Number, Number> lineChart;
   @FXML
-  private ChoiceBox<TickRate> tickRateChoiceBox;
+  private JFXComboBox<TickRate> tickRateChoiceBox;
   @FXML
   private NumberAxis xAxis;
   private boolean tickRateManualChange;
+  @FXML
+  private NavigationRail navController;
 
   @InjectViewModel
   private TimeLineViewModel viewModel;
@@ -48,6 +52,7 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
+    navController.setCurrent(UsableScene.TIMELINE);
     tickRateManualChange = false;
     tickRateChoiceBox.getItems().addAll(TickRate.values());
     tickRateChoiceBox.getSelectionModel().selectedItemProperty().addListener(
@@ -110,10 +115,10 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
     }
 
     if (!viewModel.possibleTickRateChange(newValue)) {
-      AlertBuilder.alert(AlertType.INFORMATION)
-          .setTitle("Not enough data")
-          .setHeader("There are not enough data points in the selected range.")
-          .buildAndShow();
+      new AlertBuilder(AlertType.INFORMATION)
+          .setHeader("Option is not available")
+          .setMessage("There are not enough data points in the selected range.")
+          .showAndWait();
       tickRateManualChange = true;
       tickRateChoiceBox.setValue(oldValue);
     }

@@ -1,8 +1,9 @@
 package com.jkrude.controller;
 
+import com.jkrude.UI.AlertBox.AlertBuilder;
+import com.jkrude.UI.NavigationRail;
 import com.jkrude.main.Main;
 import com.jkrude.main.Main.UsableScene;
-import com.jkrude.material.AlertBox.AlertBuilder;
 import com.jkrude.transaction.TransactionContainer;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
@@ -16,30 +17,23 @@ import java.util.Scanner;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
-public class StartView implements FxmlView<StartViewModel>, Initializable, Prepareable {
+public class DataView implements FxmlView<DataViewModel>, Initializable, Prepareable {
 
 
   @FXML
-  private Button goToSunburstBtn;
-  @FXML
-  private Button goToTimeLineBtn;
+  private NavigationRail navController;
 
   @InjectViewModel
-  StartViewModel viewModel;
+  DataViewModel viewModel;
 
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
-
-    goToSunburstBtn.disableProperty()
-        .bind(viewModel.hasNoActiveDataProperty());
-    goToTimeLineBtn.disableProperty()
-        .bind(viewModel.hasNoActiveDataProperty());
+    navController.setCurrent(UsableScene.DATA);
   }
 
   @Override
@@ -62,11 +56,10 @@ public class StartView implements FxmlView<StartViewModel>, Initializable, Prepa
       // No file selected. Dialog was canceled.
       return;
     } else if (!file.canRead()) {
-      AlertBuilder.alert(AlertType.ERROR)
-          .setTitle("Error")
+      new AlertBuilder(AlertType.ERROR)
           .setHeader("Import failed.")
           .setMessage("File couldn't not be opened.")
-          .buildAndShow();
+          .showAndWait();
     }
     TransactionContainer transactionContainer;
     try (Scanner sc = new Scanner(file, StandardCharsets.ISO_8859_1)) {
@@ -74,19 +67,17 @@ public class StartView implements FxmlView<StartViewModel>, Initializable, Prepa
       try {
         transactionContainer = new TransactionContainer(sc);
       } catch (IllegalArgumentException | ParseException e) {
-        AlertBuilder.alert(AlertType.ERROR)
-            .setTitle("Error")
+        new AlertBuilder(AlertType.ERROR)
             .setMessage(e.getMessage())
-            .buildAndShow();
+            .showAndWait();
         return;
       }
 
       viewModel.addTransactionData(transactionContainer);
     } catch (IOException e) {
-      AlertBuilder.alert(AlertType.ERROR)
-          .setTitle("Error")
+      new AlertBuilder()
           .setMessage("File could not be opened")
-          .buildAndShow();
+          .showAndWait();
     }
   }
 

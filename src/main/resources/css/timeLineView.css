@@ -1,0 +1,106 @@
+.combo-box {
+  -fx-background-color: -fx-def-background;
+  -fx-focus-color: -fx-def-primary;
+  -fx-unfocus-color: -fx-def-secondary;
+  -fx-prompt-text-fill: white;
+  -fx-border-color: -fx-def-elevated;
+}
+
+.combo-box .arrow {
+  -fx-background-color: -fx-def-primary;
+}
+
+.combo-box .list-view {
+  -fx-background-color: -fx-def-background;
+  -fx-border-width: 0px;
+  -fx-border-color: transparent;
+}
+
+.combo-box .list-view .list-cell {
+  -fx-text-fill: white;
+  -fx-background-color: -fx-def-elevated;
+
+}
+
+.combo-box .list-cell:hover {
+  -fx-text-fill: -fx-def-primary;
+  -fx-font-weight: bold;
+}
+
+.combo-box .list-cell:focused {
+  -fx-text-fill: white;
+  -fx-background-color: -fx-def-elevated;
+}
+
+.combo-box .list-view .list-cell:selected {
+  -fx-text-fill: -fx-def-primary;
+  -fx-background-color: -fx-def-elevated;
+}
+
+.chart {
+  -fx-background-color: -fx-def-background;
+}
+
+.chart-content {
+  -fx-background-color: -fx-def-background;
+}
+
+.chart-legend {
+  -fx-background-color: transparent;
+  -fx-padding: 20px;
+}
+
+.chart-plot-background {
+  -fx-background-color: -fx-def-elevated-dark;
+}
+
+.chart-vertical-grid-lines {
+  -fx-stroke: -fx-def-elevated-light;
+}
+
+.chart-horizontal-grid-lines {
+  -fx-stroke: -fx-def-elevated-light;
+}
+
+.chart-legend-item {
+  -fx-font-family: "RobotoCondensed";
+  -fx-text-fill: white;
+}
+
+.axis-label {
+  -fx-font-family: "RobotoCondensed";
+  -fx-text-fill: -fx-def-primary;
+  -fx-font-size: 16;
+  -fx-fill: -fx-def-primary;
+}
+
+.chart-series-line {
+  -fx-stroke-width: 2px;
+  -fx-effect: null;
+}
+
+.default-color0.chart-series-line {
+  -fx-stroke: #f57c00;
+}
+
+.default-color1.chart-series-line {
+  -fx-stroke: -fx-def-secondary;
+}
+
+.default-color0.chart-line-symbol {
+  -fx-background-color: derive(#f57c00, 20%);
+  -fx-background-radius: 5px;
+  -fx-padding: 5px;
+}
+
+.default-color1.chart-line-symbol {
+  -fx-background-color: -fx-def-secondary;
+  -fx-background-radius: 0;
+
+}
+
+.chart-symbol {
+  -fx-background-color: -fx-def-primary;
+  -fx-background-radius: 5px;
+  -fx-padding: 5px;
+}

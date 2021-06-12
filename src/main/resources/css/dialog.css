@@ -1,0 +1,11 @@
+
+.jfx-text-field {
+  -fx-background-color: #32333d;
+  -fx-font-family: "RobotoCondensed";
+  -fx-text-fill: #ffff;
+}
+
+.label {
+  -fx-font-family: "RobotoCondensed";
+  -fx-text-fill: #ffff;
+}

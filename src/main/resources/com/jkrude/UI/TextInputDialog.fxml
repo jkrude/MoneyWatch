@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="com.jkrude.UI.TextInputDialog">
+  <stylesheets>
+    <URL value="@../../../css/base.css"/>
+    <URL value="@../../../css/dialog.css"/>
+  </stylesheets>
+  <children>
+    <JFXDialogLayout>
+      <heading>
+        <Label fx:id="header"/>
+      </heading>
+      <body>
+        <JFXTextField unFocusColor="#24b981" focusColor="#00aea4" fx:id="inputField"/>
+      </body>
+      <actions>
+        <JFXButton fx:id="applyBtn">Apply</JFXButton>
+        <JFXButton fx:id="cancelBtn">Cancel</JFXButton>
+      </actions>
+    </JFXDialogLayout>
+  </children>
+</AnchorPane>

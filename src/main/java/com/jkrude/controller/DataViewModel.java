@@ -5,11 +5,11 @@ import com.jkrude.transaction.TransactionContainer;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.binding.BooleanBinding;
 
-public class StartViewModel implements ViewModel {
+public class DataViewModel implements ViewModel {
 
   private final Model globalModel;
 
-  public StartViewModel() {
+  public DataViewModel() {
     globalModel = Model.getInstance();
   }
 

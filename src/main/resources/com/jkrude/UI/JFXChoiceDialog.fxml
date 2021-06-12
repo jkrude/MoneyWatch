@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="350.0"
+  xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="com.jkrude.UI.JFXChoiceDialog">
+   <stylesheets>
+      <URL value="@../../../css/base.css"/>
+      <URL value="@../../../css/jfxchoiceDialog.css"/>
+   </stylesheets>
+   <bottom>
+      <ButtonBar minHeight="40.0" BorderPane.alignment="CENTER">
+         <buttons>
+            <JFXButton fx:id="cancelBtn" text="Cancel"/>
+            <JFXButton fx:id="defaultBtn" text="Okay"/>
+         </buttons>
+         <BorderPane.margin>
+            <Insets bottom="8.0" left="16.0" right="16.0" top="16.0"/>
+         </BorderPane.margin>
+      </ButtonBar>
+   </bottom>
+   <top>
+      <Label id="header-text" fx:id="header" contentDisplay="BOTTOM" graphicTextGap="8.0"
+        text="Label" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets top="32.0"/>
+         </BorderPane.margin>
+      </Label>
+   </top>
+   <center>
+      <JFXComboBox fx:id="comboBox" focusColor="#00aea4" prefHeight="28.0" prefWidth="177.0"
+        BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets/>
+         </BorderPane.margin>
+      </JFXComboBox>
+   </center>
+</BorderPane>

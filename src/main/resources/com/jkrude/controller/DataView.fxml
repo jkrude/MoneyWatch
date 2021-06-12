@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/11.0.1"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.controller.DataView">
+  <stylesheets>
+    <URL value="@../../../css/base.css"/>
+    <URL value="@../../../css/dataView.css"/>
+  </stylesheets>
+  <children>
+    <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="64.0"
+      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+      AnchorPane.topAnchor="128.0">
+      <children>
+        <Label text="Choose your bank"/>
+        <JFXButton contentDisplay="TOP" graphicTextGap="64.0" onAction="#loadFile"
+          styleClass="button-fat" text="Sparkasse">
+          <padding>
+            <Insets bottom="64.0" left="64.0" right="64.0" top="64.0"/>
+          </padding>
+          <graphic>
+            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+              <image>
+                <Image url="@../../../icons/Sparkasse.png"/>
+              </image>
+            </ImageView>
+          </graphic>
+          <VBox.margin>
+            <Insets top="128.0"/>
+          </VBox.margin>
+        </JFXButton>
+      </children>
+    </VBox>
+    <fx:include fx:id="nav" source="../UI/NavigationRail.fxml" AnchorPane.bottomAnchor="0.0"
+      AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+  </children>
+</AnchorPane>

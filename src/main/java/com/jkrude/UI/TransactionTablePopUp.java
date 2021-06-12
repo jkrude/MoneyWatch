@@ -1,4 +1,4 @@
-package com.jkrude.material.UI;
+package com.jkrude.UI;
 
 import com.jkrude.transaction.ExtendedTransaction;
 import java.net.URL;
@@ -39,11 +39,13 @@ public class TransactionTablePopUp {
     private final Stage stage;
 
     private static final URL fxmlResource = TransactionTablePopUp.class
-        .getResource("/com/jkrude/material/UI/TransactionTablePopUpView.fxml");
+        .getResource("/com/jkrude/UI/TransactionTablePopUpView.fxml");
 
     private Builder() {
       FXMLLoader loader = new FXMLLoader();
       stage = StageSetter.setupStage(loader, fxmlResource);
+      stage.initModality(Modality.APPLICATION_MODAL);
+      stage.setAlwaysOnTop(true);
       ttp = loader.getController();
       ttp.closeBtn.setOnAction(event -> stage.close());
     }

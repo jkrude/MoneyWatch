@@ -2,9 +2,9 @@ package com.jkrude.main;
 
 import com.jkrude.controller.CategoryEditorView;
 import com.jkrude.controller.CategoryEditorViewModel;
+import com.jkrude.controller.DataView;
+import com.jkrude.controller.DataViewModel;
 import com.jkrude.controller.Prepareable;
-import com.jkrude.controller.StartView;
-import com.jkrude.controller.StartViewModel;
 import com.jkrude.controller.SunburstChartView;
 import com.jkrude.controller.SunburstChartViewModel;
 import com.jkrude.controller.TimeLineView;
@@ -21,19 +21,20 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 public class Main extends Application {
 
   public enum UsableScene {
-    START,
+    DATA,
     TIMELINE,
     SUNBURST,
     CATEGORY_EDITOR;
 
     private static Prepareable lookupControllable(UsableScene scene) {
       switch (scene) {
-        case START:
-          return vTStart.getCodeBehind();
+        case DATA:
+          return vTData.getCodeBehind();
         case TIMELINE:
           return vtTimeLine.getCodeBehind();
         case SUNBURST:
@@ -48,8 +49,8 @@ public class Main extends Application {
 
     private static Parent lookupParent(UsableScene scene) {
       switch (scene) {
-        case START:
-          return vTStart.getView();
+        case DATA:
+          return vTData.getView();
         case TIMELINE:
           return vtTimeLine.getView();
         case SUNBURST:
@@ -62,8 +63,8 @@ public class Main extends Application {
       }
     }
 
-    private static final ViewTuple<StartView, StartViewModel> vTStart =
-        FluentViewLoader.fxmlView(StartView.class).load();
+    private static final ViewTuple<DataView, DataViewModel> vTData =
+        FluentViewLoader.fxmlView(DataView.class).load();
     private static final ViewTuple<TimeLineView, TimeLineViewModel> vtTimeLine =
         FluentViewLoader.fxmlView(TimeLineView.class).load();
     private static final ViewTuple<CategoryEditorView, CategoryEditorViewModel> vtCategoryEditor =
@@ -92,7 +93,13 @@ public class Main extends Application {
 
     primaryStage.setTitle("Money Watch");
     primaryStage.setScene(new Scene(new Pane()));
-    goTo(UsableScene.START, primaryStage);
+    primaryStage.setMinWidth(1000);
+    primaryStage.setMinHeight(800);
+    if (Model.getInstance().getTransactionContainerList().isEmpty()) {
+      goTo(UsableScene.DATA, primaryStage);
+    } else {
+      goTo(UsableScene.SUNBURST, primaryStage);
+    }
     primaryStage.show();
   }
 
@@ -121,7 +128,7 @@ public class Main extends Application {
 
   public static void goBack(Stage stage) {
     if (callStack.isEmpty()) {
-      goTo(UsableScene.START, primaryStage);
+      goTo(UsableScene.DATA, primaryStage);
       return;
     }
     UsableScene previousScene = callStack.pop();
@@ -133,6 +140,10 @@ public class Main extends Application {
 
   public static void goBack() {
     goBack(primaryStage);
+  }
+
+  public static Window getWindow() {
+    return primaryStage.getOwner();
   }
 
 

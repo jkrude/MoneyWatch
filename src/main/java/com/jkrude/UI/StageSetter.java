@@ -1,4 +1,4 @@
-package com.jkrude.material.UI;
+package com.jkrude.UI;
 
 import java.io.IOException;
 import java.net.URL;

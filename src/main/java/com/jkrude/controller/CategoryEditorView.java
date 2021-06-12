@@ -1,11 +1,15 @@
 package com.jkrude.controller;
 
+import com.jkrude.UI.AlertBox.AlertBuilder;
+import com.jkrude.UI.ColorPickerDialog;
+import com.jkrude.UI.NavigationRail;
+import com.jkrude.UI.NewCategoryDialog;
+import com.jkrude.UI.RuleDialog;
+import com.jkrude.UI.TextInputDialog;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
 import com.jkrude.main.Main;
-import com.jkrude.material.AlertBox.AlertBuilder;
-import com.jkrude.material.UI.ColorPickerDialog;
-import com.jkrude.material.UI.RuleDialog;
+import com.jkrude.main.Main.UsableScene;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import java.net.URL;
@@ -17,7 +21,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContextMenu;
@@ -25,11 +28,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 
@@ -51,6 +52,8 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   @FXML
   private SimpleBooleanProperty invalidatedProperty;
 
+  @FXML
+  private NavigationRail navController;
 
   @InjectViewModel
   private CategoryEditorViewModel viewModel;
@@ -59,6 +62,7 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
+    navController.setCurrent(UsableScene.CATEGORY_EDITOR);
     invalidatedProperty = new SimpleBooleanProperty(false);
     rulePane.visibleProperty().bind(categoryTreeView.getSelectionModel().selectedItemProperty()
         .isNotNull());
@@ -105,8 +109,7 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
             ruleView.itemsProperty().unbindBidirectional(oldValue.getValue().rulesRO());
           }
           if (newValue != null) {
-            ruleView.itemsProperty()
-                .bindBidirectional(newValue.getValue().rulesRO());
+            ruleView.itemsProperty().bindBidirectional(newValue.getValue().rulesRO());
           }
         });
     // Populate categoryTreeView.
@@ -146,50 +149,24 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   }
 
   private static void changeColor(CategoryNode node) {
-    var optColor = ColorPickerDialog.showAndWait();
+    var optColor = new ColorPickerDialog().showAndWait();
     optColor.ifPresent(node::setColor);
   }
 
   private static void newNameDialog(TreeCell<CategoryNode> cell) {
-    TextInputDialog textInputDialog = new TextInputDialog("New name");
-    textInputDialog.setHeaderText("");
-    textInputDialog.setTitle("Change the name here");
-    textInputDialog.getEditor().setText(cell.getItem().getName());
-    Optional<String> result = textInputDialog.showAndWait();
-    if (result.isPresent()) {
-      if (result.get().isBlank()) {
-        showAlertForEmptyInput();
-        newNameDialog(cell);
-        // Only rename if it is new name.
-      } else if (!cell.getItem().toString().equals(result.get())) {
-        cell.getItem().nameProperty().set(result.get());
-      }
-    }
+    new TextInputDialog.Builder("Choose name")
+        .setOnApply(newName -> {
+          if (!cell.getItem().getName().equals(newName) && !newName.isBlank()) {
+            cell.getItem().nameProperty().set(newName);
+          }
+        })
+        .setText(cell.getItem().getName())
+        .showAndWait();
   }
 
   private static void addSubCategory(TreeCell<CategoryNode> cell) {
-    CategoryNode node = cell.getItem();
-    if (node == null) {
-      throw new NullPointerException();
-    }
-    TextInputDialog textInputDialog = new TextInputDialog("New Category");
-    textInputDialog.setTitle("Set category-name");
-    Optional<String> result = textInputDialog.showAndWait();
-    if (result.isEmpty()) {
-      return;
-    }
-    if (node.childNodesRO().stream().map(CategoryNode::getName).anyMatch(result.get()::equals)) {
-      AlertBuilder.alert(AlertType.WARNING)
-          .setTitle("Category already existing!")
-          .setHeader("The chosen name is already used")
-          .setMessage("Please choose a different name")
-          .buildAndShow();
-      return;
-    }
-    var optColor = ColorPickerDialog.showAndWait();
-    CategoryNode newCategory = new CategoryNode(result.get());
-    newCategory.setColor(optColor.orElse(Color.DEEPPINK));
-    node.addCategory(newCategory);
+    Optional<CategoryNode> newCategory = NewCategoryDialog.showAndGet();
+    newCategory.ifPresent(cell.getItem()::addCategory);
   }
 
   private static void removeCategory(TreeCell<CategoryNode> cell) {
@@ -260,11 +237,11 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
     };
   }
 
-  private static void showAlertForEmptyInput() {
-    AlertBuilder.alert(AlertType.INFORMATION)
-        .setTitle("Incorrect input!")
-        .setHeader("The name can not be empty")
-        .buildAndShow();
+  private void showAlertForEmptyInput() {
+    new AlertBuilder()
+        .setHeader("Incorrect input!")
+        .setMessage("The name can not be empty")
+        .showAndWait();
   }
 
   @FXML

@@ -2,23 +2,23 @@ package com.jkrude.controller;
 
 import static com.jkrude.controller.SunburstChartViewModel.UNDEFINED_SEGMENT;
 
+import com.jkrude.UI.AlertBox.AlertBuilder;
+import com.jkrude.UI.NavigationRail;
+import com.jkrude.UI.RuleDialog;
+import com.jkrude.UI.SourceChoiceDialog;
+import com.jkrude.UI.TransactionTablePopUp;
+import com.jkrude.UI.TransactionTableView;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
 import com.jkrude.controller.CategoryEditorView.RuleCell;
 import com.jkrude.main.Main;
 import com.jkrude.main.Main.UsableScene;
-import com.jkrude.material.AlertBox;
-import com.jkrude.material.UI.RuleDialog;
-import com.jkrude.material.UI.SourceChoiceDialog;
-import com.jkrude.material.UI.TransactionTablePopUp;
-import com.jkrude.material.UI.TransactionTableView;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction;
 import com.jkrude.transaction.TransactionContainer;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
-import eu.hansolo.fx.charts.SunburstChart.TextOrientation;
-import eu.hansolo.fx.charts.SunburstChartBuilder;
+import eu.hansolo.fx.charts.SunburstChart;
 import eu.hansolo.fx.charts.data.ChartItem;
 import eu.hansolo.fx.charts.data.TreeNode;
 import eu.hansolo.fx.charts.event.TreeNodeEvent;
@@ -47,8 +47,10 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   @FXML
   private TransactionTableView ttvController;
   @FXML
-  private AnchorPane chartHoldingPane;
+  private SunburstChart<ChartItem> chart;
 
+  @FXML
+  private NavigationRail navController;
   @InjectViewModel
   private SunburstChartViewModel viewModel;
   private TreeNode<ChartItem> adaptedRoot;
@@ -56,6 +58,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
+    navController.setCurrent(UsableScene.SUNBURST);
     viewModel.addChangeListener((observableValue, oldValue, newValue) -> {
       if (!oldValue && newValue) {
         invalidate();
@@ -67,7 +70,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
 
   @Override
   public void prepare() {
-    chartHoldingPane.setVisible(true);
+    chart.setVisible(true);
     if (viewModel.isInvalidated() || adaptedRoot == null) {
       if (!viewModel.hasActiveDataProperty()) {
         setDataWithPossibleDialog();
@@ -80,7 +83,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   }
 
   private void invalidate() {
-    if (chartHoldingPane.isVisible()) { // Otherwise checked by prepare.
+    if (chart.isVisible()) { // Otherwise checked by prepare.
       adaptedRoot = viewModel.getAdaptedRoot();
       applyNodeListener(adaptedRoot);
       drawChart();
@@ -112,13 +115,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   }
 
   private void drawChart() {
-    chartHoldingPane.getChildren().clear();
-    chartHoldingPane.getChildren().add(SunburstChartBuilder.create()
-        .prefSize(800, 662)
-        .tree(adaptedRoot)
-        .interactive(true)
-        .textOrientation(TextOrientation.HORIZONTAL)
-        .build());
+    chart.setTree(adaptedRoot);
   }
 
   private void openTablePopUp(String categoryName) {
@@ -185,7 +182,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
       }
     });
     rulesList.getItems().addAll(matchingRules);
-    AlertBox.displayGeneric("Matched Rules", rulesList, 600, 70);
+    AlertBuilder.displayGeneric("Matched Rules", rulesList, 600, 70);
   }
 
   private void openRuleDialogAndSave(Transaction baseTransaction, CategoryNode categoryNode) {
@@ -195,13 +192,13 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
 
   @FXML
   private void goToCategories() {
-    chartHoldingPane.setVisible(false);
+    chart.setVisible(false);
     Main.goTo(UsableScene.CATEGORY_EDITOR);
   }
 
   @FXML
   private void goBack() {
-    chartHoldingPane.setVisible(false);
+    chart.setVisible(false);
     Main.goBack();
   }
 }

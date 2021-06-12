@@ -1,0 +1,41 @@
+.split-pane {
+  -fx-background-color: -fx-def-background;
+}
+
+.split-pane-divider {
+  -fx-background-color: -fx-def-elevated;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:top {
+  -fx-border-color: -fx-def-elevated;
+  -fx-background-color: -fx-def-elevated;
+  -fx-pref-height: 40px;
+  -fx-padding: 2;
+}
+
+
+.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
+  -fx-alignment: CENTER;
+  -fx-text-fill: white;
+  -fx-font-family: "RobotoCondensed";
+  -fx-padding: 5;
+}
+
+
+.tab-pane > .tab-header-area > .tab-header-background {
+  -fx-background-color: -fx-def-background;
+  -fx-border-color: -fx-def-elevated-light;
+  -fx-border-width: 0;
+  -fx-background-insets: 0;
+  -fx-pref-height: 45px;
+}
+
+.tab-content-area {
+  -fx-background-color: -fx-def-background;
+  -fx-border-color: -fx-def-elevated-light;
+  -fx-padding: 4;
+  -fx-border-width: 1px;
+
+}
+
+

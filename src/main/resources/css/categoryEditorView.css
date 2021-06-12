@@ -1,0 +1,74 @@
+.root {
+  -fx-background-color: -fx-def-background;
+}
+
+.split-pane {
+  -fx-background-color: -fx-def-background;
+}
+
+.split-pane-divider {
+  -fx-background-color: -fx-def-elevated-light;
+}
+
+.tree-view {
+  -fx-background-color: -fx-def-background;
+  -fx-padding: 32 0 0 64;
+  -fx-font-size: 18;
+}
+
+.tree-cell {
+  -fx-background-color: -fx-def-background;
+  -fx-font-family: "RobotoCondensed";
+  -fx-text-fill: #ffff;
+  -fx-padding: 8;
+}
+
+.tree-cell:selected {
+  -fx-font-weight: bold;
+}
+
+.list-view {
+  -fx-background-color: -fx-def-background;
+  -fx-padding: 16px;
+}
+
+.list-view .list-cell {
+  -fx-background-color: -fx-def-elevated;
+  -fx-font-family: "RobotoCondensed";
+  -fx-text-fill: #ffff;
+}
+
+.list-view .list-cell:odd {
+  -fx-background-color: derive(-fx-def-elevated, -8%)
+}
+
+.list-view .list-cell:selected {
+  -fx-border-color: -fx-def-primary;
+  -fx-border-width: 2px;
+  -fx-background-color: -fx-def-elevated-light;
+  -fx-font-weight: bold;
+}
+
+#hbox .button {
+  -fx-pref-width: 100px;
+  -fx-pref-height: 40px;
+  -fx-font-size: 14;
+}
+
+.context-menu {
+  -fx-background-color: -fx-def-elevated;
+  -fx-text-fill: white;
+}
+
+.menu-item .label {
+  -fx-background-color: -fx-def-elevated;
+  -fx-text-fill: white;
+  -fx-font-family: "RobotoCondensed";
+  -fx-font-size: 14;
+}
+
+.menu-item:focused {
+  -fx-background-color: -fx-def-elevated;
+  -fx-font-weight: bold;
+  -fx-focus-color: transparent;
+}

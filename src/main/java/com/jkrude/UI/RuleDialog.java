@@ -1,7 +1,7 @@
-package com.jkrude.material.UI;
+package com.jkrude.UI;
 
+import com.jkrude.UI.AlertBox.AlertBuilder;
 import com.jkrude.category.Rule;
-import com.jkrude.material.AlertBox.AlertBuilder;
 import com.jkrude.transaction.Transaction;
 import com.jkrude.transaction.Transaction.TransactionField;
 import java.text.ParseException;
@@ -12,7 +12,6 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
@@ -100,12 +99,10 @@ public class RuleDialog {
         .filter(box -> box.checkBox.isSelected())
         .forEach(box -> generatingMap.put(box.type, box.textField.getText()));
     if (generatingMap.isEmpty()) {
-      AlertBuilder
-          .alert(AlertType.WARNING)
-          .setTitle("No input!")
+      new AlertBuilder()
           .setHeader("At least one field must not be empty and checked.")
           .setMessage("To close this dialog press Cancel.")
-          .buildAndShow();
+          .showAndWait();
       return false;
     }
     try {
@@ -113,19 +110,17 @@ public class RuleDialog {
       generatedRule = Rule.RuleBuilder.fromMap(generatingMap).build();
       return true;
     } catch (ParseException e) {
-      AlertBuilder
-          .alert(AlertType.WARNING)
-          .setTitle("Incorrect input!")
-          .setHeader("An entry did not match the format")
-          .buildAndShow();
+      new AlertBuilder()
+          .setHeader("Incorrect input")
+          .setMessage("An entry did not match the format")
+          .showAndWait();
 
       return false;
     } catch (NumberFormatException e) {
-      AlertBuilder
-          .alert(AlertType.WARNING)
-          .setTitle("Incorrect input!")
-          .setHeader("The amount did not match the format (X / X.Y / Z EUR / Z €)")
-          .buildAndShow();
+      new AlertBuilder()
+          .setHeader("Incorrect input")
+          .setMessage("The amount did not match the format (X / X.Y / Z EUR / Z €)")
+          .showAndWait();
       return false;
     }
   }

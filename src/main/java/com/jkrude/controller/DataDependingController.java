@@ -1,7 +1,7 @@
 package com.jkrude.controller;
 
+import com.jkrude.UI.SourceChoiceDialog;
 import com.jkrude.material.Model;
-import com.jkrude.material.UI.SourceChoiceDialog;
 import com.jkrude.transaction.TransactionContainer;
 
 public abstract class DataDependingController {

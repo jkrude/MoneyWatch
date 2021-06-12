@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.shape.SVGPath?>
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="500.0"
+  xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="com.jkrude.UI.AlertBox">
+
+  <stylesheets>
+    <URL value="@../../../css/base.css"/>
+    <URL value="@../../../css/alertBox.css"/>
+  </stylesheets>
+
+  <bottom>
+    <ButtonBar minHeight="40.0" BorderPane.alignment="CENTER">
+      <buttons>
+        <JFXButton fx:id="defaultBtn" text="Okay"/>
+      </buttons>
+      <BorderPane.margin>
+        <Insets bottom="8.0" left="16.0" right="16.0" top="16.0"/>
+      </BorderPane.margin>
+    </ButtonBar>
+  </bottom>
+  <top>
+    <Label id="header-text" fx:id="headerBtn" contentDisplay="BOTTOM" graphicTextGap="8.0"
+      text="Label" BorderPane.alignment="CENTER">
+      <BorderPane.margin>
+        <Insets top="32.0"/>
+      </BorderPane.margin>
+      <graphic>
+        <Line endX="100.0" startX="-100.0" stroke="#00aea4"/>
+      </graphic>
+    </Label>
+  </top>
+  <center>
+    <Label id="body-text" fx:id="messageBtn" lineSpacing="8.0" text="Label" wrapText="true"
+      BorderPane.alignment="TOP_LEFT">
+      <padding>
+        <Insets left="64.0"/>
+      </padding>
+      <BorderPane.margin>
+        <Insets bottom="40.0" top="50.0"/>
+      </BorderPane.margin>
+    </Label>
+  </center>
+  <right>
+    <SVGPath fx:id="graphic"
+      content="M12 5.99L19.53 19H4.47L12 5.99M12 2L1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2v-4z"
+      fill="#ffca7e" scaleX="2.5" scaleY="2.5" BorderPane.alignment="TOP_CENTER">
+      <BorderPane.margin>
+        <Insets bottom="64.0" left="64.0" right="64.0" top="64.0"/>
+      </BorderPane.margin>
+    </SVGPath>
+  </right>
+</BorderPane>

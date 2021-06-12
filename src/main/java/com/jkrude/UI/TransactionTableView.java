@@ -1,4 +1,4 @@
-package com.jkrude.material.UI;
+package com.jkrude.UI;
 
 import com.jkrude.material.Money;
 import com.jkrude.material.Utility;
@@ -66,9 +66,6 @@ public class TransactionTableView implements Initializable {
   protected TableColumn<ExtendedTransaction, Money> amount;
   @FXML
   protected TableColumn<ExtendedTransaction, String> info;
-  @FXML
-  protected TableColumn<ExtendedTransaction, Void> addOption;
-
 
   private final SimpleIntegerProperty numberOfActivatedColumns;
   private final ObservableList<TableColumn<ExtendedTransaction, ?>> columnList;
@@ -101,8 +98,7 @@ public class TransactionTableView implements Initializable {
         iban,
         bic,
         amount,
-        info,
-        addOption
+        info
     );
     numberOfActivatedColumns.set(
         (int) columnList.stream().filter(column -> column.visibleProperty().get()).count());
@@ -112,13 +108,13 @@ public class TransactionTableView implements Initializable {
 
     this.columnWidth = new SimpleIntegerProperty();
     this.columnWidth.bind(table.widthProperty().divide(numberOfActivatedColumns));
-    table.getColumns().forEach(
-        transactionTableColumn -> transactionTableColumn.prefWidthProperty().bind(columnWidth));
+    //table.getColumns().forEach(
+    //    transactionTableColumn -> transactionTableColumn.prefWidthProperty().bind(columnWidth));
     table.setPlaceholder(new Label("No Transactions matching."));
 
     isActive.setCellValueFactory(callback -> {
-      SimpleStringProperty stringProp = new SimpleStringProperty();
-      stringProp.bind(Bindings.when(callback.getValue().isActiveProperty()).then("Active")
+          SimpleStringProperty stringProp = new SimpleStringProperty();
+          stringProp.bind(Bindings.when(callback.getValue().isActiveProperty()).then("Active")
               .otherwise("Ignored"));
           return stringProp;
         }
@@ -166,16 +162,6 @@ public class TransactionTableView implements Initializable {
       column.setContextMenu(new ContextMenu(item));
     }
 
-    // Option to show more columns.
-    // OVERRIDES addOption.setContextMenu from before.
-    ContextMenu cm = new ContextMenu();
-    for (var column : columnList) {
-      MenuItem item = new MenuItem(column.getText());
-      item.visibleProperty().bind(column.visibleProperty().not());
-      item.setOnAction(action -> column.visibleProperty().set(!column.visibleProperty().get()));
-      cm.getItems().add(item);
-    }
-    addOption.setContextMenu(cm);
 
     table.setRowFactory(
         extendedTransactionTableView -> {

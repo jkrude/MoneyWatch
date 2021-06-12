@@ -1,0 +1,49 @@
+
+#navigation-rail {
+  -fx-background-color: derive(-fx-def-elevated, -5%);
+}
+
+#navigation-rail .button {
+  -fx-font-size: 16;
+  -fx-padding: 8;
+  -fx-background-color: transparent;
+  -fx-graphic-text-gap: 16;
+  -fx-content-display: top;
+  -fx-alignment: CENTER;
+  -fx-pref-width: 100;
+}
+
+#navigation-rail .button:hover {
+  -fx-text-fill: white;
+}
+
+#navigation-rail .button:focused {
+  -fx-text-fill: white;
+  -fx-background-color: transparent;
+}
+
+#navigation-rail .button:selected {
+  -fx-text-fill: white;
+  -fx-background-color: transparent;
+}
+
+#navigation-rail .label {
+  -fx-font-family: "Eczar-bold";
+  -fx-text-fill: -fx-def-primary;
+  -fx-font-size: 20;
+  -fx-font-weight: bold;
+}
+
+.svg-icon {
+  -fx-fill: white;
+  -fx-scale-x: 1.5;
+  -fx-scale-y: 1.5;
+}
+
+.button:disabled {
+  -fx-text-fill: -fx-def-secondary;
+}
+
+.svg-icon:disabled {
+  -fx-fill: -fx-def-secondary;
+}
