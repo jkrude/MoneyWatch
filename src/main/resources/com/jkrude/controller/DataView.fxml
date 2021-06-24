@@ -38,7 +38,5 @@
         </JFXButton>
       </children>
     </VBox>
-    <fx:include fx:id="nav" source="../UI/NavigationRail.fxml" AnchorPane.bottomAnchor="0.0"
-      AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0"/>
   </children>
 </AnchorPane>

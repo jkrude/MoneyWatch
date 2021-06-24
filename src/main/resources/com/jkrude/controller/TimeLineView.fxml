@@ -32,9 +32,6 @@
           </BorderPane.margin>
         </LineChart>
       </center>
-      <left>
-        <fx:include fx:id="nav" source="../UI/NavigationRail.fxml"/>
-      </left>
       <right>
         <VBox spacing="64.0" BorderPane.alignment="CENTER">
           <children>
@@ -51,5 +48,5 @@
         </VBox>
       </right>
     </BorderPane>
-   </children>
+  </children>
 </AnchorPane>

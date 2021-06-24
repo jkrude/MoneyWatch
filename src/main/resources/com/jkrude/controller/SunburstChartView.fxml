@@ -7,7 +7,6 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
 <AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/11.0.1"
   xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.controller.SunburstChartView">
   <stylesheets>
@@ -15,35 +14,27 @@
     <URL value="@../../../css/sunburstView.css"/>
   </stylesheets>
   <children>
-    <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+    <SplitPane dividerPositions="0.67" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <left>
-        <fx:include fx:id="nav" source="../UI/NavigationRail.fxml"/>
-      </left>
-      <center>
-        <SplitPane dividerPositions="0.67">
-          <items>
-            <SunburstChart fx:id="chart" autoTextColor="false" backgroundColor="#32333d"
-              decimals="2" interactive="true" minWidth="600.0" textOrientation="HORIZONTAL"
-              visibleData="NAME">
-              <padding>
-                <Insets right="32.0"/>
-              </padding>
-            </SunburstChart>
-            <TabPane minWidth="500.0">
-              <Tab closable="false" text="Ignored Transactions">
-                <fx:include fx:id="ttv" source="../UI/TransactionTableView.fxml"/>
-              </Tab>
-              <padding>
-                <Insets left="16.0"/>
-              </padding>
-            </TabPane>
-          </items>
+      <items>
+        <SunburstChart fx:id="chart" autoTextColor="false" backgroundColor="#32333d" decimals="2"
+          interactive="true" minWidth="600.0" textOrientation="HORIZONTAL" visibleData="NAME">
           <padding>
-            <Insets bottom="16.0" left="16.0" right="16.0" top="32.0"/>
+            <Insets right="32.0"/>
           </padding>
-        </SplitPane>
-      </center>
-    </BorderPane>
+        </SunburstChart>
+        <TabPane minWidth="500.0">
+          <Tab closable="false" text="Ignored Transactions">
+            <fx:include fx:id="ttv" source="../UI/TransactionTableView.fxml"/>
+          </Tab>
+          <padding>
+            <Insets left="16.0"/>
+          </padding>
+        </TabPane>
+      </items>
+      <padding>
+        <Insets bottom="16.0" left="16.0" right="16.0" top="32.0"/>
+      </padding>
+    </SplitPane>
   </children>
 </AnchorPane>

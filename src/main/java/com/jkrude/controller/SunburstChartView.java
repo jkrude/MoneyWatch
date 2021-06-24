@@ -3,7 +3,6 @@ package com.jkrude.controller;
 import static com.jkrude.controller.SunburstChartViewModel.UNDEFINED_SEGMENT;
 
 import com.jkrude.UI.AlertBox.AlertBuilder;
-import com.jkrude.UI.NavigationRail;
 import com.jkrude.UI.RuleDialog;
 import com.jkrude.UI.SourceChoiceDialog;
 import com.jkrude.UI.TransactionTablePopUp;
@@ -11,8 +10,6 @@ import com.jkrude.UI.TransactionTableView;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
 import com.jkrude.controller.CategoryEditorView.RuleCell;
-import com.jkrude.main.Main;
-import com.jkrude.main.Main.UsableScene;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction;
 import com.jkrude.transaction.TransactionContainer;
@@ -41,23 +38,18 @@ import javafx.scene.layout.AnchorPane;
 public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Initializable,
     Prepareable {
 
-  @FXML
-  private AnchorPane ttv;
-  @FXML
-  private TransactionTableView ttvController;
-  @FXML
-  private SunburstChart<ChartItem> chart;
+  @FXML private AnchorPane ttv;
+  @FXML private TransactionTableView ttvController;
+  @FXML private SunburstChart<ChartItem> chart;
 
-  @FXML
-  private NavigationRail navController;
   @InjectViewModel
   private SunburstChartViewModel viewModel;
+
   private TreeNode<ChartItem> adaptedRoot;
 
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
-    navController.setCurrent(UsableScene.SUNBURST);
     viewModel.addChangeListener((observableValue, oldValue, newValue) -> {
       if (!oldValue && newValue) {
         invalidate();
@@ -191,15 +183,4 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
         .ifPresent(categoryNode::addRule);
   }
 
-  @FXML
-  private void goToCategories() {
-    chart.setVisible(false);
-    Main.goTo(UsableScene.CATEGORY_EDITOR);
-  }
-
-  @FXML
-  private void goBack() {
-    chart.setVisible(false);
-    Main.goBack();
-  }
 }

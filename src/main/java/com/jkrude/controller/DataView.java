@@ -1,40 +1,25 @@
 package com.jkrude.controller;
 
 import com.jkrude.UI.AlertBox.AlertBuilder;
-import com.jkrude.UI.NavigationRail;
-import com.jkrude.main.Main;
-import com.jkrude.main.Main.UsableScene;
 import com.jkrude.transaction.TransactionContainer;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.ResourceBundle;
 import java.util.Scanner;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
-public class DataView implements FxmlView<DataViewModel>, Initializable, Prepareable {
+public class DataView implements FxmlView<DataViewModel>, Prepareable {
 
-
-  @FXML
-  private NavigationRail navController;
 
   @InjectViewModel
   DataViewModel viewModel;
 
-
-  @Override
-  public void initialize(URL url, ResourceBundle resourceBundle) {
-    navController.setCurrent(UsableScene.DATA);
-  }
 
   @Override
   public void prepare() { // No preparation necessary.
@@ -79,20 +64,5 @@ public class DataView implements FxmlView<DataViewModel>, Initializable, Prepare
           .setMessage("File could not be opened")
           .showAndWait();
     }
-  }
-
-  @FXML
-  private void goToTimeLine() {
-    Main.goTo(UsableScene.TIMELINE);
-  }
-
-  @FXML
-  private void goToSunburst() {
-    Main.goTo(UsableScene.SUNBURST);
-  }
-
-  @FXML
-  private void goToCategoryEditor() {
-    Main.goTo(UsableScene.CATEGORY_EDITOR);
   }
 }

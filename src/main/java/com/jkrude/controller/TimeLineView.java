@@ -2,12 +2,9 @@ package com.jkrude.controller;
 
 import com.jfoenix.controls.JFXComboBox;
 import com.jkrude.UI.AlertBox.AlertBuilder;
-import com.jkrude.UI.NavigationRail;
 import com.jkrude.UI.SourceChoiceDialog;
 import com.jkrude.UI.TransactionTablePopUp;
 import com.jkrude.controller.TimeLineViewModel.TickRate;
-import com.jkrude.main.Main;
-import com.jkrude.main.Main.UsableScene;
 import com.jkrude.material.Utility;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.TransactionContainer;
@@ -36,15 +33,11 @@ import javafx.util.Duration;
 
 public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable, Prepareable {
 
-  @FXML
-  private LineChart<Number, Number> lineChart;
-  @FXML
-  private JFXComboBox<TickRate> tickRateChoiceBox;
-  @FXML
-  private NumberAxis xAxis;
+  @FXML private LineChart<Number, Number> lineChart;
+  @FXML private JFXComboBox<TickRate> tickRateChoiceBox;
+  @FXML private NumberAxis xAxis;
+
   private boolean tickRateManualChange;
-  @FXML
-  private NavigationRail navController;
 
   @InjectViewModel
   private TimeLineViewModel viewModel;
@@ -52,7 +45,6 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
-    navController.setCurrent(UsableScene.TIMELINE);
     tickRateManualChange = false;
     tickRateChoiceBox.getItems().addAll(TickRate.values());
     tickRateChoiceBox.getSelectionModel().selectedItemProperty().addListener(
@@ -172,11 +164,6 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
         .showAndWait(viewModel.getTransactionContainerList());
     // Changes are triggered by the invalidation listener.
     viewModel.possibleActiveDataChange(chosenData);
-  }
-
-  @FXML
-  private void goBack() {
-    Main.goBack();
   }
 
 }

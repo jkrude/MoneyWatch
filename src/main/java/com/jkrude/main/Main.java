@@ -1,5 +1,6 @@
 package com.jkrude.main;
 
+import com.jkrude.UI.NavigationRail;
 import com.jkrude.controller.CategoryEditorView;
 import com.jkrude.controller.CategoryEditorViewModel;
 import com.jkrude.controller.DataView;
@@ -15,13 +16,12 @@ import com.jkrude.material.Profile;
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewTuple;
 import java.net.URL;
-import java.util.Stack;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 public class Main extends Application {
 
@@ -74,10 +74,11 @@ public class Main extends Application {
   }
 
   public static final URL persistenceFile = Main.class.getClassLoader().getResource("pers.json");
+  private static final URL navigationRail = Main.class.getResource("../UI/NavigationRail.fxml");
+  private static NavigationRail navigationController;
+  public static BorderPane backgroundPane;
   private Model model;
-  private static Stack<UsableScene> callStack;
   private static Stage primaryStage;
-  private static UsableScene current;
 
 
   @Override
@@ -87,18 +88,22 @@ public class Main extends Application {
     Profile profile = new Profile();
     PersistenceManager.load(profile, persistenceFile);
     model.setProfile(profile);
-    callStack = new Stack<>();
+
+    FXMLLoader loader = new FXMLLoader();
+    loader.setLocation(navigationRail);
+    backgroundPane = loader.load();
+    navigationController = loader.getController();
 
     Main.primaryStage = primaryStage;
 
     primaryStage.setTitle("Money Watch");
-    primaryStage.setScene(new Scene(new Pane()));
+    primaryStage.setScene(new Scene(backgroundPane));
     primaryStage.setMinWidth(1000);
     primaryStage.setMinHeight(800);
     if (Model.getInstance().getTransactionContainerList().isEmpty()) {
-      goTo(UsableScene.DATA, primaryStage);
+      goTo(UsableScene.DATA);
     } else {
-      goTo(UsableScene.SUNBURST, primaryStage);
+      goTo(UsableScene.SUNBURST);
     }
     primaryStage.show();
   }
@@ -110,42 +115,13 @@ public class Main extends Application {
     PersistenceManager.save(model.getProfile(), persistenceFile);
   }
 
-  public static void goTo(UsableScene usableScene, Stage stage) {
+  public static void goTo(UsableScene usableScene) {
     Prepareable prepareable = UsableScene.lookupControllable(usableScene);
     Parent parent = UsableScene.lookupParent(usableScene);
     prepareable.prepare();
-    if (current != null) { // First call -> startScene
-      callStack.push(Main.current);
-    }
-    Main.current = usableScene;
-    stage.getScene().setRoot(parent);
-
+    backgroundPane.setCenter(parent);
+    navigationController.setCurrent(usableScene);
   }
-
-  public static void goTo(UsableScene scene) {
-    goTo(scene, primaryStage);
-  }
-
-  public static void goBack(Stage stage) {
-    if (callStack.isEmpty()) {
-      goTo(UsableScene.DATA, primaryStage);
-      return;
-    }
-    UsableScene previousScene = callStack.pop();
-    Prepareable prepareable = UsableScene.lookupControllable(previousScene);
-    prepareable.prepare();
-    Main.current = previousScene;
-    stage.getScene().setRoot(UsableScene.lookupParent(previousScene));
-  }
-
-  public static void goBack() {
-    goBack(primaryStage);
-  }
-
-  public static Window getWindow() {
-    return primaryStage.getOwner();
-  }
-
 
   public static void main(String[] args) {
     launch(args);

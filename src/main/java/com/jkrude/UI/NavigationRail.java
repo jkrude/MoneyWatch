@@ -9,30 +9,33 @@ import javafx.fxml.FXML;
 public class NavigationRail {
 
 
-  @FXML
-  private JFXButton sunburst;
-  @FXML
-  private JFXButton timeline;
-  @FXML
-  private JFXButton categoryEditor;
-  @FXML
-  private JFXButton data;
+  @FXML private JFXButton sunburst;
+  @FXML private JFXButton timeline;
+  @FXML private JFXButton categoryEditor;
+  @FXML private JFXButton data;
+  private UsableScene current;
 
-  public void setCurrent(UsableScene current) {
-    switch (current) {
-      case DATA:
-        data.setDisable(true);
-        break;
-      case TIMELINE:
-        timeline.setDisable(true);
-        break;
-      case SUNBURST:
-        sunburst.setDisable(true);
-        break;
-      case CATEGORY_EDITOR:
-        categoryEditor.setDisable(true);
-        break;
+  public void setCurrent(UsableScene next) {
+    if (current != null) {
+      getButton(current).setDisable(false);
     }
+    this.current = next;
+    getButton(next).setDisable(true);
+
+  }
+
+  private JFXButton getButton(UsableScene scene) {
+    switch (scene) {
+      case DATA:
+        return data;
+      case TIMELINE:
+        return timeline;
+      case SUNBURST:
+        return sunburst;
+      case CATEGORY_EDITOR:
+        return categoryEditor;
+    }
+    throw new IllegalArgumentException("Passed unknown scene: " + scene.name());
   }
 
   @FXML

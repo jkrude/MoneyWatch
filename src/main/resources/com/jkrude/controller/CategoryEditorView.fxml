@@ -1,43 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
 <?import com.jfoenix.controls.JFXButton?>
 <?import java.net.URL?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<BorderPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/11.0.1"
-  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.controller.CategoryEditorView">
+<SplitPane dividerPositions="0.5" prefHeight="1040.0" prefWidth="Infinity"
+  xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="com.jkrude.controller.CategoryEditorView">
   <stylesheets>
     <URL value="@../../../css/base.css"/>
     <URL value="@../../../css/categoryEditorView.css"/>
   </stylesheets>
-  <left>
-    <fx:include fx:id="nav" source="../UI/NavigationRail.fxml"/>
-  </left>
-  <center>
-    <SplitPane dividerPositions="0.5" prefHeight="1040.0" prefWidth="Infinity">
-      <TreeView fx:id="categoryTreeView" minWidth="400.0"/>
-      <AnchorPane fx:id="rulePane" minWidth="500.0">
+  <TreeView fx:id="categoryTreeView" minWidth="400.0"/>
+  <AnchorPane fx:id="rulePane" minWidth="500.0">
+    <children>
+      <ListView fx:id="ruleView" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="0.0"
+        AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+      <HBox id="hbox" alignment="CENTER" spacing="60.0" AnchorPane.bottomAnchor="0.0"
+        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
         <children>
-          <ListView fx:id="ruleView" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="0.0"
-            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-          <HBox id="hbox" alignment="CENTER" spacing="60.0" AnchorPane.bottomAnchor="0.0"
-            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-            <children>
-              <JFXButton fx:id="addRuleBtn" mnemonicParsing="false" onAction="#addRuleAction"
-                text="Add rule"/>
-              <JFXButton fx:id="editRuleBtn" mnemonicParsing="false" onAction="#editRuleAction"
-                text="Edit rule"/>
-              <JFXButton fx:id="deleteRuleBtn" mnemonicParsing="false" onAction="#deleteRuleAction"
-                text="Delete rule"/>
-            </children>
-          </HBox>
+          <JFXButton fx:id="addRuleBtn" mnemonicParsing="false" onAction="#addRuleAction"
+            text="Add rule"/>
+          <JFXButton fx:id="editRuleBtn" mnemonicParsing="false" onAction="#editRuleAction"
+            text="Edit rule"/>
+          <JFXButton fx:id="deleteRuleBtn" mnemonicParsing="false" onAction="#deleteRuleAction"
+            text="Delete rule"/>
         </children>
-      </AnchorPane>
-    </SplitPane>
-  </center>
-
-</BorderPane>
+      </HBox>
+    </children>
+  </AnchorPane>
+</SplitPane>

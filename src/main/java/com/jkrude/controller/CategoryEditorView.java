@@ -2,15 +2,12 @@ package com.jkrude.controller;
 
 import com.jkrude.UI.AlertBox.AlertBuilder;
 import com.jkrude.UI.ColorPickerDialog;
-import com.jkrude.UI.NavigationRail;
 import com.jkrude.UI.NewCategoryDialog;
 import com.jkrude.UI.RuleDialog;
 import com.jkrude.UI.RuleDialog.Builder;
 import com.jkrude.UI.TextInputDialog;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
-import com.jkrude.main.Main;
-import com.jkrude.main.Main.UsableScene;
 import com.jkrude.transaction.Transaction.TransactionField;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
@@ -39,23 +36,14 @@ import javafx.util.Callback;
 public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, Initializable,
     Prepareable {
 
-  @FXML
-  private AnchorPane rulePane;
-  @FXML
-  private Button addRuleBtn;
-  @FXML
-  private Button editRuleBtn;
-  @FXML
-  private Button deleteRuleBtn;
-  @FXML
-  private ListView<Rule> ruleView;
-  @FXML
-  private TreeView<CategoryNode> categoryTreeView;
-  @FXML
-  private SimpleBooleanProperty invalidatedProperty;
+  @FXML private AnchorPane rulePane;
+  @FXML private Button addRuleBtn;
+  @FXML private Button editRuleBtn;
+  @FXML private Button deleteRuleBtn;
+  @FXML private ListView<Rule> ruleView;
+  @FXML private TreeView<CategoryNode> categoryTreeView;
+  @FXML private SimpleBooleanProperty invalidatedProperty;
 
-  @FXML
-  private NavigationRail navController;
 
   @InjectViewModel
   private CategoryEditorViewModel viewModel;
@@ -64,7 +52,6 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
-    navController.setCurrent(UsableScene.CATEGORY_EDITOR);
     invalidatedProperty = new SimpleBooleanProperty(false);
     rulePane.visibleProperty().bind(categoryTreeView.getSelectionModel().selectedItemProperty()
         .isNotNull());
@@ -245,11 +232,6 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
         .setHeader("Incorrect input!")
         .setMessage("The name can not be empty")
         .showAndWait();
-  }
-
-  @FXML
-  private void goBack() {
-    Main.goBack();
   }
 
   @FXML

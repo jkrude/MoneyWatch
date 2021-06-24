@@ -11,20 +11,12 @@
   -fx-content-display: top;
   -fx-alignment: CENTER;
   -fx-pref-width: 100;
+  -fx-focus-traversable: false;
 }
 
 #navigation-rail .button:hover {
   -fx-text-fill: white;
-}
-
-#navigation-rail .button:focused {
-  -fx-text-fill: white;
-  -fx-background-color: transparent;
-}
-
-#navigation-rail .button:selected {
-  -fx-text-fill: white;
-  -fx-background-color: transparent;
+  -fx-background-color: -fx-def-elevated-light;
 }
 
 #navigation-rail .label {
@@ -34,16 +26,16 @@
   -fx-font-weight: bold;
 }
 
-.svg-icon {
+#navigation-rail .svg-icon {
   -fx-fill: white;
   -fx-scale-x: 1.5;
   -fx-scale-y: 1.5;
 }
 
-.button:disabled {
+#navigation-rail .button:disabled {
   -fx-text-fill: -fx-def-secondary;
 }
 
-.svg-icon:disabled {
+#navigation-rail .svg-icon:disabled {
   -fx-fill: -fx-def-secondary;
 }
