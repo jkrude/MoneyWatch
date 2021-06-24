@@ -33,13 +33,12 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;
-import javafx.scene.layout.AnchorPane;
 
 public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Initializable,
     Prepareable {
 
-  @FXML private AnchorPane ttv;
-  @FXML private TransactionTableView ttvController;
+  @FXML private TransactionTableView ttvIgnoredController;
+  @FXML private TransactionTableView ttvAllController;
   @FXML private SunburstChart<ChartItem> chart;
 
   @InjectViewModel
@@ -55,8 +54,6 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
         invalidate();
       }
     });
-    ttvController.setIsActiveColumnShown(false);
-    ttvController.itemsProperty().bind(viewModel.ignoredTransactions());
   }
 
   @Override

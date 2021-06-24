@@ -21,9 +21,7 @@ import java.util.stream.Stream;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.SetChangeListener;
@@ -182,18 +180,7 @@ public class SunburstChartViewModel implements ViewModel {
 
   }
 
-  public ObservableValue<? extends ObservableList<ExtendedTransaction>> ignoredTransactions() {
 
-    SimpleObjectProperty<PropertyFilteredList<ExtendedTransaction>> ignoredTransactions = new SimpleObjectProperty<>(
-        new PropertyFilteredList<>(ExtendedTransaction::isActiveProperty,
-            et -> !et.isActiveProperty().get()));
-    if (globalModel.getActiveData() != null) {
-      ignoredTransactions.get().setAll(globalModel.getActiveData().getSourceRO());
-    }
-    globalModel.activeDataProperty().addListener(
-        observable -> ignoredTransactions.get().setAll(globalModel.getActiveData().getSourceRO()));
-    return ignoredTransactions;
-  }
 
   public List<Rule> findMatchingRules(ExtendedTransaction transaction) {
     return categoryValueTree.getRoot()

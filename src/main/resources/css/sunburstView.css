@@ -6,7 +6,7 @@
   -fx-background-color: -fx-def-elevated;
 }
 
-.tab-pane > .tab-header-area > .headers-region > .tab:top {
+.jfx-tab-pane > .tab-header-area > .headers-region > .tab:top {
   -fx-border-color: -fx-def-elevated;
   -fx-background-color: -fx-def-elevated;
   -fx-pref-height: 40px;

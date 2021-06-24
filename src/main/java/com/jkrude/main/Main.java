@@ -98,7 +98,7 @@ public class Main extends Application {
 
     primaryStage.setTitle("Money Watch");
     primaryStage.setScene(new Scene(backgroundPane));
-    primaryStage.setMinWidth(1000);
+    primaryStage.setMinWidth(1280);
     primaryStage.setMinHeight(800);
     if (Model.getInstance().getTransactionContainerList().isEmpty()) {
       goTo(UsableScene.DATA);

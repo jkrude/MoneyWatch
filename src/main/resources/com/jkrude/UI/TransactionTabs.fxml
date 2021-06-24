@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import com.jfoenix.controls.JFXTabPane?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Tab?>
+<JFXTabPane prefHeight="-Infinity" minWidth="500.0" minHeight="600"
+  xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="com.jkrude.UI.TransactionTabs">
+  <stylesheets>
+    <URL value="@../../../css/transactionTabs.css"/>
+  </stylesheets>
+  <Tab closable="false" text="Ignored Transactions">
+    <fx:include fx:id="ttvIgnored" source="TransactionTableView.fxml"/>
+  </Tab>
+  <Tab closable="false" text="All Transactions">
+    <fx:include fx:id="ttvAll" source="TransactionTableView.fxml"/>
+  </Tab>
+</JFXTabPane>

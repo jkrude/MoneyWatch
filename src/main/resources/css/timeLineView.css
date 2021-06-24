@@ -1,3 +1,11 @@
+.split-pane {
+  -fx-background-color: -fx-def-background;
+}
+
+.split-pane-divider {
+  -fx-background-color: -fx-def-elevated;
+}
+
 .combo-box {
   -fx-background-color: -fx-def-background;
   -fx-focus-color: -fx-def-primary;
