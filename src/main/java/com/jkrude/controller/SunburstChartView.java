@@ -26,7 +26,6 @@ import eu.hansolo.fx.charts.event.TreeNodeEventListener;
 import eu.hansolo.fx.charts.event.TreeNodeEventType;
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
@@ -186,8 +185,10 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   }
 
   private void openRuleDialogAndSave(Transaction baseTransaction, CategoryNode categoryNode) {
-    Optional<Rule> optRule = new RuleDialog().editRuleShowAndWait(baseTransaction.getAsMap());
-    optRule.ifPresent(categoryNode::addRule);
+    new RuleDialog.Builder()
+        .editRule(baseTransaction.getAsMap())
+        .showAndWait()
+        .ifPresent(categoryNode::addRule);
   }
 
   @FXML

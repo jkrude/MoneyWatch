@@ -5,11 +5,13 @@ import com.jkrude.UI.ColorPickerDialog;
 import com.jkrude.UI.NavigationRail;
 import com.jkrude.UI.NewCategoryDialog;
 import com.jkrude.UI.RuleDialog;
+import com.jkrude.UI.RuleDialog.Builder;
 import com.jkrude.UI.TextInputDialog;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
 import com.jkrude.main.Main;
 import com.jkrude.main.Main.UsableScene;
+import com.jkrude.transaction.Transaction.TransactionField;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import java.net.URL;
@@ -196,17 +198,18 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   private void addRule() {
     CategoryNode node = categoryTreeView.getSelectionModel().getSelectedItem().getValue();
     assert node != null;
-    new RuleDialog()
-        .showAndWait()
-        .ifPresent(node::addRule);
+    new RuleDialog.Builder().showAndWait().ifPresent(node::addRule);
   }
 
   private void replaceRule() {
     Rule currentRule = ruleView.getSelectionModel().getSelectedItem();
     assert currentRule != null;
     CategoryNode node = currentRule.getParent().orElseThrow();
-    new RuleDialog()
-        .editRuleShowAndWait(currentRule)
+    new Builder()
+        .editRule(currentRule)
+        .initiallySelected(
+            currentRule.getIdentifierPairs().keySet().toArray(new TransactionField[0]))
+        .showAndWait()
         .ifPresent(newRule -> {
           node.removeRule(currentRule);
           node.addRule(newRule);

@@ -1,193 +1,281 @@
 package com.jkrude.UI;
 
-import com.jkrude.UI.AlertBox.AlertBuilder;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXTextArea;
+import com.jfoenix.controls.JFXTextField;
 import com.jkrude.category.Rule;
-import com.jkrude.transaction.Transaction;
 import com.jkrude.transaction.Transaction.TransactionField;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.util.ResourceBundle;
+import javafx.animation.PauseTransition;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Dialog;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.Tooltip;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
-public class RuleDialog {
+
+public class RuleDialog implements Initializable {
+
+  @FXML private JFXTextField infoField;
+  @FXML private JFXTextField accountIbanField;
+  @FXML private JFXCheckBox accountIbanBox;
+  @FXML private JFXCheckBox transferDateBox;
+  @FXML private JFXCheckBox validationDateBox;
+  @FXML private JFXCheckBox transferSpecificationBox;
+  @FXML private JFXCheckBox creditorIdBox;
+  @FXML private JFXCheckBox mandateReferenceBox;
+  @FXML private JFXCheckBox customerReferenceEndToEndBox;
+  @FXML private JFXCheckBox collectionReferenceBox;
+  @FXML private JFXCheckBox debitOriginalAmountBox;
+  @FXML private JFXTextField transferDateField;
+  @FXML private JFXTextField validationDateField;
+  @FXML private JFXTextField transferSpecificationField;
+  @FXML private JFXTextField creditorIdField;
+  @FXML private JFXTextField mandateReferenceField;
+  @FXML private JFXTextField customerReferenceEndToEndField;
+  @FXML private JFXTextField collectionReferenceField;
+  @FXML private JFXTextField debitOriginalAmountField;
+  @FXML private JFXTextField backDebitField;
+  @FXML private JFXTextField bicField;
+  @FXML private JFXTextField amountField;
+  @FXML private JFXCheckBox bicBox;
+  @FXML private JFXCheckBox amountBox;
+  @FXML private JFXCheckBox infoBox;
+  @FXML private JFXCheckBox backDebitBox;
+  @FXML private JFXTextArea noteArea;
+  @FXML private JFXTextField ibanField;
+  @FXML private JFXTextField usageField;
+  @FXML private JFXTextField otherPartyField;
+  @FXML private JFXCheckBox checkAllBox;
+  @FXML private JFXCheckBox ibanBox;
+  @FXML private JFXCheckBox usageBox;
+  @FXML private JFXCheckBox otherPartyBox;
+  @FXML private JFXButton cancelBtn;
+  @FXML private JFXButton applyBtn;
+  @FXML private Label errorLabel;
 
   private Rule generatedRule;
-  private final ObservableList<TransactionField> typeChoiceList = FXCollections
-      .observableArrayList(Transaction.TransactionField.values());
-  Dialog<Rule> internalDialog;
-  ListView<CustomHBox> listView;
+  private PauseTransition errorDelay;
 
-  public RuleDialog() {
-    internalDialog = new Dialog<>();
-    internalDialog.setTitle("Rule-Editor");
-    internalDialog.setHeaderText(null);
-    listView = new ListView<>();
-    listView.prefWidthProperty().bind(internalDialog.getDialogPane().widthProperty());
-    internalDialog.getDialogPane().setContent(listView);
-    internalDialog.setResizable(true);
-    internalDialog.setWidth(600);
-    internalDialog.getDialogPane().maxWidth(800);
-    internalDialog.setHeight(400);
-    internalDialog.getDialogPane().getButtonTypes().addAll(ButtonType.APPLY, ButtonType.CANCEL);
-    // Validate input.
-    Button btnApply = (Button) internalDialog.getDialogPane().lookupButton(ButtonType.APPLY);
-    btnApply.addEventFilter(ActionEvent.ACTION, event -> {
-      if (!validateAndGenerate(listView)) {
-        event.consume();
-      }
-    });
 
-    internalDialog.setResultConverter(buttonType -> {
-      if (buttonType == ButtonType.APPLY) {
-        return generatedRule;
-      }
-      return null;
-    });
+  @Override
+  public void initialize(URL url, ResourceBundle resourceBundle) {
 
-  }
+    validateFxml();
 
-  public Optional<Rule> editRuleShowAndWait(Map<TransactionField, String> idPairs) {
-    fillListFromRule(idPairs);
-    return internalDialog.showAndWait();
-  }
-
-  public Optional<Rule> editRuleShowAndWait(Rule rule) {
-    return editRuleShowAndWait(rule.getIdentifierPairs());
-  }
-
-  public Optional<Rule> showAndWait() {
-    fillList(listView);
-    return internalDialog.showAndWait();
-  }
-
-  private void fillList(ListView<CustomHBox> listView) {
-    for (TransactionField type : typeChoiceList) {
-      listView.getItems().add(new CustomHBox(type));
-    }
-  }
-
-  private void fillListFromRule(Map<TransactionField, String> idPairs) {
-    Map<TransactionField, CustomHBox> map = new HashMap<>();
-    idPairs.forEach((key, value) -> {
-          if (!value.isBlank()) {
-            map.put(key, new CustomHBox(key, value));
+    checkAllBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+      @Override
+      public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue,
+          Boolean newValue) {
+        if (oldValue != null && newValue != null && oldValue != newValue) {
+          for (var field : TransactionField.values()) {
+            getCheckBox(field).setSelected(newValue);
           }
         }
-    );
+      }
+    });
+    Tooltip tlp = new Tooltip("(Un)check all");
+    tlp.setShowDelay(Duration.seconds(1));
+    checkAllBox.setTooltip(tlp);
 
-    for (TransactionField type : typeChoiceList) {
-      listView.getItems().add(map.getOrDefault(type, new CustomHBox(type)));
+    applyBtn.addEventFilter(ActionEvent.ACTION, new EventHandler<Event>() {
+      // Only works if validation is successful.
+      @Override
+      public void handle(Event event) {
+        if (!validateAndGenerate()) {
+          RuleDialog.this.generatedRule = null;
+          event.consume();
+        }
+      }
+    });
+
+    // Assert that generatedRule is null.
+    cancelBtn.addEventHandler(ActionEvent.ACTION, event -> RuleDialog.this.generatedRule = null);
+
+    errorDelay = new PauseTransition(Duration.seconds(5));
+  }
+
+  private void validateFxml() {
+    for (var field : TransactionField.values()) {
+      if (getTextField(field) == null || getCheckBox(field) == null) {
+        throw new IllegalStateException("Rule dialog active but not all elements inflated.");
+      }
     }
   }
 
-  private boolean validateAndGenerate(ListView<CustomHBox> listView) {
+  private void showError(String error) {
+    errorDelay.stop();
+    errorLabel.setDisable(false);
+    errorLabel.setVisible(true);
+    errorLabel.setText(error);
+
+    errorDelay.setOnFinished(event -> {
+      errorLabel.setVisible(false);
+      errorLabel.setDisable(true);
+    });
+    errorDelay.playFromStart();
+  }
+
+  private void fillGridFromRule(Map<TransactionField, String> idMap) {
+    idMap.forEach((key, value) -> getTextField(key).setText(value));
+  }
+
+  private JFXTextField getTextField(TransactionField field) {
+    switch (field) {
+      case ACCOUNT_IBAN:
+        return this.accountIbanField;
+      case TRANSFER_DATE:
+        return this.transferDateField;
+      case VALIDATION_DATE:
+        return this.validationDateField;
+      case TRANSFER_SPECIFICATION:
+        return this.transferSpecificationField;
+      case USAGE:
+        return this.usageField;
+      case CREDITOR_ID:
+        return this.creditorIdField;
+      case MANDATE_REFERENCE:
+        return this.mandateReferenceField;
+      case CUSTOMER_REFERENCE_END_TO_END:
+        return this.customerReferenceEndToEndField;
+      case COLLECTION_REFERENCE:
+        return this.collectionReferenceField;
+      case DEBIT_ORIGINAL_AMOUNT:
+        return this.debitOriginalAmountField;
+      case BACK_DEBIT:
+        return this.backDebitField;
+      case OTHER_PARTY:
+        return this.otherPartyField;
+      case IBAN:
+        return this.ibanField;
+      case BIC:
+        return this.bicField;
+      case AMOUNT:
+        return this.amountField;
+      case INFO:
+        return this.infoField;
+    }
+    throw new IllegalArgumentException(field + "could not be catched in switch");
+  }
+
+  private JFXCheckBox getCheckBox(TransactionField field) {
+    switch (field) {
+      case ACCOUNT_IBAN:
+        return this.accountIbanBox;
+      case TRANSFER_DATE:
+        return this.transferDateBox;
+      case VALIDATION_DATE:
+        return this.validationDateBox;
+      case TRANSFER_SPECIFICATION:
+        return this.transferSpecificationBox;
+      case USAGE:
+        return this.usageBox;
+      case CREDITOR_ID:
+        return this.creditorIdBox;
+      case MANDATE_REFERENCE:
+        return this.mandateReferenceBox;
+      case CUSTOMER_REFERENCE_END_TO_END:
+        return this.customerReferenceEndToEndBox;
+      case COLLECTION_REFERENCE:
+        return this.collectionReferenceBox;
+      case DEBIT_ORIGINAL_AMOUNT:
+        return this.debitOriginalAmountBox;
+      case BACK_DEBIT:
+        return this.backDebitBox;
+      case OTHER_PARTY:
+        return this.otherPartyBox;
+      case IBAN:
+        return this.ibanBox;
+      case BIC:
+        return this.bicBox;
+      case AMOUNT:
+        return this.amountBox;
+      case INFO:
+        return this.infoBox;
+    }
+    throw new IllegalArgumentException(field + "could not be catched in switch");
+  }
+
+  private boolean validateAndGenerate() {
     Map<TransactionField, String> generatingMap = new HashMap<>();
-    listView.getItems().stream()
-        .filter(box -> !box.checkBox.isDisabled())
-        .filter(box -> box.checkBox.isSelected())
-        .forEach(box -> generatingMap.put(box.type, box.textField.getText()));
+    for (TransactionField field : TransactionField.values()) {
+      String text = getTextField(field).getText();
+      if (getCheckBox(field).isSelected() && !text.isBlank()) {
+        generatingMap.put(field, text);
+      }
+    }
     if (generatingMap.isEmpty()) {
-      new AlertBuilder()
-          .setHeader("At least one field must not be empty and checked.")
-          .setMessage("To close this dialog press Cancel.")
-          .showAndWait();
+      showError("At least one field must not be empty and checked.");
       return false;
     }
+
+    String extraNote = noteArea.getText();
+
     try {
-      // TODO: Add note
-      generatedRule = Rule.RuleBuilder.fromMap(generatingMap).build();
+      this.generatedRule = Rule.RuleBuilder.fromMap(generatingMap).addNote(extraNote).build();
       return true;
     } catch (ParseException e) {
-      new AlertBuilder()
-          .setHeader("Incorrect input")
-          .setMessage("An entry did not match the format")
-          .showAndWait();
-
+      showError("An entry did not match its format");
       return false;
     } catch (NumberFormatException e) {
-      new AlertBuilder()
-          .setHeader("Incorrect input")
-          .setMessage("The amount did not match the format (X / X.Y / Z EUR / Z €)")
-          .showAndWait();
+      showError("The amount did not match the format (X / X.Y / Z EUR / Z €)");
       return false;
     }
   }
 
-  private static class CustomHBox extends HBox {
+  public static class Builder {
 
-    public CheckBox checkBox;
-    public TransactionField type;
-    public Label typeLabel;
-    public TextField textField;
+    private static final URL FXM_RESOURCE = RuleDialog.class
+        .getResource("/com/jkrude/UI/RuleDialog.fxml");
 
-    private CustomHBox() {
+    private final Stage stage;
+    private final RuleDialog controller;
+
+    public Builder() {
+      FXMLLoader loader = new FXMLLoader();
+      stage = StageSetter.setupStage(loader, FXM_RESOURCE);
+      stage.initModality(Modality.APPLICATION_MODAL);
+      stage.setMinHeight(830);
+      stage.setMinWidth(600);
+      stage.setAlwaysOnTop(true);
+      controller = loader.getController();
+      controller.cancelBtn.setOnAction(action -> stage.close());
+      controller.applyBtn.setOnAction(action -> stage.close());
     }
 
-    public CustomHBox(TransactionField type) {
-      super(10); // Spacing
-      this.type = type;
-      checkBox = new CheckBox();
-      typeLabel = new Label(type.getTranslation());
-      textField = new TextField();
-      textField.setPromptText(getTextHint(type));
-      checkBox.disableProperty().bind(Bindings
-          .createBooleanBinding(() -> textField.getText().trim().isEmpty(),
-              textField.textProperty()));
-      getChildren().addAll(checkBox, typeLabel, textField);
+    public Builder editRule(Map<TransactionField, String> idMap) {
+      controller.fillGridFromRule(idMap);
+      return this;
     }
 
-    public CustomHBox(TransactionField key, String value) {
-      this(key);
-      textField.setText(value);
-      checkBox.setSelected(true);
+    public Builder editRule(Rule rule) {
+      return editRule(rule.getIdentifierPairs());
     }
 
-    private String getTextHint(TransactionField type) {
-      switch (type) {
-        case ACCOUNT_IBAN:
-        case IBAN:
-          return "DE12345678901234567890";
-        case TRANSFER_DATE:
-        case VALIDATION_DATE:
-          return "01.01.1980";
-        case TRANSFER_SPECIFICATION:
-          return "Card payment";
-        case USAGE:
-          return "Expenses";
-        case CREDITOR_ID:
-          return "DE31ZZZ00000563123";
-        case MANDATE_REFERENCE:
-          return "5LFJ224TP5YA0";
-        case CUSTOMER_REFERENCE_END_TO_END:
-          return "1234567890123 PP.7515.PP PAYPAL";
-        case COLLECTION_REFERENCE:
-          return "1234567890-12345678901234";
-        case DEBIT_ORIGINAL_AMOUNT:
-          return "10.50€";
-        case BACK_DEBIT:
-          return "";
-        case OTHER_PARTY:
-          return "Max Mustermann";
-        case BIC:
-          return "BELADEBEXXX";
-        case AMOUNT:
-          return "10,01€";
-        case INFO:
-          return "Sales posted";
+    public Builder initiallySelected(TransactionField... selected) {
+      for (var field : selected) {
+        controller.getCheckBox(field).setSelected(true);
       }
-      throw new IllegalArgumentException();
+      return this;
+    }
+
+    public Optional<Rule> showAndWait() {
+      stage.showAndWait();
+      return Optional.ofNullable(controller.generatedRule);
     }
   }
 

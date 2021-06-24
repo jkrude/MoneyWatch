@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXTextArea?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.shape.SVGPath?>
+<BorderPane prefHeight="830.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jkrude.UI.RuleDialog">
+  <stylesheets>
+    <URL value="@../../../css/base.css"/>
+    <URL value="@../../../css/ruleDialog.css"/>
+  </stylesheets>
+  <center>
+    <GridPane hgap="16.0" prefHeight="264.0" prefWidth="568.0" vgap="12.0">
+      <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+      </columnConstraints>
+      <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+      </rowConstraints>
+      <children>
+        <JFXCheckBox fx:id="checkAllBox" text=" ">
+          <graphic>
+            <SVGPath content="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"
+              styleClass="svg-icon"/>
+          </graphic>
+        </JFXCheckBox>
+        <JFXCheckBox fx:id="ibanBox" text="IBAN" GridPane.rowIndex="1"/>
+        <JFXTextField fx:id="ibanField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <JFXCheckBox fx:id="otherPartyBox" text="Other party" GridPane.rowIndex="2"/>
+        <JFXTextField fx:id="otherPartyField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <JFXCheckBox fx:id="usageBox" text="Usage" GridPane.rowIndex="3"/>
+        <JFXTextField fx:id="usageField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <JFXCheckBox fx:id="transferDateBox" text="Transfer date" GridPane.rowIndex="4"/>
+        <JFXTextField fx:id="transferDateField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+        <JFXCheckBox fx:id="validationDateBox" text="Validation date" GridPane.rowIndex="5"/>
+        <JFXTextField fx:id="validationDateField" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+        <JFXCheckBox fx:id="transferSpecificationBox" text="Transfer specification"
+          GridPane.rowIndex="6"/>
+        <JFXTextField fx:id="transferSpecificationField" GridPane.columnIndex="1"
+          GridPane.rowIndex="6"/>
+        <JFXCheckBox fx:id="creditorIdBox" text="Creditor ID" GridPane.rowIndex="7"/>
+        <JFXTextField fx:id="creditorIdField" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+        <JFXCheckBox fx:id="mandateReferenceBox" text="Mandate reference" GridPane.rowIndex="8"/>
+        <JFXTextField fx:id="mandateReferenceField" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+        <JFXCheckBox fx:id="customerReferenceEndToEndBox" text="Customer reference end to end"
+          GridPane.rowIndex="9"/>
+        <JFXTextField fx:id="customerReferenceEndToEndField" GridPane.columnIndex="1"
+          GridPane.rowIndex="9"/>
+        <JFXCheckBox fx:id="collectionReferenceBox" text="Collection reference"
+          GridPane.rowIndex="10"/>
+        <JFXTextField fx:id="collectionReferenceField" GridPane.columnIndex="1"
+          GridPane.rowIndex="10"/>
+        <JFXCheckBox fx:id="debitOriginalAmountBox" text="Debit original amount"
+          GridPane.rowIndex="11"/>
+        <JFXTextField fx:id="debitOriginalAmountField" GridPane.columnIndex="1"
+          GridPane.rowIndex="11"/>
+        <JFXCheckBox fx:id="bicBox" text="Bic" GridPane.rowIndex="12"/>
+        <JFXTextField fx:id="bicField" GridPane.columnIndex="1" GridPane.rowIndex="12"/>
+        <JFXCheckBox fx:id="amountBox" text="Amount" GridPane.rowIndex="13"/>
+        <JFXTextField fx:id="amountField" GridPane.columnIndex="1" GridPane.rowIndex="13"/>
+        <JFXCheckBox fx:id="infoBox" text="Info" GridPane.rowIndex="14"/>
+        <JFXTextField fx:id="infoField" GridPane.columnIndex="1" GridPane.rowIndex="14"/>
+        <JFXCheckBox fx:id="backDebitBox" text="Back debit" GridPane.rowIndex="15"/>
+        <JFXTextField fx:id="backDebitField" GridPane.columnIndex="1" GridPane.rowIndex="15"/>
+        <JFXCheckBox fx:id="accountIbanBox" text="Account iban" GridPane.rowIndex="16"/>
+        <JFXTextField fx:id="accountIbanField" GridPane.columnIndex="1" GridPane.rowIndex="16"/>
+        <JFXTextArea fx:id="noteArea" prefHeight="64.0" prefWidth="260.0"
+          promptText="Enter custom note" wrapText="true" GridPane.rowIndex="17"
+          GridPane.rowSpan="2">
+          <GridPane.margin>
+            <Insets top="8.0"/>
+          </GridPane.margin>
+        </JFXTextArea>
+      </children>
+      <padding>
+        <Insets left="16.0" right="16.0"/>
+      </padding>
+    </GridPane>
+  </center>
+  <bottom>
+    <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <buttons>
+        <JFXButton fx:id="cancelBtn" text="Cancel"/>
+        <JFXButton fx:id="applyBtn" text="Apply"/>
+      </buttons>
+      <BorderPane.margin>
+        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+      </BorderPane.margin>
+    </ButtonBar>
+  </bottom>
+  <top>
+    <Label id="errorLabel" fx:id="errorLabel" disable="true" text="Error" visible="false"
+      BorderPane.alignment="CENTER">
+      <BorderPane.margin>
+        <Insets top="32.0"/>
+      </BorderPane.margin>
+    </Label>
+  </top>
+</BorderPane>
