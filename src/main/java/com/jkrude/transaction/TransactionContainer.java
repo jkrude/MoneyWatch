@@ -80,12 +80,12 @@ public class TransactionContainer {
             source.size());
       }
       transaction.setAccountIban(strings[0]);
-        currDate = Utility.parse(strings[1]);
-        transaction.setDate(currDate);
+      currDate = Utility.parse(strings[1]);
+      transaction.setDate(currDate);
       if (strings[2].isBlank()) {
         transaction.setValidationDate(null);
       } else {
-          LocalDate validationDate = Utility.parse(strings[1]);
+        LocalDate validationDate = Utility.parse(strings[1]);
         transaction.setValidationDate(validationDate);
       }
       transaction.setTransferSpecification(strings[3]);
@@ -122,6 +122,13 @@ public class TransactionContainer {
 
   public boolean removeExtendedTransaction(ExtendedTransaction transaction) {
     return source.remove(transaction);
+  }
+
+  public String getName() {
+    TreeMap<LocalDate, List<ExtendedTransaction>> asDateMap = this.getSourceAsDateMap();
+    String firstDate = Utility.DATE_TIME_FORMATTER.format(asDateMap.firstEntry().getKey());
+    String lastDate = Utility.DATE_TIME_FORMATTER.format(asDateMap.lastEntry().getKey());
+    return firstDate + " - " + lastDate;
   }
 
 }

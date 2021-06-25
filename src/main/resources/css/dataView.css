@@ -1,5 +1,55 @@
-.label {
+#titleLabel {
   -fx-font-family: " RobotoCondensed";
   -fx-text-fill: white;
   -fx-font-size: 40;
+}
+
+#addBtn > .svg-icon {
+  -fx-fill: -fx-def-primary;
+  -fx-scale-x: 2.5;
+  -fx-scale-y: 2.5;
+}
+
+.importBtn {
+  -fx-font-size: 26;
+}
+
+#addBtn {
+  -fx-background-radius: 80;
+}
+
+#addBtn:focused {
+  -fx-background-color: -fx-def-elevated;
+  -fx-text-fill: #ffffff;
+}
+
+.titled-pane {
+  -fx-background-color: -fx-def-background;
+  -fx-padding: 8;
+  -fx-text-fill: white;
+}
+
+.titled-pane > .title {
+  -fx-background-color: -fx-def-elevated-light;
+  -fx-border-color: -fx-def-elevated-light;
+  -fx-alignment: CENTER;
+  -fx-font-size: 16;
+  -fx-font-weight: bold;
+  -fx-padding: 8;
+}
+
+.titled-pane > .title > .arrow-button .arrow {
+  -fx-background-color: -fx-def-primary;
+  -fx-shape: "M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6-1.41-1.41z";
+  -fx-scale-x: 1.4;
+  -fx-scale-y: 1.4;
+}
+
+.titled-pane:collapsed > .title > .arrow-button .arrow {
+  -fx-rotate: -180;
+}
+
+.titled-pane > *.content {
+  -fx-background-color: -fx-def-background;
+  -fx-border-color: -fx-def-background;
 }

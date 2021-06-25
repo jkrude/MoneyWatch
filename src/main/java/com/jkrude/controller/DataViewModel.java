@@ -3,6 +3,7 @@ package com.jkrude.controller;
 import com.jkrude.material.Model;
 import com.jkrude.transaction.TransactionContainer;
 import de.saxsys.mvvmfx.ViewModel;
+import java.util.List;
 import javafx.beans.binding.BooleanBinding;
 
 public class DataViewModel implements ViewModel {
@@ -23,5 +24,9 @@ public class DataViewModel implements ViewModel {
     if (globalModel.getTransactionContainerList().size() == 1) {
       globalModel.setActiveData(transactionContainer);
     }
+  }
+
+  public List<TransactionContainer> getTransactionContainer() {
+    return globalModel.getTransactionContainerList();
   }
 }
