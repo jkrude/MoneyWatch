@@ -74,7 +74,8 @@ public class Main extends Application {
   }
 
   public static final URL persistenceFile = Main.class.getClassLoader().getResource("pers.json");
-  private static final URL navigationRail = Main.class.getResource("../UI/NavigationRail.fxml");
+  private static final URL navigationRail = Main.class
+      .getResource("/com/jkrude/UI/NavigationRail.fxml");
   private static NavigationRail navigationController;
   public static BorderPane backgroundPane;
   private Model model;

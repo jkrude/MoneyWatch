@@ -63,7 +63,8 @@ public class DataView implements FxmlView<DataViewModel>, Prepareable, Initializ
   private void addDataset(TransactionContainer container) {
     TitledPane pane = new TitledPane();
     try {
-      FXMLLoader loader = new FXMLLoader(getClass().getResource("../UI/TransactionTableView.fxml"));
+      FXMLLoader loader = new FXMLLoader(
+          getClass().getResource("/com/jkrude/UI/TransactionTableView.fxml"));
       Parent parent = loader.load();
       TransactionTableView controller = loader.getController();
       pane.setContent(parent);

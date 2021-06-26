@@ -24,9 +24,12 @@ public class TransactionTabs implements Initializable {
 
   public TransactionTabs() {
     this.globalModel = Model.getInstance();
-    allTransactions = new SimpleObjectProperty<>(globalModel.getActiveData().getSourceRO());
+    allTransactions = new SimpleObjectProperty<>();
+    if (this.globalModel.getActiveData() != null) {
+      allTransactions.set(globalModel.getActiveData().getSourceRO());
+    }
     globalModel.activeDataProperty().addListener(
-        observable -> allTransactions.get().setAll(globalModel.getActiveData().getSourceRO()));
+        observable -> allTransactions.set(globalModel.getActiveData().getSourceRO()));
 
     ignoredTransactions = new SimpleObjectProperty<>(
         new PropertyFilteredList<>(ExtendedTransaction::isActiveProperty,
