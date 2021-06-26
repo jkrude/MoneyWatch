@@ -16,13 +16,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -31,9 +35,14 @@ import javafx.stage.Stage;
 public class DataView implements FxmlView<DataViewModel>, Prepareable, Initializable {
 
 
-  @FXML private JFXButton addBtn;
-  @FXML private HBox bankOptions;
-  @FXML private Accordion datasetAccordion;
+  @FXML
+  private Label optionsLabel;
+  @FXML
+  private JFXButton addBtn;
+  @FXML
+  private HBox bankOptions;
+  @FXML
+  private Accordion datasetAccordion;
 
   @InjectViewModel
   private DataViewModel viewModel;
@@ -45,9 +54,26 @@ public class DataView implements FxmlView<DataViewModel>, Prepareable, Initializ
 
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
+    addBtn.managedProperty().bind(addBtn.visibleProperty());
+    addBtn.visibleProperty().bind(bankOptions.visibleProperty().not());
     addBtn.setOnAction(action -> {
       bankOptions.setVisible(true);
     });
+    addBtn.contentDisplayProperty().bind(Bindings.when(viewModel.hasNoActiveDataProperty()).then(
+        ContentDisplay.BOTTOM).otherwise(ContentDisplay.GRAPHIC_ONLY));
+    bankOptions.managedProperty().bind(bankOptions.visibleProperty());
+    optionsLabel.visibleProperty().bind(bankOptions.visibleProperty());
+    optionsLabel.managedProperty().bind(optionsLabel.visibleProperty());
+
+    datasetAccordion.managedProperty().bind(datasetAccordion.visibleProperty());
+    datasetAccordion.visibleProperty().bind(viewModel.hasNoActiveDataProperty().not());
+    // Could be any control instead off addBtn
+    addBtn.getParent().setOnKeyPressed(keyEvent -> {
+      if (keyEvent.getCode() == KeyCode.ESCAPE) {
+        bankOptions.setVisible(false);
+      }
+    });
+
   }
 
   @Override

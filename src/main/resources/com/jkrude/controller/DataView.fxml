@@ -18,15 +18,11 @@
     <URL value="@../../../css/dataView.css"/>
   </stylesheets>
   <children>
-    <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="16.0"
-      AnchorPane.bottomAnchor="32.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-      AnchorPane.topAnchor="0.0">
+    <Label id="titleLabel" alignment="TOP_CENTER" text="Your Datasets" AnchorPane.leftAnchor="0.0"
+      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="16"/>
+    <VBox alignment="CENTER" spacing="16.0" AnchorPane.bottomAnchor="32.0"
+      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="72.0">
       <children>
-        <Label id="titleLabel" text="Your Datasets">
-          <VBox.margin>
-            <Insets top="32.0"/>
-          </VBox.margin>
-        </Label>
         <Accordion fx:id="datasetAccordion" VBox.vgrow="SOMETIMES">
           <VBox.margin>
             <Insets left="64.0" right="64.0"/>
@@ -35,20 +31,31 @@
             <Insets/>
           </opaqueInsets>
         </Accordion>
-        <JFXButton id="addBtn" fx:id="addBtn" contentDisplay="GRAPHIC_ONLY" minHeight="-Infinity"
-          minWidth="-Infinity" prefHeight="70" prefWidth="70">
+        <JFXButton id="addBtn" fx:id="addBtn" contentDisplay="BOTTOM" graphicTextGap="24.0"
+          minHeight="-Infinity" minWidth="-Infinity" text="Please import some data first.">
           <graphic>
             <SVGPath
               content="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
               styleClass="svg-icon"/>
           </graphic>
+          <VBox.margin>
+            <Insets/>
+          </VBox.margin>
+          <opaqueInsets>
+            <Insets/>
+          </opaqueInsets>
         </JFXButton>
+        <Label fx:id="optionsLabel" styleClass="import-button"
+          text="Choose your financial institute" visible="false" VBox.vgrow="NEVER"/>
         <HBox fx:id="bankOptions" alignment="CENTER" visible="false">
+          <padding>
+            <Insets bottom="16"/>
+          </padding>
           <children>
             <JFXButton contentDisplay="TOP" graphicTextGap="16.0" onAction="#importNewContainer"
-              styleClass="importBtn" text="Sparkasse">
+              styleClass="import-button" text="Sparkasse">
               <padding>
-                <Insets bottom="16.0" left="16.0" right="16.0" top="8.0"/>
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
               </padding>
               <graphic>
                 <ImageView fitHeight="75.0" fitWidth="100.0" pickOnBounds="true"

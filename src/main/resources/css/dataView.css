@@ -10,17 +10,26 @@
   -fx-scale-y: 2.5;
 }
 
-.importBtn {
+.import-button {
   -fx-font-size: 26;
+  -fx-text-fill: white;
 }
 
 #addBtn {
-  -fx-background-radius: 80;
+  -fx-font-size: 22;
+  -jfx-rippler-disabled: true;
+  -fx-font-weight: bold;
+  -fx-background-color: transparent;
+  -fx-focus-color: transparent;
+  -fx-focus-traversable: false;
 }
 
 #addBtn:focused {
-  -fx-background-color: -fx-def-elevated;
-  -fx-text-fill: #ffffff;
+  -fx-background-color: transparent;
+  -fx-text-fill: white;
+  -fx-focus-color: transparent;
+  -fx-faint-focus-color: transparent;
+  -fx-body-color: transparent;
 }
 
 .titled-pane {
