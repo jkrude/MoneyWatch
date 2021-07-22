@@ -58,12 +58,12 @@
 }
 
 
-.virtual-flow .scroll-bar:vertical,
-.virtual-flow .scroll-bar:vertical .track,
-.virtual-flow .scroll-bar:vertical .track-background,
-.virtual-flow .scroll-bar:horizontal,
-.virtual-flow .scroll-bar:horizontal .track,
-.virtual-flow .scroll-bar:horizontal .track-background {
+.scroll-bar:vertical,
+.scroll-bar:vertical .track,
+.scroll-bar:vertical .track-background,
+.scroll-bar:horizontal,
+.scroll-bar:horizontal .track,
+.scroll-bar:horizontal .track-background {
   -fx-background-color: -fx-def-background;
 }
 
@@ -75,8 +75,17 @@
   -fx-background-color: -fx-def-elevated;
 }
 
-.virtual-flow .scroll-bar .increment-button:focused,
-.virtual-flow .scroll-bar .decrement-button:focused {
+.scroll-bar .increment-button:focused,
+.scroll-bar .decrement-button:focused,
+.scroll-bar .increment-button:hover,
+.scroll-bar .decrement-button:hover {
   -fx-background-color: -fx-def-background;
   -fx-focus-color: transparent;
+}
+
+.scroll-bar .increment-button:focused .increment-arrow,
+.scroll-bar .decrement-button:focused .decrement-arrow,
+.scroll-bar .increment-button:hover .increment-arrow,
+.scroll-bar .decrement-button:hover .decrement-arrow {
+  -fx-background-color: -fx-def-primary;
 }

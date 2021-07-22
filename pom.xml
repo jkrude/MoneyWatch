@@ -97,6 +97,8 @@
             <option>javafx.base/com.sun.javafx.event=ALL-UNNAMED</option>
             <option>--add-opens</option>
             <option>javafx.graphics/com.sun.javafx.stage=ALL-UNNAMED</option>
+            <option>--add-opens</option>
+            <option>java.base/java.lang.reflect=com.jfoenix</option>
             <option>--add-exports</option>
             <option>javafx.controls/com.sun.javafx.scene.control.behavior=com.jfoenix</option>
             <option>--add-exports</option>

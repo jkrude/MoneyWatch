@@ -36,26 +36,3 @@
 .svg-icon {
   -fx-fill: -fx-def-secondary;
 }
-
-.text-area .scroll-bar:vertical,
-.text-area .scroll-bar:vertical .track,
-.text-area .scroll-bar:vertical .track-background,
-.text-area .scroll-bar:horizontal,
-.text-area .scroll-bar:horizontal .track,
-.text-area .scroll-bar:horizontal .track-background {
-  -fx-background-color: -fx-def-background;
-}
-
-.text-area .scroll-bar:horizontal .thumb {
-  -fx-background-color: -fx-def-elevated;
-}
-
-.text-area .scroll-bar:vertical .thumb {
-  -fx-background-color: -fx-def-elevated;
-}
-
-.text-area .scroll-bar .increment-button:focused,
-.text-area .scroll-bar .decrement-button:focused {
-  -fx-background-color: -fx-def-background;
-  -fx-focus-color: transparent;
-}
