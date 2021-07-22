@@ -116,6 +116,11 @@ public class TransactionContainer {
     return FXCollections.unmodifiableObservableList(source);
   }
 
+  // Should only be used for TransactionTable.
+  public ObservableList<ExtendedTransaction> getSource() {
+    return source;
+  }
+
   public void addExtendedTransaction(ExtendedTransaction transaction) {
     source.add(transaction);
   }

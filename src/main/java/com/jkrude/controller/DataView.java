@@ -94,7 +94,7 @@ public class DataView implements FxmlView<DataViewModel>, Prepareable, Initializ
       Parent parent = loader.load();
       TransactionTableView controller = loader.getController();
       pane.setContent(parent);
-      controller.itemsProperty().set(container.getSourceRO());
+      controller.itemsProperty().set(container.getSource());
       pane.setText(container.getName());
       datasetAccordion.getPanes().add(pane);
       dataMap.put(container, pane);
