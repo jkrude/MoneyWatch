@@ -47,7 +47,7 @@
   -fx-font-size: 14;
 }
 
-.context-menu .menu-item:focused:selected {
+.context-menu .menu-item:hover .label, .context-menu .menu-item:focused .label {
   -fx-background-color: -fx-def-elevated;
   -fx-font-weight: bold;
 }

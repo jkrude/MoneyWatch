@@ -6,6 +6,11 @@
   -fx-background-color: -fx-def-elevated;
 }
 
+.jfx-tab-pane .headers-region .label {
+  -fx-text-fill: white;
+  -fx-font-size: 14;
+}
+
 .jfx-tab-pane .tab-header-background {
   -fx-background-color: -fx-def-elevated;
 }

@@ -17,6 +17,7 @@
 
 .table-view .corner {
   -fx-background-color: transparent;
+  -fx-padding: 4;
 }
 
 .table-view .show-hide-columns-button {
@@ -49,13 +50,19 @@
   -fx-background-color: derive(#3c3d47, -8%)
 }
 
+.placeholder > .label {
+  -fx-font-weight: bold;
+  -fx-text-fill: white;
+  -fx-font-size: 20;
+}
+
 .table-view .virtual-flow .scroll-bar:vertical,
 .table-view .virtual-flow .scroll-bar:vertical .track,
 .table-view .virtual-flow .scroll-bar:vertical .track-background,
 .table-view .virtual-flow .scroll-bar:horizontal,
 .table-view .virtual-flow .scroll-bar:horizontal .track,
 .table-view .virtual-flow .scroll-bar:horizontal .track-background {
-  -fx-background-color: transparent;
+  -fx-background-color: -fx-def-elevated;
 }
 
 .table-view .virtual-flow .scroll-bar .increment-button,
