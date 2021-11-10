@@ -252,6 +252,7 @@ public class RuleDialog implements Initializable {
       stage.setMinHeight(830);
       stage.setMinWidth(600);
       stage.setAlwaysOnTop(true);
+      stage.setTitle("New rule");
       controller = loader.getController();
       controller.cancelBtn.setOnAction(action -> stage.close());
       controller.applyBtn.setOnAction(action -> stage.close());

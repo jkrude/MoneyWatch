@@ -72,9 +72,13 @@
 }
 
 .table-view .virtual-flow .scroll-bar:vertical .thumb {
-  -fx-background-color: transparent;
+  -fx-background-color: -fx-def-elevated-light;
 }
 
 .table-view .virtual-flow .scroll-bar:horizontal .thumb {
+  -fx-background-color: -fx-def-elevated-light;
+}
+
+.table-view .corner {
   -fx-background-color: transparent;
 }

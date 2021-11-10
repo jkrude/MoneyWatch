@@ -47,6 +47,7 @@ public class JFXChoiceDialog<R> {
       this.stage.setMinWidth(350);
       this.stage.initModality(Modality.APPLICATION_MODAL);
       this.stage.setAlwaysOnTop(true);
+      this.stage.setTitle("MoneyWatch");
     }
 
     public Builder<R> setOptions(ObservableList<R> options) {
@@ -66,6 +67,11 @@ public class JFXChoiceDialog<R> {
 
     public Builder<R> setHeader(String header) {
       dialog.header.setText(header);
+      return this;
+    }
+
+    public Builder<R> setTitle(String title) {
+      stage.setTitle(title);
       return this;
     }
 

@@ -10,10 +10,10 @@
   <stylesheets>
     <URL value="@../../../css/transactionTabs.css"/>
   </stylesheets>
-  <Tab closable="false" text="Ignored Transactions">
-    <fx:include fx:id="ttvIgnored" source="TransactionTableView.fxml"/>
-  </Tab>
   <Tab closable="false" text="All Transactions">
     <fx:include fx:id="ttvAll" source="TransactionTableView.fxml"/>
+  </Tab>
+  <Tab closable="false" text="Ignored Transactions">
+    <fx:include fx:id="ttvIgnored" source="TransactionTableView.fxml"/>
   </Tab>
 </JFXTabPane>

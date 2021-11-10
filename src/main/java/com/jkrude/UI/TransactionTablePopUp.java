@@ -46,6 +46,7 @@ public class TransactionTablePopUp {
       stage = StageSetter.setupStage(loader, fxmlResource);
       stage.initModality(Modality.APPLICATION_MODAL);
       stage.setAlwaysOnTop(true);
+      stage.setTitle("Transactions"); // default title
       ttp = loader.getController();
       ttp.closeBtn.setOnAction(event -> stage.close());
     }

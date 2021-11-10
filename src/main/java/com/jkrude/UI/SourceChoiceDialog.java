@@ -28,6 +28,7 @@ public class SourceChoiceDialog {
       converterMap.put(convertToString(choice), choice);
     }
     Optional<TransactionContainer> choice = new JFXChoiceDialog.Builder<TransactionContainer>()
+        .setTitle("Dataset choice")
         .setOptions(FXCollections.observableList(choices))
         .setDefaultChoice(choices.get(0))
         .setStringConverter(new StringConverter<>() {

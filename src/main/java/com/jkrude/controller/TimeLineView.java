@@ -12,6 +12,7 @@ import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -125,6 +126,7 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
                 new ReadOnlyObjectWrapper<>(
                     viewModel.getTransactionsForDate(dataPoint).getBaseList()))
                 .setContextMenu(this::contextMenuGenerator)
+                .setTitle(LocalDate.ofEpochDay(dataPoint.getXValue().longValue()).format(Utility.DATE_TIME_FORMATTER))
                 .showAndWait();
           }
         });

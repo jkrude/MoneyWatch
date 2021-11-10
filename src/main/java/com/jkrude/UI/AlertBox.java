@@ -98,6 +98,7 @@ public class AlertBox {
       this.stage.setMinWidth(500);
       this.stage.initModality(Modality.WINDOW_MODAL);
       this.stage.setAlwaysOnTop(true);
+      this.stage.setTitle(alertType.name().toLowerCase()); // default title
     }
 
     public AlertBuilder() {
@@ -111,6 +112,11 @@ public class AlertBox {
 
     public AlertBuilder setHeader(String heading) {
       alert.headerBtn.setText(heading);
+      return this;
+    }
+
+    public AlertBuilder setTitle(String title) {
+      stage.setTitle(title);
       return this;
     }
 

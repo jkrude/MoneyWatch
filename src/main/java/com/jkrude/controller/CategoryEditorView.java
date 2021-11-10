@@ -176,6 +176,7 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
         .collect(Collectors.toList());
 
     Optional<CategoryNode> optNewParent = new JFXChoiceDialog.Builder<CategoryNode>()
+        .setTitle("New parent choice")
         .setOptions(FXCollections.observableArrayList(optionsList))
         .setDefaultChoice(optionsList.get(0))
         .setStringConverter(new StringConverter<>() {
