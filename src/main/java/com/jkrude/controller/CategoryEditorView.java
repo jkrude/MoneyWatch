@@ -1,7 +1,7 @@
 package com.jkrude.controller;
 
-import com.jkrude.UI.AlertBox.AlertBuilder;
 import com.jkrude.UI.ColorPickerDialog;
+import com.jkrude.UI.JFXChoiceDialog;
 import com.jkrude.UI.NewCategoryDialog;
 import com.jkrude.UI.RuleDialog;
 import com.jkrude.UI.RuleDialog.Builder;
@@ -12,16 +12,17 @@ import com.jkrude.transaction.Transaction.TransactionField;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -32,6 +33,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, Initializable,
     Prepareable {
@@ -166,15 +168,31 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   private static void changeParent(TreeCell<CategoryNode> cell) {
     CategoryNode node = cell.getItem();
     CategoryNode parent = cell.getTreeItem().getParent().getValue();
-    ChoiceDialog<DrawableCategoryNode> choiceDialog = new ChoiceDialog<>(
-        new DrawableCategoryNode(parent),
-        node.getRoot().streamCollapse()
-            .filter(categoryNode -> categoryNode != node)
-            .map(DrawableCategoryNode::new)
-            .collect(Collectors.toList()));
-    Optional<DrawableCategoryNode> optCat = choiceDialog.showAndWait();
-    if (optCat.isPresent() && !optCat.get().getNode().equals(node)) {
-      optCat.get().getNode().addCategory(node);
+    // Exclude node, all children and direct parent
+    List<CategoryNode> optionsList = node.getRoot().streamCollapse()
+        .filter(categoryNode -> categoryNode != node
+            && !node.isParentOf(categoryNode)
+            && categoryNode != parent)
+        .collect(Collectors.toList());
+
+    Optional<CategoryNode> optNewParent = new JFXChoiceDialog.Builder<CategoryNode>()
+        .setOptions(FXCollections.observableArrayList(optionsList))
+        .setDefaultChoice(optionsList.get(0))
+        .setStringConverter(new StringConverter<>() {
+          @Override
+          public String toString(CategoryNode categoryNode) {
+            return categoryNode.getName();
+          }
+
+          @Override
+          public CategoryNode fromString(String s) {
+            return null; // Not used by JFXComboBox
+          }
+        })
+        .setHeader("Choose the new parent")
+        .showAndWait();
+    if (optNewParent.isPresent()) {
+      optNewParent.get().addCategory(node);
       parent.removeCategory(node);
     }
   }
@@ -212,28 +230,6 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
     );
   }
 
-  private static ListCell<CategoryNode> categoryConverter(
-      ListView<CategoryNode> categoryNodeListView) {
-    return new ListCell<>() {
-      @Override
-      protected void updateItem(CategoryNode categoryNode, boolean isEmpty) {
-        super.updateItem(categoryNode, isEmpty);
-        if (isEmpty) {
-          setText(null);
-        } else {
-          setText(categoryNode.getName());
-        }
-      }
-    };
-  }
-
-  private void showAlertForEmptyInput() {
-    new AlertBuilder()
-        .setHeader("Incorrect input!")
-        .setMessage("The name can not be empty")
-        .showAndWait();
-  }
-
   @FXML
   private void addRuleAction(ActionEvent event) {
     addRule();
@@ -265,24 +261,6 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
         stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
         setText(stringBuilder.toString());
       }
-    }
-  }
-
-  private static class DrawableCategoryNode {
-
-    private final CategoryNode node;
-
-    public DrawableCategoryNode(CategoryNode node) {
-      this.node = node;
-    }
-
-    public CategoryNode getNode() {
-      return node;
-    }
-
-    @Override
-    public String toString() {
-      return node.getName();
     }
   }
 

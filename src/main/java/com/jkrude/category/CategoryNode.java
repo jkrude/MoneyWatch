@@ -97,6 +97,11 @@ public class CategoryNode implements Observable {
     return false;
   }
 
+  // This will return true even if node is only transitive child of this
+  public boolean isParentOf(CategoryNode node) {
+    return this.streamCollapse().anyMatch(childNode -> childNode == node);
+  }
+
   public CategoryNode getRoot() {
     if (getParent().isEmpty()) {
       return this;
