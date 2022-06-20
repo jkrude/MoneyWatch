@@ -23,29 +23,31 @@
   -fx-padding: 8;
 }
 
+.list-view {
+  -fx-background-color: -fx-def-background;
+  -fx-background-radius: 8px;
+  -fx-padding: 12px;
+}
+
 .tree-cell:selected {
   -fx-font-weight: bold;
 }
 
-.list-view {
-  -fx-background-color: -fx-def-background;
-  -fx-padding: 16px;
-}
-
 .list-view .list-cell {
-  -fx-background-color: -fx-def-elevated;
+  -fx-padding: 6px;
+  -fx-background-color: -fx-def-background;
   -fx-font-family: "RobotoCondensed";
   -fx-text-fill: #ffff;
+  -fx-border-width: 0 0 2 0;
+  -fx-border-color: -fx-def-elevated-light;
 }
 
-.list-view .list-cell:odd {
-  -fx-background-color: derive(-fx-def-elevated, -8%)
+.list-view .list-cell:empty {
+  -fx-background-color: -fx-def-background;
+  -fx-border-color: none;
 }
 
-.list-view .list-cell:selected {
-  -fx-border-color: -fx-def-primary;
-  -fx-border-width: 2px;
-  -fx-background-color: -fx-def-elevated-light;
+.list-view .list-cell:selected:focused {
   -fx-font-weight: bold;
 }
 

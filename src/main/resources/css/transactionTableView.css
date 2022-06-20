@@ -37,6 +37,10 @@
   -fx-text-fill: #ffff;
 }
 
+.table-row-cell:selected {
+  -fx-font-weight: bold;
+}
+
 
 .table-view .table-cell {
   -fx-background-color: #3c3d47;

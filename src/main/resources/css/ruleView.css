@@ -1,0 +1,25 @@
+.rule-holder-pane {
+  -fx-padding: 6;
+  -fx-hgap: 16;
+  -fx-vgap: 8;
+}
+
+.rule-key-label {
+  -fx-background-radius: 8px;
+  -fx-border-radius: 6 0 0 6;
+  -fx-border-width: 1 0 1 1;
+  -fx-border-color: -fx-def-secondary;
+  -fx-background-color: -fx-def-secondary;
+  -fx-text-fill: #efefef;
+  -fx-padding: 4px;
+}
+
+.rule-value-label {
+  -fx-border-radius: 0 6 6 0;
+  -fx-border-width: 1 1 1 0;
+  -fx-border-color: -fx-def-secondary;
+  -fx-text-fill: #efefef;
+  -fx-padding: 4px;
+}
+
+

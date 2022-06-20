@@ -3,13 +3,13 @@ package com.jkrude.controller;
 import static com.jkrude.controller.SunburstChartViewModel.UNDEFINED_SEGMENT;
 
 import com.jkrude.UI.AlertBox.AlertBuilder;
+import com.jkrude.UI.RuleCell;
 import com.jkrude.UI.RuleDialog;
 import com.jkrude.UI.SourceChoiceDialog;
 import com.jkrude.UI.TransactionTablePopUp;
 import com.jkrude.UI.TransactionTableView;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.Rule;
-import com.jkrude.controller.CategoryEditorView.RuleCell;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction;
 import com.jkrude.transaction.TransactionContainer;

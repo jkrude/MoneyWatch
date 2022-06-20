@@ -3,6 +3,7 @@ package com.jkrude.controller;
 import com.jkrude.UI.ColorPickerDialog;
 import com.jkrude.UI.JFXChoiceDialog;
 import com.jkrude.UI.NewCategoryDialog;
+import com.jkrude.UI.RuleCell;
 import com.jkrude.UI.RuleDialog;
 import com.jkrude.UI.RuleDialog.Builder;
 import com.jkrude.UI.TextInputDialog;
@@ -25,7 +26,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
@@ -59,6 +59,12 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
         .isNotNull());
     ruleView.setPlaceholder(new Label("This category has no rules yet"));
     ruleView.setCellFactory(ruleListView -> new RuleCell());
+    // Edit rule on double click
+    ruleView.setOnMouseClicked(mouseEvent -> {
+      if (mouseEvent.getClickCount() == 2) {
+        replaceRule();
+      }
+    });
     addRuleBtn.disableProperty().bind(categoryTreeView.getSelectionModel().selectedItemProperty()
         .isNull());
     editRuleBtn.disableProperty()
@@ -244,25 +250,6 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   @FXML
   private void deleteRuleAction(ActionEvent event) {
     removeRule();
-  }
-
-  public static class RuleCell extends ListCell<Rule> {
-
-    @Override
-    protected void updateItem(Rule rule, boolean isEmpty) {
-      super.updateItem(rule, isEmpty);
-      if (isEmpty) {
-        setText(null);
-        setContextMenu(null);
-      } else {
-        // TODO: beautify rule visualisation
-        StringBuilder stringBuilder = new StringBuilder();
-        rule.getIdentifierPairs().forEach(
-            (key, value) -> stringBuilder.append(key).append(": ").append(value).append(", "));
-        stringBuilder.delete(stringBuilder.lastIndexOf(","), stringBuilder.length() - 1);
-        setText(stringBuilder.toString());
-      }
-    }
   }
 
 }
