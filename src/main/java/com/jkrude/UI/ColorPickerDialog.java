@@ -22,6 +22,11 @@ public class ColorPickerDialog {
 
   private Color color;
 
+  public ColorPickerDialog(Color defaultColor) {
+    this();
+    picker.setValue(defaultColor);
+  }
+
   public ColorPickerDialog() {
 
     stage = new Stage();
@@ -55,12 +60,12 @@ public class ColorPickerDialog {
 
   private void style() {
     layout.getStylesheets().add("css/base.css");
-    picker.setStyle("-fx-background-color: #32333d");
-    layout.setStyle("-fx-background-color: #32333d");
+    picker.setStyle("-fx-background-color: -fx-def-background");
+    layout.setStyle("-fx-background-color: -fx-def-background");
     header.setStyle("-fx-text-fill: white");
-    cancelBtn.setStyle("-fx-background-color: #3c3d47");
+    cancelBtn.setStyle("-fx-background-color: -fx-def-background");
     cancelBtn.setStyle("-fx-text-fill: white");
-    applyBtn.setStyle("-fx-background-color: #3c3d47");
+    applyBtn.setStyle("-fx-background-color: -fx-def-background");
     applyBtn.setStyle("-fx-text-fill: white");
 
   }

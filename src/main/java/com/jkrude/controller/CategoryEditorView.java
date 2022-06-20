@@ -35,7 +35,9 @@ import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
-public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, Initializable,
+public class CategoryEditorView implements
+    FxmlView<CategoryEditorViewModel>,
+    Initializable,
     Prepareable {
 
   @FXML private AnchorPane rulePane;
@@ -146,7 +148,7 @@ public class CategoryEditorView implements FxmlView<CategoryEditorViewModel>, In
   }
 
   private static void changeColor(CategoryNode node) {
-    var optColor = new ColorPickerDialog().showAndWait();
+    var optColor = new ColorPickerDialog(node.getColor()).showAndWait();
     optColor.ifPresent(node::setColor);
   }
 

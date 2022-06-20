@@ -88,7 +88,7 @@
 }
 
 .default-color0.chart-series-line {
-  -fx-stroke: #f57c00;
+  -fx-stroke: -fx-def-primary;
 }
 
 .default-color1.chart-series-line {
@@ -96,7 +96,7 @@
 }
 
 .default-color0.chart-line-symbol {
-  -fx-background-color: derive(#f57c00, 20%);
+  -fx-background-color: derive(-fx-def-primary, 20%);
   -fx-background-radius: 5px;
   -fx-padding: 5px;
 }
