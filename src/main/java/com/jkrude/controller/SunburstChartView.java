@@ -2,14 +2,11 @@ package com.jkrude.controller;
 
 import static com.jkrude.controller.SunburstChartViewModel.UNDEFINED_SEGMENT;
 
-import com.jkrude.UI.AlertBox.AlertBuilder;
-import com.jkrude.UI.RuleCell;
 import com.jkrude.UI.RuleDialog;
 import com.jkrude.UI.SourceChoiceDialog;
 import com.jkrude.UI.TransactionTablePopUp;
 import com.jkrude.UI.TransactionTableView;
 import com.jkrude.category.CategoryNode;
-import com.jkrude.category.Rule;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction;
 import com.jkrude.transaction.TransactionContainer;
@@ -22,17 +19,14 @@ import eu.hansolo.fx.charts.event.TreeNodeEvent;
 import eu.hansolo.fx.charts.event.TreeNodeEventListener;
 import eu.hansolo.fx.charts.event.TreeNodeEventType;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableRow;
 
 public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Initializable,
     Prepareable {
@@ -110,67 +104,44 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
 
     ObservableList<ExtendedTransaction> transactions = viewModel
         .getTransactionsForSegment(categoryName);
-    TransactionTablePopUp.Builder.initBind(
-        new ReadOnlyObjectWrapper<>(transactions))
-        .setTitle(categoryName)
-        .setContextMenu(
-            categoryName.equals(UNDEFINED_SEGMENT) ?
-                this::undefinedContextMenu
-                : this::categoryContextMenu)
-        .showAndWait();
-  }
-
-  private ContextMenu categoryContextMenu(TableRow<ExtendedTransaction> row) {
-    ContextMenu contextMenu = new ContextMenu();
-    MenuItem ignoreTransaction = new MenuItem("Ignore/Activate transaction");
-    ignoreTransaction.setOnAction(event -> row.getItem().switchActive());
-    MenuItem findMatchingRule = new MenuItem("Show matched rule");
-    findMatchingRule.setOnAction(action -> findMatchingRules(row.getItem()));
-    contextMenu.getItems().addAll(ignoreTransaction, findMatchingRule);
-    return contextMenu;
+    var builder = TransactionTablePopUp.Builder.initBind(
+            new ReadOnlyObjectWrapper<>(transactions))
+        .setTitle(categoryName);
+    if (categoryName.equals(UNDEFINED_SEGMENT)) {
+      builder.setContextMenu(this::undefinedContextMenu);
+    }
+    builder.showAndWait();
   }
 
 
   private ContextMenu undefinedContextMenu(
-      TableRow<ExtendedTransaction> row) {
-    // IMPORTANT: The transaction will only be evaluated when the contextmenu is shown.
-    // Otherwise (if the Transaction would be given at row creation) it would be null.
-    ContextMenu contextMenu = TransactionTableView.defaultContextMenu(row);
+      ExtendedTransaction transaction) {
+    ContextMenu contextMenu = TransactionTableView.defaultContextMenu(transaction);
     Menu categoryChoices = new Menu("Add as rule");
-    viewModel.collapsedCategories().forEach(
-        categoryNode -> {
-          if (!categoryNode.isRoot()) {
-            // Append category to parent to clarify which one is which.
-            var optParent = categoryNode.getParent().map(CategoryNode::getName);
-            String text = optParent.isEmpty() ? "" : optParent.get() + "::";
-            text += categoryNode.getName();
-            MenuItem menuItem = new MenuItem(text);
-            menuItem.setOnAction(
-                event -> openRuleDialogAndSave(row.getItem().getBaseTransaction(), categoryNode));
-            categoryChoices.getItems().add(menuItem);
-          }
-        }
+    viewModel.getRootCategory().childNodesRO().stream().map(node ->
+        transformCategoryNodeToMenu(node, transaction.getBaseTransaction())).forEach(
+        item -> categoryChoices.getItems().add(item)
     );
     contextMenu.getItems().add(categoryChoices);
     return contextMenu;
   }
 
-  private void findMatchingRules(ExtendedTransaction transaction) {
-    List<Rule> matchingRules = viewModel.findMatchingRules(transaction);
-    ListView<Rule> rulesList = new ListView<>();
-    rulesList.setCellFactory(callback -> new RuleCell() {
-      @Override
-      protected void updateItem(Rule rule, boolean isEmpty) {
-        super.updateItem(rule, isEmpty);
-        if (!isEmpty) {
-          assert rule.getParent().isPresent();
-          setText(
-              "Category: " + rule.getParent().orElseThrow().getName() + ",\t Rule: " + getText());
-        }
-      }
-    });
-    rulesList.getItems().addAll(matchingRules);
-    AlertBuilder.displayGeneric("Matched Rules", rulesList, 600, 70);
+  private MenuItem transformCategoryNodeToMenu(
+      CategoryNode categoryNode,
+      Transaction transaction) {
+
+    if (categoryNode.childNodesRO().isEmpty()) {
+      MenuItem menuItem = new MenuItem(categoryNode.getName());
+      menuItem.setOnAction(action -> openRuleDialogAndSave(
+          transaction,
+          categoryNode));
+      return menuItem;
+    }
+    Menu menu = new Menu(categoryNode.getName());
+    categoryNode.childNodesRO().stream()
+        .map(node -> transformCategoryNodeToMenu(node, transaction))
+        .forEach(menuItem -> menu.getItems().add(menuItem));
+    return menu;
   }
 
   private void openRuleDialogAndSave(Transaction baseTransaction, CategoryNode categoryNode) {

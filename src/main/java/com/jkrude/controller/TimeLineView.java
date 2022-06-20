@@ -27,7 +27,6 @@ import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
@@ -132,11 +131,11 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
         });
   }
 
-  private ContextMenu contextMenuGenerator(TableRow<ExtendedTransaction> row) {
+  private ContextMenu contextMenuGenerator(ExtendedTransaction extendedTransaction) {
     // Context menu for the table pop up.
     ContextMenu contextMenu = new ContextMenu();
     MenuItem ignoreTransaction = new MenuItem("Ignore/Activate transaction");
-    ignoreTransaction.setOnAction(event -> row.getItem().switchActive());
+    ignoreTransaction.setOnAction(event -> extendedTransaction.switchActive());
     contextMenu.getItems().add(ignoreTransaction);
     return contextMenu;
   }

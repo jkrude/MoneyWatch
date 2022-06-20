@@ -8,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.TableRow;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -70,7 +69,7 @@ public class TransactionTablePopUp {
     }
 
     public Builder setContextMenu(
-        Callback<TableRow<ExtendedTransaction>, ContextMenu> menuGenerator) {
+        Callback<ExtendedTransaction, ContextMenu> menuGenerator) {
       this.ttp.ttvController.setContextMenu(menuGenerator);
       return this;
     }

@@ -48,6 +48,56 @@ public class TransactionTableView implements Initializable {
   @FXML protected TableColumn<ExtendedTransaction, String> info;
 
 
+  public static ContextMenu defaultContextMenu(ExtendedTransaction extendedTransaction) {
+    ContextMenu contextMenu = new ContextMenu();
+    MenuItem ignoreTransaction = new MenuItem();
+    ignoreTransaction.textProperty().bind(new SimpleStringProperty() {
+      @Override
+      public String get() {
+        return extendedTransaction.isActive() ? "Ignore" : "Activate";
+      }
+    });
+    ignoreTransaction.setOnAction(event -> extendedTransaction.switchActive());
+    contextMenu.getItems().add(ignoreTransaction);
+    return contextMenu;
+  }
+
+  // Control which columns should be shown initially.
+  public void setVisible(boolean isActive, TransactionField... fields) {
+    this.isActive.setVisible(isActive);
+    for (var field : TransactionField.values()) {
+      getColumn(field).setVisible(false);
+    }
+    for (var visible : fields) {
+      getColumn(visible).setVisible(true);
+    }
+  }
+
+  private Callback<
+      TableColumn<ExtendedTransaction, Money>,
+      TableCell<ExtendedTransaction, Money>>
+  getColoredCellFactory() {
+    // Set the color of the text depending on amount > 0 ?
+    return new Callback<>() {
+      @Override
+      public TableCell<ExtendedTransaction, Money> call(
+          TableColumn<ExtendedTransaction, Money> moneyTableColumn) {
+        return new ToolTippedTableCell<>() {
+          @Override
+          public void updateItem(Money money, boolean empty) {
+            super.updateItem(money, empty);
+            if (!empty) {
+              setText(money.toString());
+              setStyle("-fx-text-fill: " + (money.isPositive() ? "-fx-def-good" : "-fx-def-bad"));
+            } else {
+              setText(null);
+            }
+          }
+        };
+      }
+    };
+  }
+
   @Override
   public void initialize(URL url, ResourceBundle resourceBundle) {
     // Use all available space evenly across the columns
@@ -56,8 +106,8 @@ public class TransactionTableView implements Initializable {
 
     isActive.setCellValueFactory(callback -> {
       SimpleStringProperty stringProp = new SimpleStringProperty();
-          stringProp.bind(Bindings.when(callback.getValue().isActiveProperty()).then("Active")
-              .otherwise("Ignored"));
+      stringProp.bind(Bindings.when(callback.getValue().isActiveProperty()).then("Active")
+          .otherwise("Ignored"));
           return stringProp;
         }
     );
@@ -106,61 +156,8 @@ public class TransactionTableView implements Initializable {
 
     amount.setCellFactory(getColoredCellFactory());
 
-    table.setRowFactory(
-        extendedTransactionTableView -> {
-          final TableRow<ExtendedTransaction> row = new TableRow<>();
-          row.contextMenuProperty().bind(
-              Bindings.when(Bindings.isNotNull(row.itemProperty()))
-                  .then(TransactionTableView.defaultContextMenu(row))
-                  .otherwise((ContextMenu) null));
-          return row;
-        }
-    );
+    setDefaultContextMenu();
 
-  }
-
-  // Control which columns should be shown initially.
-  public void setVisible(boolean isActive, TransactionField... fields) {
-    this.isActive.setVisible(isActive);
-    for (var field : TransactionField.values()) {
-      getColumn(field).setVisible(false);
-    }
-    for (var visible : fields) {
-      getColumn(visible).setVisible(true);
-    }
-  }
-
-  private Callback<
-      TableColumn<ExtendedTransaction, Money>,
-      TableCell<ExtendedTransaction, Money>>
-  getColoredCellFactory() {
-    // Set the color of the text depending on amount > 0 ?
-    return new Callback<>() {
-      @Override
-      public TableCell<ExtendedTransaction, Money> call(
-          TableColumn<ExtendedTransaction, Money> moneyTableColumn) {
-        return new ToolTippedTableCell<>() {
-          @Override
-          public void updateItem(Money money, boolean empty) {
-            super.updateItem(money, empty);
-            if (!empty) {
-              setText(money.toString());
-              setStyle("-fx-text-fill: " + (money.isPositive() ? "-fx-def-good" : "-fx-def-bad"));
-            } else {
-              setText(null);
-            }
-          }
-        };
-      }
-    };
-  }
-
-  public static ContextMenu defaultContextMenu(TableRow<ExtendedTransaction> row) {
-    ContextMenu contextMenu = new ContextMenu();
-    MenuItem ignoreTransaction = new MenuItem("Ignore/Activate transaction");
-    ignoreTransaction.setOnAction(event -> row.getItem().switchActive());
-    contextMenu.getItems().add(ignoreTransaction);
-    return contextMenu;
   }
 
   public boolean getIsActiveColumnShown() {
@@ -171,15 +168,28 @@ public class TransactionTableView implements Initializable {
     this.isActive.visibleProperty().set(isActiveColumnShown);
   }
 
+  public void setDefaultContextMenu() {
+    setContextMenu(null);
+  }
+
   public void setContextMenu(
-      Callback<TableRow<ExtendedTransaction>, ContextMenu> contextMenuCallback) {
+      Callback<ExtendedTransaction, ContextMenu> contextMenuCallback) {
+
+    final Callback<ExtendedTransaction, ContextMenu> callback = contextMenuCallback == null ?
+        TransactionTableView::defaultContextMenu : contextMenuCallback;
+
     table.setRowFactory(
         extendedTransactionTableView -> {
           final TableRow<ExtendedTransaction> row = new TableRow<>();
-          row.contextMenuProperty().bind(
-              Bindings.when(Bindings.isNotNull(row.itemProperty()))
-                  .then(contextMenuCallback.call(row))
-                  .otherwise((ContextMenu) null));
+          // Because Bindings.when is stupid and will evaluate first expression even if expr is false
+          row.itemProperty().addListener((observableValue, oldVal, newVal) -> {
+            if (newVal != null) {
+              row.setContextMenu(
+                  callback.call(row.getItem()));
+            } else {
+              row.setContextMenu(null);
+            }
+          });
           return row;
         }
     );

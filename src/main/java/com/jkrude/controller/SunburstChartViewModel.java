@@ -3,7 +3,6 @@ package com.jkrude.controller;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.category.CategoryValueNode;
 import com.jkrude.category.CategoryValueTree;
-import com.jkrude.category.Rule;
 import com.jkrude.category.TreeNodeAdapter;
 import com.jkrude.material.Model;
 import com.jkrude.material.PropertyFilteredList;
@@ -17,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -161,10 +159,9 @@ public class SunburstChartViewModel implements ViewModel {
     return nameToDataMap.get(segmentName).getMatchedTransactions().getBaseList();
   }
 
-  public Stream<CategoryNode> collapsedCategories() {
-    return globalModel.getProfile().getRootCategory().streamCollapse();
+  public CategoryNode getRootCategory() {
+    return globalModel.getProfile().getRootCategory();
   }
-
 
   public List<TransactionContainer> getTransactionContainerList() {
     return globalModel.getTransactionContainerList();
@@ -180,14 +177,4 @@ public class SunburstChartViewModel implements ViewModel {
 
   }
 
-
-
-  public List<Rule> findMatchingRules(ExtendedTransaction transaction) {
-    return categoryValueTree.getRoot()
-        .stream()
-        .map(CategoryValueNode::getCategory)
-        .flatMap(category -> category.rulesRO().stream())
-        .filter(rule -> rule.getPredicate().test(transaction.getBaseTransaction()))
-        .collect(Collectors.toList());
-  }
 }
