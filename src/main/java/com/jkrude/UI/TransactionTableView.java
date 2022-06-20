@@ -1,10 +1,12 @@
 package com.jkrude.UI;
 
+
 import com.jkrude.material.Money;
 import com.jkrude.material.Utility;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction.TransactionField;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -20,7 +22,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 public class TransactionTableView implements Initializable {
@@ -94,6 +95,15 @@ public class TransactionTableView implements Initializable {
     info.setCellValueFactory(callback -> new SimpleStringProperty(
         callback.getValue().getBaseTransaction().getInfo()));
 
+    for (TableColumn<ExtendedTransaction, String> extendedTransactionStringTableColumn : Arrays.asList(
+        isActive, accountIban, transferDate, validationDate, transferSpecification, usage, creditorId,
+        mandateReference, customerReferenceRndToEnd, collectionReference, debitOriginalAmount, backDebit,
+        otherParty, iban, bic, info)) {
+      extendedTransactionStringTableColumn.setMinWidth(30);
+      extendedTransactionStringTableColumn.setCellFactory(ToolTippedTableCell.forTableColumn());
+    }
+    amount.setMinWidth(15);
+
     amount.setCellFactory(getColoredCellFactory());
 
     table.setRowFactory(
@@ -120,19 +130,22 @@ public class TransactionTableView implements Initializable {
     }
   }
 
-  private Callback<TableColumn<ExtendedTransaction, Money>, TableCell<ExtendedTransaction, Money>> getColoredCellFactory() {
+  private Callback<
+      TableColumn<ExtendedTransaction, Money>,
+      TableCell<ExtendedTransaction, Money>>
+  getColoredCellFactory() {
     // Set the color of the text depending on amount > 0 ?
     return new Callback<>() {
       @Override
       public TableCell<ExtendedTransaction, Money> call(
           TableColumn<ExtendedTransaction, Money> moneyTableColumn) {
-        return new TableCell<>() {
+        return new ToolTippedTableCell<>() {
           @Override
-          protected void updateItem(Money money, boolean empty) {
+          public void updateItem(Money money, boolean empty) {
             super.updateItem(money, empty);
             if (!empty) {
               setText(money.toString());
-              setTextFill(money.isPositive() ? Color.GREEN : Color.RED);
+              setStyle("-fx-text-fill: " + (money.isPositive() ? "-fx-def-good" : "-fx-def-bad"));
             } else {
               setText(null);
             }

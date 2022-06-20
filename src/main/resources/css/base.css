@@ -13,6 +13,8 @@
   -fx-def-elevated-dark: #363740;
   -fx-def-primary: #00aea4;
   -fx-def-secondary: #24b981;
+  -fx-def-good: #a5d6a7;
+  -fx-def-bad: #e57373;
 
   -fx-background-color: -fx-def-background;
   -fx-focus-color: transparent;
