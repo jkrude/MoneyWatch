@@ -140,7 +140,7 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
 
   private void openRuleDialogAndSave(Transaction baseTransaction, CategoryNode categoryNode) {
     new RuleDialog.Builder()
-        .editRule(baseTransaction.getAsMap())
+        .basedOnTransaction(baseTransaction.getAsMap())
         .showAndWait()
         .ifPresent(categoryNode::addRule);
   }

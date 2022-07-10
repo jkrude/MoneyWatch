@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import com.jkrude.category.Rule;
+import com.jkrude.category.Rule.RuleBuilder.RuleBuilderWithRule;
 import com.jkrude.transaction.Transaction.TransactionField;
 import java.net.URL;
 import java.text.ParseException;
@@ -130,7 +131,7 @@ public class RuleDialog implements Initializable {
     errorDelay.playFromStart();
   }
 
-  private void fillGridFromRule(Map<TransactionField, String> idMap) {
+  private void fillGridFromMap(Map<TransactionField, String> idMap) {
     idMap.forEach((key, value) -> getTextField(key).setText(value));
   }
 
@@ -226,7 +227,11 @@ public class RuleDialog implements Initializable {
     String extraNote = noteArea.getText();
 
     try {
-      this.generatedRule = Rule.RuleBuilder.fromMap(generatingMap).addNote(extraNote).build();
+      RuleBuilderWithRule builder = Rule.RuleBuilder.fromMap(generatingMap);
+      if (!extraNote.isBlank()) {
+        builder.addNote(extraNote);
+      }
+      this.generatedRule = builder.build();
       return true;
     } catch (ParseException e) {
       showError("An entry did not match its format");
@@ -258,13 +263,16 @@ public class RuleDialog implements Initializable {
       controller.applyBtn.setOnAction(action -> stage.close());
     }
 
-    public Builder editRule(Map<TransactionField, String> idMap) {
-      controller.fillGridFromRule(idMap);
+    public Builder basedOnTransaction(Map<TransactionField, String> idMap) {
+      controller.fillGridFromMap(idMap);
       return this;
     }
 
     public Builder editRule(Rule rule) {
-      return editRule(rule.getIdentifierPairs());
+      controller.fillGridFromMap(rule.getIdentifierPairs());
+      rule.getNote().ifPresent((note) ->
+          controller.noteArea.setText(note));
+      return this;
     }
 
     public Builder initiallySelected(TransactionField... selected) {
