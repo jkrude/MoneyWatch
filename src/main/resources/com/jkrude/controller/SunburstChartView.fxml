@@ -33,7 +33,7 @@
                   text="Data selection" BorderPane.alignment="CENTER"/>
               </right>
             </JFXToolbar>
-            <fx:include source="../UI/TransactionTabs.fxml" VBox.vgrow="ALWAYS"/>
+            <fx:include VBox.vgrow="ALWAYS" source="../UI/TransactionTabs.fxml" fx:id="transactionTabs"/>
           </children>
           <padding>
             <Insets left="16.0"/>

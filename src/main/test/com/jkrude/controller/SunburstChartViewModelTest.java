@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,6 +123,10 @@ public class SunburstChartViewModelTest extends ApplicationTest {
     assertTrue(viewModel.hasActiveDataProperty());
   }
 
+  private ObservableList<ExtendedTransaction> getTransactionsForSegment(String name) {
+    return viewModel.getTransactionsForSegment(name).listProperty.get();
+  }
+
   @Test
   public void getTransactionsForSegmentTest() {
     // TODO getAdaptedRoot() has to be called to fill nameToDataMap.
@@ -132,7 +137,7 @@ public class SunburstChartViewModelTest extends ApplicationTest {
         .observableArrayList(transactions.getSourceRO().stream().filter(
             et -> !et.getBaseTransaction().isPositive() && !matchedTransactions.contains(et)
         ).collect(Collectors.toList()));
-    assertEquals(undefinedTransactions, viewModel.getTransactionsForSegment(undefined));
+    assertEquals(undefinedTransactions, getTransactionsForSegment(SunburstChartViewModel.UNDEFINED_SEGMENT));
 
     var categoryNode = rootCategory.streamCollapse()
         .filter(category -> category.getName().equals("Rent")).findFirst().orElseThrow();
@@ -143,12 +148,12 @@ public class SunburstChartViewModelTest extends ApplicationTest {
             )).collect(Collectors.toList());
 
     assertEquals(FXCollections.observableArrayList(matchedTransactionsForCategory),
-        viewModel.getTransactionsForSegment("Rent"));
+        getTransactionsForSegment("Rent"));
 
     // Test ignored transaction still matching.
     matchedTransactionsForCategory.get(0).setIsActive(false);
     assertEquals(FXCollections.observableArrayList(matchedTransactionsForCategory),
-        viewModel.getTransactionsForSegment("Rent"));
+        getTransactionsForSegment("Rent"));
   }
 
   private int[] preInvalidationTest() {
@@ -197,7 +202,7 @@ public class SunburstChartViewModelTest extends ApplicationTest {
     getAdaptedRootTest();
     // Model should invalidate if any matched transaction ist set inactive.
     var counter = preInvalidationTest();
-    var matchedTransactions = viewModel.getTransactionsForSegment("Rent");
+    var matchedTransactions = getTransactionsForSegment("Rent");
     assertFalse(matchedTransactions.isEmpty());
     matchedTransactions.stream()
         .filter(ExtendedTransaction::isActive)
@@ -213,8 +218,7 @@ public class SunburstChartViewModelTest extends ApplicationTest {
     getAdaptedRootTest();
     // Model should invalidate even if an unmatched transaction ist set inactive.
     var counter = preInvalidationTest();
-    var undefinedTransactions = viewModel
-        .getTransactionsForSegment(SunburstChartViewModel.UNDEFINED_SEGMENT);
+    var undefinedTransactions = getTransactionsForSegment(SunburstChartViewModel.UNDEFINED_SEGMENT);
     assertFalse(undefinedTransactions.isEmpty()); // Extra-Transaction should be in undefined.
     undefinedTransactions.stream()
         .filter(ExtendedTransaction::isActive)

@@ -4,7 +4,7 @@
 <?import com.jfoenix.controls.JFXTabPane?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Tab?>
-<JFXTabPane prefHeight="-Infinity" minWidth="500.0" minHeight="600"
+<JFXTabPane minHeight="600" minWidth="500.0" prefHeight="-Infinity" fx:id="tabPane"
   xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="com.jkrude.UI.TransactionTabs">
   <stylesheets>
@@ -15,5 +15,8 @@
   </Tab>
   <Tab closable="false" text="Ignored Transactions">
     <fx:include fx:id="ttvIgnored" source="TransactionTableView.fxml"/>
+  </Tab>
+  <Tab text="Selected" fx:id="selectedTab">
+    <fx:include source="TransactionTableView.fxml" fx:id="ttvSelected"/>
   </Tab>
 </JFXTabPane>

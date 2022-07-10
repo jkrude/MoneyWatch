@@ -105,9 +105,9 @@ public class TransactionTableView implements Initializable {
     table.setPlaceholder(new Label("No Transactions matching."));
 
     isActive.setCellValueFactory(callback -> {
-      SimpleStringProperty stringProp = new SimpleStringProperty();
-      stringProp.bind(Bindings.when(callback.getValue().isActiveProperty()).then("Active")
-          .otherwise("Ignored"));
+          SimpleStringProperty stringProp = new SimpleStringProperty();
+          stringProp.bind(Bindings.when(callback.getValue().isActiveProperty()).then("Active")
+              .otherwise("Ignored"));
           return stringProp;
         }
     );
@@ -169,26 +169,23 @@ public class TransactionTableView implements Initializable {
   }
 
   public void setDefaultContextMenu() {
-    setContextMenu(null);
+    setContextMenu(TransactionTableView::defaultContextMenu);
   }
 
   public void setContextMenu(
       Callback<ExtendedTransaction, ContextMenu> contextMenuCallback) {
-
-    final Callback<ExtendedTransaction, ContextMenu> callback = contextMenuCallback == null ?
-        TransactionTableView::defaultContextMenu : contextMenuCallback;
-
     table.setRowFactory(
         extendedTransactionTableView -> {
           final TableRow<ExtendedTransaction> row = new TableRow<>();
-          // Because Bindings.when is stupid and will evaluate first expression even if expr is false
-          row.itemProperty().addListener((observableValue, oldVal, newVal) -> {
-            if (newVal != null) {
-              row.setContextMenu(
-                  callback.call(row.getItem()));
-            } else {
-              row.setContextMenu(null);
+          // Because Bindings.when is stupid and will evaluate first option even if condition is false
+          row.setOnContextMenuRequested(contextMenuEvent -> {
+            if (row.getItem() == null) {
+              return;
             }
+            contextMenuCallback.call(row.getItem()).show( // Show context menu at current mouse.
+                row,
+                contextMenuEvent.getScreenX(),
+                contextMenuEvent.getScreenY());
           });
           return row;
         }

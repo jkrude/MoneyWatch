@@ -2,6 +2,8 @@ package com.jkrude.controller;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
+import com.jkrude.material.ActiveTransactionsList;
+import com.jkrude.material.AllValidObservable;
 import com.jkrude.material.Model;
 import com.jkrude.material.PropertyFilteredList;
 import com.jkrude.material.Utility;
@@ -207,10 +209,14 @@ public class TimeLineViewModel implements ViewModel {
     return accumulatedDateMap;
   }
 
-  public PropertyFilteredList<ExtendedTransaction> getTransactionsForDate(
+  // Transactions for this data-point and an indicator when it is invalidated.
+  public ActiveTransactionsList getActiveTransactionsListForDate(
       Data<Number, Number> dataPoint) {
     LocalDate asLocalDate = LocalDate.ofEpochDay(dataPoint.getXValue().longValue());
-    return accumulatedDateMap.get(asLocalDate);
+    Observable dataIsValid = new AllValidObservable(
+        globalModel.activeDataProperty(),
+        selectedTickRateProperty());
+    return new ActiveTransactionsList(dataIsValid, accumulatedDateMap.get(asLocalDate));
   }
 
   public void bindChartIsVisibleProperty(BooleanProperty chartIsVisible) {

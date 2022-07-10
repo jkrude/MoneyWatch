@@ -3,10 +3,9 @@ package com.jkrude.controller;
 import com.jfoenix.controls.JFXComboBox;
 import com.jkrude.UI.AlertBox.AlertBuilder;
 import com.jkrude.UI.SourceChoiceDialog;
-import com.jkrude.UI.TransactionTablePopUp;
+import com.jkrude.UI.TransactionTabs;
 import com.jkrude.controller.TimeLineViewModel.TickRate;
 import com.jkrude.material.Utility;
-import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.TransactionContainer;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
@@ -15,7 +14,6 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -25,8 +23,6 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
@@ -36,6 +32,8 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
   @FXML private LineChart<Number, Number> lineChart;
   @FXML private JFXComboBox<TickRate> tickRateChoiceBox;
   @FXML private NumberAxis xAxis;
+
+  @FXML private TransactionTabs transactionTabsController;
 
   private boolean tickRateManualChange;
 
@@ -121,23 +119,17 @@ public class TimeLineView implements FxmlView<TimeLineViewModel>, Initializable,
     dataPoint.getNode().setOnMouseClicked(
         event -> {
           if (event.getButton() == MouseButton.PRIMARY) {
-            TransactionTablePopUp.Builder.initBind(
-                new ReadOnlyObjectWrapper<>(
-                    viewModel.getTransactionsForDate(dataPoint).getBaseList()))
-                .setContextMenu(this::contextMenuGenerator)
-                .setTitle(LocalDate.ofEpochDay(dataPoint.getXValue().longValue()).format(Utility.DATE_TIME_FORMATTER))
-                .showAndWait();
+            openInTab(dataPoint);
           }
         });
   }
 
-  private ContextMenu contextMenuGenerator(ExtendedTransaction extendedTransaction) {
-    // Context menu for the table pop up.
-    ContextMenu contextMenu = new ContextMenu();
-    MenuItem ignoreTransaction = new MenuItem("Ignore/Activate transaction");
-    ignoreTransaction.setOnAction(event -> extendedTransaction.switchActive());
-    contextMenu.getItems().add(ignoreTransaction);
-    return contextMenu;
+  // Show currently selected day/week/month in separate tab  but close if data or tick-rate changes.
+  private void openInTab(Data<Number, Number> dataPoint) {
+    transactionTabsController.setSelectedTab(
+        LocalDate.ofEpochDay(dataPoint.getXValue().longValue()).format(Utility.DATE_TIME_FORMATTER),
+        viewModel.getActiveTransactionsListForDate(dataPoint)
+    );
   }
 
   private void setToolTip(Data<Number, Number> dataPoint) {

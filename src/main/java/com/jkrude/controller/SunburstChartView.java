@@ -4,8 +4,8 @@ import static com.jkrude.controller.SunburstChartViewModel.UNDEFINED_SEGMENT;
 
 import com.jkrude.UI.RuleDialog;
 import com.jkrude.UI.SourceChoiceDialog;
-import com.jkrude.UI.TransactionTablePopUp;
 import com.jkrude.UI.TransactionTableView;
+import com.jkrude.UI.TransactionTabs;
 import com.jkrude.category.CategoryNode;
 import com.jkrude.transaction.ExtendedTransaction;
 import com.jkrude.transaction.Transaction;
@@ -20,8 +20,6 @@ import eu.hansolo.fx.charts.event.TreeNodeEventListener;
 import eu.hansolo.fx.charts.event.TreeNodeEventType;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ContextMenu;
@@ -31,8 +29,7 @@ import javafx.scene.control.MenuItem;
 public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Initializable,
     Prepareable {
 
-  @FXML private TransactionTableView ttvIgnoredController;
-  @FXML private TransactionTableView ttvAllController;
+  @FXML private TransactionTabs transactionTabsController;
   @FXML private SunburstChart<ChartItem> chart;
 
   @InjectViewModel
@@ -76,12 +73,22 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
   private void applyNodeListener(TreeNode<ChartItem> node) {
     node.setOnTreeNodeEvent(new TreeNodeEventListener<>() {
       @Override
-      public void onTreeNodeEvent(TreeNodeEvent EVENT) {
+      public void onTreeNodeEvent(TreeNodeEvent<ChartItem> EVENT) {
         if (EVENT.getType() == TreeNodeEventType.NODE_SELECTED) {
-          openTablePopUp(EVENT.getSource().getItem().getName());
+          openInTab(EVENT.getSource().getItem().getName());
         }
       }
     });
+  }
+
+  // Open transactions of the category in separate tab.
+  private void openInTab(String categoryName) {
+    var transactions = viewModel.getTransactionsForSegment(categoryName);
+    if (categoryName.equals(UNDEFINED_SEGMENT)) {
+      transactionTabsController.setSelectedTab(categoryName, transactions, this::undefinedContextMenu);
+    } else {
+      transactionTabsController.setSelectedTab(categoryName, transactions);
+    }
   }
 
   @FXML
@@ -98,19 +105,6 @@ public class SunburstChartView implements FxmlView<SunburstChartViewModel>, Init
 
   private void drawChart() {
     chart.setTree(adaptedRoot);
-  }
-
-  private void openTablePopUp(String categoryName) {
-
-    ObservableList<ExtendedTransaction> transactions = viewModel
-        .getTransactionsForSegment(categoryName);
-    var builder = TransactionTablePopUp.Builder.initBind(
-            new ReadOnlyObjectWrapper<>(transactions))
-        .setTitle(categoryName);
-    if (categoryName.equals(UNDEFINED_SEGMENT)) {
-      builder.setContextMenu(this::undefinedContextMenu);
-    }
-    builder.showAndWait();
   }
 
 

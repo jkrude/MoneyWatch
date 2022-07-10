@@ -4,6 +4,7 @@ import com.jkrude.category.CategoryNode;
 import com.jkrude.category.CategoryValueNode;
 import com.jkrude.category.CategoryValueTree;
 import com.jkrude.category.TreeNodeAdapter;
+import com.jkrude.material.ActiveTransactionsList;
 import com.jkrude.material.Model;
 import com.jkrude.material.PropertyFilteredList;
 import com.jkrude.material.Utility;
@@ -148,15 +149,17 @@ public class SunburstChartViewModel implements ViewModel {
     return globalModel.activeDataProperty().isNotNull().get();
   }
 
-  public ObservableList<ExtendedTransaction> getTransactionsForSegment(String segmentName) {
+  // Find relevant transactions for segment and return additional indicator when data gets invalid.
+  public ActiveTransactionsList getTransactionsForSegment(String segmentName) {
+    ObservableList<ExtendedTransaction> transactions;
     if (segmentName.equals(UNDEFINED_SEGMENT)) {
-      return Utility.bindList2Set(categoryValueTree.getUnmatchedTransactions());
-
-    }
-    if (!nameToDataMap.containsKey(segmentName)) {
+      transactions = Utility.bindList2Set(categoryValueTree.getUnmatchedTransactions());
+    } else if (!nameToDataMap.containsKey(segmentName)) {
       throw new IllegalArgumentException("Segment does not exist");
+    } else {
+      transactions = nameToDataMap.get(segmentName).getMatchedTransactions().getBaseList();
     }
-    return nameToDataMap.get(segmentName).getMatchedTransactions().getBaseList();
+    return new ActiveTransactionsList(globalModel.activeDataProperty(), transactions);
   }
 
   public CategoryNode getRootCategory() {
