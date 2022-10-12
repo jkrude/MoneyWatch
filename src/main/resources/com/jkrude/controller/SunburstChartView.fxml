@@ -19,7 +19,7 @@
     <SplitPane dividerPositions="0.67" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <items>
-        <SunburstChart fx:id="chart" autoTextColor="false" backgroundColor="#32333d" decimals="2"
+        <SunburstChart autoTextColor="false" backgroundColor="#32333d" decimals="2" textColor="161616" fx:id="chart"
           interactive="true" minWidth="600.0" textOrientation="HORIZONTAL" visibleData="NAME">
           <padding>
             <Insets right="32.0"/>

@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXDialogLayout;
 import java.util.Optional;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -72,6 +73,17 @@ public class ColorPickerDialog {
 
 
   public Optional<Color> showAndWait() {
+    // Close on ESC and confirm on Enter
+    stage.getScene().setOnKeyReleased(keyEvent -> {
+      if (keyEvent.getCode() == KeyCode.ENTER) {
+        color = picker.getValue();
+      }
+    });
+    stage.getScene().setOnKeyReleased(keyEvent -> {
+      if (keyEvent.getCode() == KeyCode.ESCAPE) {
+        stage.close();
+      }
+    });
     stage.showAndWait();
     return Optional.ofNullable(color);
   }

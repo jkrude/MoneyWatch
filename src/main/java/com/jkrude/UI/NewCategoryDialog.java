@@ -10,6 +10,7 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -48,6 +49,19 @@ public class NewCategoryDialog implements Initializable {
       stage.close();
     });
     controller.cancelBtn.setOnAction(action -> stage.close());
+
+    // Close on ESC and confirm on Enter
+    controller.inputField.setOnKeyReleased(keyEvent -> {
+      if (keyEvent.getCode() == KeyCode.ENTER) {
+        controller.wasApplied = true;
+        stage.close();
+      }
+    });
+    stage.getScene().setOnKeyReleased(keyEvent -> {
+      if (keyEvent.getCode() == KeyCode.ESCAPE) {
+        stage.close();
+      }
+    });
 
     stage.showAndWait();
 

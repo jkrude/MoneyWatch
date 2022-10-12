@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 public class TextInputDialog {
@@ -56,6 +57,17 @@ public class TextInputDialog {
       textInputDialog.header.setText(title);
       textInputDialog.applyBtn.setOnAction(action -> textInputDialog.onApply(stage));
       textInputDialog.cancelBtn.setOnAction(actionEvent -> textInputDialog.onCancel(stage));
+      // Close on ESC and confirm on Enter
+      textInputDialog.inputField.setOnKeyReleased(keyEvent -> {
+        if (keyEvent.getCode() == KeyCode.ENTER) {
+          textInputDialog.onApply(stage);
+        }
+      });
+      stage.getScene().setOnKeyReleased(keyEvent -> {
+        if (keyEvent.getCode() == KeyCode.ESCAPE) {
+          textInputDialog.onCancel(stage);
+        }
+      });
     }
 
     public Builder setHint(String hint) {
