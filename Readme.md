@@ -1,5 +1,6 @@
 # MoneyWatch
 This project came into existence as most German banks do not offer any form of proper reasoning or visualization of your own financial data. Sadly, due to EU regulations (PDP2) it is difficult for individual developers to directly access financial data. Therefore, you have to import your data manually (download as CMT format) and most banks have their own format.
+Obvious financial data is especially sensible, therefore no data is collected at all.
 
 #### Currently possible
 - Categorize your transactions
@@ -20,6 +21,8 @@ JFoenix is heavily used which needs some extra permissions as of Java9, they are
 3. Login to your Sparkasse account → Go to "Umseatze" and click on export (Excel(CSV-CMT))
 
 If you use IntelliJ, you may need to mark the *java* folder as project root or right-click on `pom.xml` and import as maven project.
+
+Note due to privacy-sensitive information some files were removed from the history which was rewritten in the process. Therefore only the master branch exists anymore and old git-states may not work anymore.
 
 #### Screenshots
 <img src="https://user-images.githubusercontent.com/36801164/195415725-41a9e0a3-c338-47ed-96d6-c3b0f1fea158.png" width=750>
