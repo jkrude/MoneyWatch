@@ -1,0 +1,108 @@
+{
+  "categories": [
+    {
+      "parent": "null",
+      "color": "0xff1493ff",
+      "name": "debits",
+      "rules": []
+    },
+    {
+      "parent": "debits",
+      "color": "0x99b3ffff",
+      "name": "Joy",
+      "rules": []
+    },
+    {
+      "parent": "Joy",
+      "color": "0x6680e6ff",
+      "name": "Cinema",
+      "rules": [
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "Cinema",
+              "key": "Beguenstigter/Zahlungspflichtiger"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "parent": "Joy",
+      "color": "0xb399ffff",
+      "name": "Travel",
+      "rules": [
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "FLIXBUS",
+              "key": "Verwendungszweck"
+            },
+            {
+              "value": "PayPal",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            }
+          ]
+        },
+        {
+          "note": "",
+          "ids": [
+            {
+              "value": "Public transport",
+              "key": "Verwendungszweck"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "parent": "debits",
+      "color": "0xffcc99ff",
+      "name": "Necessaries",
+      "rules": []
+    },
+    {
+      "parent": "Necessaries",
+      "color": "0xffb366ff",
+      "name": "Food",
+      "rules": [
+        {
+          "note": "Discounter",
+          "ids": [
+            {
+              "value": "DE43500105171223732312",
+              "key": "Kontonummer\/IBAN"
+            }
+          ]
+        },
+        {
+          "note": "Backery",
+          "ids": [
+            {
+              "value": "DE55500105179467748128",
+              "key": "Kontonummer\/IBAN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "parent": "Necessaries",
+      "color": "0xff9980ff",
+      "name": "Rent",
+      "rules": [
+        {
+          "note": "Rent",
+          "ids": [
+            {
+              "value": "Max Mustermann",
+              "key": "Beguenstigter\/Zahlungspflichtiger"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
